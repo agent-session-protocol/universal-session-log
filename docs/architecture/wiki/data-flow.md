@@ -1,6 +1,6 @@
 ---
 sources:
-  - packages/usl-convert/src/cli.ts 8f3801f3160e importCodexSessionFile exportCodexSession
+  - packages/usl-convert/src/cli.ts 58905c2df914 importCodexSessionFile exportCodexSession
   - crates/usl-capture/src/follow.rs ff0d8312aa29 FileFollower poll
   - crates/usl-core/src/store.rs ee1cbe611338 append flush
 ---
