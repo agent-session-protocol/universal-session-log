@@ -1,6 +1,6 @@
 ---
 generated: npx -y knip@5 --reporter json (TS) ; cargo build (Rust dead_code 告警)
-generated-at: ff066591267cc8e96121fe5a41072092a7cde145
+generated-at: 15e03c1ae0c905e5d9f4a4488654cd88d387b4df
 ---
 
 # 体检报告
@@ -12,7 +12,7 @@ generated-at: ff066591267cc8e96121fe5a41072092a7cde145
 
 ### 疑似（未使用导出，需人工确认）
 
-knip 报 17 个未使用导出（`deadExports`）：`digestOf`、`importedCapabilities` 两个函数 + 15 个类型接口（`DimagentImportResult`、`BuildSnapshotInput`、`PiExportResult`、`ClaudeImportResult`、`CodexExportResult` 等）。这些是库的对外 API 面——cli.ts 只 import 函数、测试只 import 部分，类型接口供外部消费者使用，非真死代码，暂保留。
+knip 报 40 个未使用导出（`deadExports`），其中约 23 个来自 vendored 的 ASP schema（`src/asp-schema/` 的公开 API 面，是规范不是应用代码），其余 ~17 个是库的对外类型接口（`DimagentImportResult`、`BuildSnapshotInput`、`PiExportResult`、`ClaudeImportResult`、`CodexExportResult` 等）+ 两个工具函数（`digestOf`、`importedCapabilities`）。这些是 API 面，非真死代码，暂保留。
 
 ## 循环依赖
 
