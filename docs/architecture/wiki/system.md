@@ -2,7 +2,7 @@
 sources:
   - crates/usl-core/src/lib.rs 2f9d518caa24 SessionId Store Record
   - crates/usl-capture/src/lib.rs c353c76cdf5a CaptureSession Framer FileFollower
-  - packages/usl-convert/src/bundle.ts 90529e25aa78 SessionBundle makeBundle
+  - packages/usl-convert/src/bundle.ts 3a6825ea95df SessionBundle makeBundle
 ---
 
 # 系统总览

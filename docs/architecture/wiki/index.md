@@ -1,5 +1,5 @@
 ---
-baseline: 50dc4e3d58fbcccfd61f99d10569193b35263880
+baseline: ff066591267cc8e96121fe5a41072092a7cde145
 exclude:
   - Cargo.toml
   - LICENSE
