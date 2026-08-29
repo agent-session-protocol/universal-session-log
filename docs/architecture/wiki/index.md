@@ -4,6 +4,7 @@ exclude:
   - Cargo.toml
   - LICENSE
   - README.md
+  - README.zh-CN.md
   - package.json
   - docs/research/
 ---
