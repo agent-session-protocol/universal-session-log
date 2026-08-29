@@ -2,7 +2,7 @@
   "name": "usl-convert",
   "version": "0.1.0",
   "private": true,
-  "description": "Cross-harness agent session conversion (ASP reference): pi <-> dimagent <-> claude <-> codex via the e-session-bundle",
+  "description": "Cross-harness agent session conversion (ASP reference): pi <-> dimagent <-> claude <-> codex via the asp-bundle",
   "type": "module",
   "exports": { ".": "./src/bundle.ts" },
   "scripts": {

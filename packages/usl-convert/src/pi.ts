@@ -11,7 +11,7 @@ import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.t
 import { buildSnapshot } from "./materialize.ts";
 
 /**
- * pi session file <-> e-session-bundle.
+ * pi session file <-> asp-bundle.
  *
  * pi stores sessions as JSONL under
  *   ~/.pi/agent/sessions/<cwd-with-dashes>/<ISO-ts>_<uuid>.jsonl
@@ -201,7 +201,7 @@ export function importPiSessionFile(path: string): PiImportResult {
 }
 
 // ---------------------------------------------------------------------------
-// Exporter: e-session-bundle -> pi session JSONL
+// Exporter: asp-bundle -> pi session JSONL
 // ---------------------------------------------------------------------------
 
 function canonicalBlocksToPi(content: readonly ContentBlock[] | string): unknown[] {

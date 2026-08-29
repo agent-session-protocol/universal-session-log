@@ -21,7 +21,7 @@ function stripPivot(bundle: SessionBundle) {
 test("pi -> dimagent -> pi preserves messages and tool chain", () => {
   const piBundle = importPiSession(PI_FIXTURE).bundle;
   const rows = exportDimagentSession(piBundle, { sessionId: "sess_x_1" });
-  const dir = mkdtempSync(join(tmpdir(), "e-session-convert-cross-"));
+  const dir = mkdtempSync(join(tmpdir(), "usl-convert-cross-"));
   const scratch = join(dir, "dim.sqlite");
   buildScratchDb(scratch);
   writeDimagentSession(scratch, rows);
@@ -44,7 +44,7 @@ test("dimagent -> pi -> dimagent preserves messages and tool chain (declared los
     const { jsonl, loss } = exportPiSession(dimBundle);
     const piBundle = importPiSession(jsonl).bundle;
     const rows = exportDimagentSession(piBundle, { sessionId: "sess_y_1" });
-    const dir = mkdtempSync(join(tmpdir(), "e-session-convert-cross2-"));
+    const dir = mkdtempSync(join(tmpdir(), "usl-convert-cross2-"));
     const scratch = join(dir, "dim.sqlite");
     buildScratchDb(scratch);
     writeDimagentSession(scratch, rows);

@@ -6,7 +6,7 @@ import {
 } from "./asp-schema/agent-session-contracts.ts";
 
 /**
- * e-session-bundle — the intermediate format for cross-harness session handoff.
+ * asp-bundle — the intermediate format for cross-harness session handoff.
  *
  * Storage model (per design decision): copy-on-write. Importers never mutate
  * the source session log; every conversion writes a new immutable bundle.
@@ -19,7 +19,7 @@ import {
  * converter dropped or degraded and why.
  */
 
-export const SESSION_BUNDLE_FORMAT = "e-session-bundle" as const;
+export const SESSION_BUNDLE_FORMAT = "asp-bundle" as const;
 export const SESSION_BUNDLE_VERSION = 1 as const;
 export const HARNESSES = ["pi", "dimagent", "claude", "codex"] as const;
 export type Harness = (typeof HARNESSES)[number];

@@ -11,7 +11,7 @@ import {
  *
  * Every imported event is marked:
  *   - layer: "L1" (it is a first-hand recording of what the harness did)
- *   - adapter: "e-session-convert" (distinct from live e-pi-adapter ingest)
+ *   - adapter: "usl-convert" (distinct from live e-pi-adapter ingest)
  *   - authenticated: false (a static log is not verified against a live daemon)
  *   - authority: "authoritative", confidence: 1 (the log is the source of truth
  *     about its own session, but only for read/archive purposes)
@@ -58,7 +58,7 @@ export class EvidenceBuilder {
       sessionId,
       source: {
         layer: "L1",
-        adapter: "e-session-convert",
+        adapter: "usl-convert",
         authenticated: false,
         generation,
         ...(options.nativeEventId === undefined ? {} : { nativeEventId: options.nativeEventId }),

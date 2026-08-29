@@ -12,7 +12,7 @@ import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.t
 import { buildSnapshot } from "./materialize.ts";
 
 /**
- * Codex CLI rollout file -> e-session-bundle.
+ * Codex CLI rollout file -> asp-bundle.
  *
  * Codex stores sessions as JSONL under
  *   ~/.codex/sessions/YYYY/MM/DD/rollout-<ts>-<uuid>.jsonl
@@ -242,7 +242,7 @@ export function importCodexSessionFile(path: string): CodexImportResult {
 }
 
 // ---------------------------------------------------------------------------
-// Exporter: e-session-bundle -> codex rollout JSONL
+// Exporter: asp-bundle -> codex rollout JSONL
 // ---------------------------------------------------------------------------
 
 const EXPORTABLE_HARNESSES = ["pi", "dimagent", "claude", "codex"] as const;

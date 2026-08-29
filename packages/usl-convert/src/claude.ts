@@ -9,7 +9,7 @@ import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.t
 import { buildSnapshot } from "./materialize.ts";
 
 /**
- * Claude Code session file -> e-session-bundle.
+ * Claude Code session file -> asp-bundle.
  *
  * Claude Code stores sessions as JSONL under
  *   ~/.claude/projects/<cwd-with-dashes>/<session-uuid>.jsonl

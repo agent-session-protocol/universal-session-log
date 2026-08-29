@@ -13,7 +13,7 @@ import { EvidenceBuilder, importSourceFor } from "./evidence.ts";
 import { buildSnapshot } from "./materialize.ts";
 
 /**
- * dimagent session <-> e-session-bundle.
+ * dimagent session <-> asp-bundle.
  *
  * dimagent stores sessions in ~/.dimcode/v2/dimcode.sqlite (WAL mode):
  *   sessions(sessionId, cwd, title, status, createdAt, updatedAt, version)
@@ -42,7 +42,7 @@ interface DimMessageRow {
 
 /** Open a WAL-safe read-only view of a live sqlite DB by copying db+wal+shm. */
 function openDbCopy(dbPath: string): { db: DatabaseSync; cleanup: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), "e-session-convert-"));
+  const dir = mkdtempSync(join(tmpdir(), "usl-convert-"));
   const copy = join(dir, "db.sqlite");
   copyFileSync(dbPath, copy);
   for (const suffix of ["-wal", "-shm"]) {
@@ -246,7 +246,7 @@ export function importDimagentSession(dbPath: string, sessionId: string, options
 }
 
 // ---------------------------------------------------------------------------
-// Exporter: e-session-bundle -> dimagent session/messages rows
+// Exporter: asp-bundle -> dimagent session/messages rows
 // ---------------------------------------------------------------------------
 
 export interface DimagentSessionRow {

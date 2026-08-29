@@ -38,7 +38,7 @@ test("pi import builds the canonical snapshot", () => {
   assert.equal(bundle.evidence.some(e => e.type === "unknown.observed" && String((e.payload as { nativeType?: unknown }).nativeType).startsWith("model_change")), true);
   assert.equal(bundle.evidence.some(e => e.type === "unknown.observed" && String((e.payload as { nativeType?: unknown }).nativeType).startsWith("custom:")), true);
   // provenance: unauthenticated static import
-  assert.ok(bundle.evidence.every(e => e.source.adapter === "e-session-convert" && e.source.authenticated === false));
+  assert.ok(bundle.evidence.every(e => e.source.adapter === "usl-convert" && e.source.authenticated === false));
   assert.equal(bundle.fidelity.some(f => f.axis === "run-boundaries" && f.level === "partial"), true);
 });
 

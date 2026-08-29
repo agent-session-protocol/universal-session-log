@@ -1,7 +1,7 @@
 # usl-convert
 
 Cross-harness agent session log conversion: **pi ↔ dimagent**, plus **claude** and **codex**
-importers (ASP reference implementation), via a neutral intermediate format called **e-session-bundle**.
+importers (ASP reference implementation), via a neutral intermediate format called **asp-bundle**.
 
 ```
 pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex rollout JSONL
@@ -9,7 +9,7 @@ pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex
         \                     /                           \                    /
       import pi          import dimagent             import claude       import codex
           \                 /                             \                  /
-           e-session-bundle.json   <- canonical pivot + evidence + fidelity report
+           asp-bundle.json   <- canonical pivot + evidence + fidelity report
           /                 \
       export pi          export dimagent          (claude/codex bundles also export via pi)
         /                     \
@@ -41,11 +41,11 @@ pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex
 
 ## Format
 
-`e-session-bundle` v1 is a single JSON file:
+`asp-bundle` v1 is a single JSON file:
 
 ```jsonc
 {
-  "format": "e-session-bundle",
+  "format": "asp-bundle",
   "version": 1,
   "createdAt": "ISO-8601",
   "native": { "harness": "pi" | "dimagent", "sessionId": "...", "sourcePath": "...", "sourceSha256": "..." },
@@ -92,23 +92,23 @@ cd packages/usl-convert && npm install
 node --import tsx src/cli.ts dimagent-list ~/.dimcode/v2/dimcode.sqlite
 
 # import into the intermediate format
-node --import tsx src/cli.ts import pi ~/.pi/agent/sessions/<dir>/<file>.jsonl --out a.e-session.json
-node --import tsx src/cli.ts import dimagent ~/.dimcode/v2/dimcode.sqlite --session <sessionId> --out b.e-session.json
-node --import tsx src/cli.ts import claude ~/.claude/projects/<dir>/<uuid>.jsonl --out c.e-session.json
-node --import tsx src/cli.ts import codex ~/.codex/sessions/<yyyy>/<mm>/<dd>/rollout-<ts>-<uuid>.jsonl --out d.e-session.json
+node --import tsx src/cli.ts import pi ~/.pi/agent/sessions/<dir>/<file>.jsonl --out a.asp-bundle.json
+node --import tsx src/cli.ts import dimagent ~/.dimcode/v2/dimcode.sqlite --session <sessionId> --out b.asp-bundle.json
+node --import tsx src/cli.ts import claude ~/.claude/projects/<dir>/<uuid>.jsonl --out c.asp-bundle.json
+node --import tsx src/cli.ts import codex ~/.codex/sessions/<yyyy>/<mm>/<dd>/rollout-<ts>-<uuid>.jsonl --out d.asp-bundle.json
 
 # export back out
-node --import tsx src/cli.ts export pi a.e-session.json --out resumed.jsonl
-node --import tsx src/cli.ts export pi a.e-session.json --install-pi          # write into ~/.pi/agent/sessions/<dir>/
-node --import tsx src/cli.ts export dimagent b.e-session.json --out rows.json   # portable payload
-node --import tsx src/cli.ts export dimagent b.e-session.json --write --db <db> # apply transactionally
+node --import tsx src/cli.ts export pi a.asp-bundle.json --out resumed.jsonl
+node --import tsx src/cli.ts export pi a.asp-bundle.json --install-pi          # write into ~/.pi/agent/sessions/<dir>/
+node --import tsx src/cli.ts export dimagent b.asp-bundle.json --out rows.json   # portable payload
+node --import tsx src/cli.ts export dimagent b.asp-bundle.json --write --db <db> # apply transactionally
 
 # one-shot cross conversion
 node --import tsx src/cli.ts convert pi dimagent <file.jsonl> out.json
 node --import tsx src/cli.ts convert dimagent pi <db> out.jsonl --session <sessionId>
 
 # introspection
-node --import tsx src/cli.ts inspect a.e-session.json
+node --import tsx src/cli.ts inspect a.asp-bundle.json
 node --import tsx src/cli.ts list-formats
 ```
 
@@ -125,7 +125,7 @@ node --import tsx src/cli.ts list-formats
 ## Layout
 
 ```
-src/bundle.ts        e-session-bundle schema + validation + fidelity types
+src/bundle.ts        asp-bundle schema + validation + fidelity types
 src/evidence.ts      deterministic envelope builder shared by importers
 src/materialize.ts   evidence -> AgentSessionSnapshot (reuses ASP materializer)
 src/pi.ts            pi JSONL importer + exporter

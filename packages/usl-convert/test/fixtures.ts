@@ -28,7 +28,7 @@ export interface DimagentFixture {
 
 /** Build a dimagent-shaped sqlite fixture with the same schema as the live DB. */
 export function buildDimagentFixture(): DimagentFixture {
-  const dir = mkdtempSync(join(tmpdir(), "e-session-convert-fixture-"));
+  const dir = mkdtempSync(join(tmpdir(), "usl-convert-fixture-"));
   const dbPath = join(dir, "dimcode.sqlite");
   const db = new DatabaseSync(dbPath);
   db.exec(`
@@ -100,7 +100,7 @@ export function buildScratchDb(path: string): void {
 }
 
 export function writeFixtureFile(content: string): { path: string; cleanup: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), "e-session-convert-file-"));
+  const dir = mkdtempSync(join(tmpdir(), "usl-convert-file-"));
   const path = join(dir, "session.jsonl");
   writeFileSync(path, content);
   return { path, cleanup: () => rmSync(dir, { recursive: true, force: true }) };

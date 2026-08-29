@@ -8,20 +8,20 @@ import { importClaudeSessionFile } from "./claude.ts";
 import { exportCodexSession, importCodexSessionFile } from "./codex.ts";
 import { DatabaseSync } from "node:sqlite";
 
-const usage = `e-session-convert — cross-harness agent session handoff (pi <-> dimagent <-> claude)
+const usage = `usl-convert — cross-harness agent session handoff (pi <-> dimagent <-> claude)
 
 Usage:
-  e-session-convert import pi <session.jsonl> [--out bundle.json]
-  e-session-convert import dimagent <dimcode.sqlite> --session <sessionId> [--out bundle.json]
-  e-session-convert import claude <session.jsonl> [--out bundle.json]
-  e-session-convert import codex <rollout.jsonl> [--out bundle.json]
-  e-session-convert export pi <bundle.json> [--out session.jsonl] [--install-pi]
-  e-session-convert export dimagent <bundle.json> [--out rows.json] [--db <sqlite>] [--write]
-  e-session-convert export codex <bundle.json> [--out rollout.jsonl]
-  e-session-convert convert <from> <to> <input> <output>
-  e-session-convert inspect <bundle.json>
-  e-session-convert dimagent-list <dimcode.sqlite>
-  e-session-convert list-formats`;
+  usl-convert import pi <session.jsonl> [--out bundle.json]
+  usl-convert import dimagent <dimcode.sqlite> --session <sessionId> [--out bundle.json]
+  usl-convert import claude <session.jsonl> [--out bundle.json]
+  usl-convert import codex <rollout.jsonl> [--out bundle.json]
+  usl-convert export pi <bundle.json> [--out session.jsonl] [--install-pi]
+  usl-convert export dimagent <bundle.json> [--out rows.json] [--db <sqlite>] [--write]
+  usl-convert export codex <bundle.json> [--out rollout.jsonl]
+  usl-convert convert <from> <to> <input> <output>
+  usl-convert inspect <bundle.json>
+  usl-convert dimagent-list <dimcode.sqlite>
+  usl-convert list-formats`;
 
 function fail(message: string): never {
   console.error(message);
@@ -54,7 +54,7 @@ function main(): void {
 
   if (command === "list-formats") {
     console.log(JSON.stringify({
-      intermediate: { format: "e-session-bundle", version: 1, storage: "copy-on-write; evidence array acts as WAL" },
+      intermediate: { format: "asp-bundle", version: 1, storage: "copy-on-write; evidence array acts as WAL" },
       harnesses: [
         { name: "pi", import: "session JSONL (~/.pi/agent/sessions/<dir>/<ts>_<uuid>.jsonl)", export: "same format, resumable session file" },
         { name: "dimagent", import: "dimcode.sqlite messages/sessions tables (WAL-safe copy)", export: "sessions+messages rows (JSON payload or direct --write)" },
@@ -93,7 +93,7 @@ function main(): void {
   if (command === "import") {
     if (subcommand === "pi") {
       const input = rest[0] ?? fail("import pi requires a session file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.e-session.json`;
+      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
       const { bundle } = importPiSessionFile(input);
       writeJson(out, bundle);
       console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
@@ -103,7 +103,7 @@ function main(): void {
       const input = rest[0] ?? fail("import dimagent requires a database path");
       const sessionIdx = rest.indexOf("--session");
       const sessionId = sessionIdx >= 0 ? argValue(rest, sessionIdx, "--session") : fail("import dimagent requires --session <sessionId> (use dimagent-list to find one)");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `dimagent-${sessionId}.e-session.json`;
+      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `dimagent-${sessionId}.asp-bundle.json`;
       const { bundle } = importDimagentSession(input, sessionId, { sourcePath: input });
       writeJson(out, bundle);
       console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
@@ -111,7 +111,7 @@ function main(): void {
     }
     if (subcommand === "claude") {
       const input = rest[0] ?? fail("import claude requires a session file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.e-session.json`;
+      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
       const { bundle } = importClaudeSessionFile(input);
       writeJson(out, bundle);
       console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
@@ -119,7 +119,7 @@ function main(): void {
     }
     if (subcommand === "codex") {
       const input = rest[0] ?? fail("import codex requires a rollout file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.e-session.json`;
+      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
       const { bundle } = importCodexSessionFile(input);
       writeJson(out, bundle);
       console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));

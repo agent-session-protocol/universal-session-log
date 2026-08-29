@@ -77,7 +77,7 @@ test("dimagent exporter maps canonical entities back to rows", () => {
     const keys = rows.messages.map(m => m.orderKey);
     assert.deepEqual(keys, [...keys].sort());
     // round-trip through a scratch db preserves content
-    const dir = mkdtempSync(join(tmpdir(), "e-session-convert-rt-"));
+    const dir = mkdtempSync(join(tmpdir(), "usl-convert-rt-"));
     const scratch = join(dir, "dim.sqlite");
     buildScratchDb(scratch);
     writeDimagentSession(scratch, rows);
@@ -96,7 +96,7 @@ test("dimagent exporter maps canonical entities back to rows", () => {
 test("dimagent import tolerates missing optional tables", () => {
   const fixture = buildDimagentFixture();
   try {
-    const dir = mkdtempSync(join(tmpdir(), "e-session-convert-min-"));
+    const dir = mkdtempSync(join(tmpdir(), "usl-convert-min-"));
     const scratch = join(dir, "min.sqlite");
     buildScratchDb(scratch);
     const { bundle } = importDimagentSession(fixture.dbPath, DIMAGENT_FIXTURE_SESSION_ID);
