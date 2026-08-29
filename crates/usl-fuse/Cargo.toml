@@ -1,0 +1,10 @@
+[package]
+name = "usl-fuse"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fuser = "0.15"
+usl-core = { path = "../usl-core" }
+usl-capture = { path = "../usl-capture" }
+libc = "0.2.189"

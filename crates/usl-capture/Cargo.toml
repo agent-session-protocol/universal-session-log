@@ -1,0 +1,9 @@
+[package]
+name = "usl-capture"
+version = "0.1.0"
+edition = "2021"
+description = "USL capture layer: incremental JSONL line-framing over arbitrary write() boundaries, feeding records into usl-core. FUSE-agnostic; the FUSE mount is a thin adapter over this."
+
+[dependencies]
+usl-core = { path = "../usl-core" }
+serde_json = "1"

@@ -1,0 +1,6 @@
+[workspace]
+members = ["crates/usl-core", "crates/usl-capture", "crates/usl-fuse"]
+resolver = "2"
+
+[profile.release]
+lto = true

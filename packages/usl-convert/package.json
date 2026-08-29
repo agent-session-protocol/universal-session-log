@@ -1,0 +1,21 @@
+{
+  "name": "usl-convert",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-harness agent session conversion (ASP reference): pi <-> dimagent <-> claude <-> codex via the e-session-bundle",
+  "type": "module",
+  "exports": { ".": "./src/bundle.ts" },
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "npm run typecheck && npm test",
+    "cli": "node --import tsx src/cli.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.0"
+  },
+  "engines": { "node": ">=22.13" }
+}
