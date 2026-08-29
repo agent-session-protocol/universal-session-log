@@ -1,0 +1,7 @@
+{
+  "name": "universal-session-log",
+  "private": true,
+  "scripts": {
+    "lint:architecture": "node docs/architecture/verify.mjs"
+  }
+}
