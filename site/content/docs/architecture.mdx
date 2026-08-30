@@ -1,0 +1,27 @@
+---
+title: Architecture
+description: The whole USL picture, with an interactive diagram
+---
+
+USL is layered:
+
+```
+usl-convert (TS)        cross-harness conversion  ── depends on ASP schema
+      │
+usl-capture (Rust)      live capture: file-boundary ingest + framing
+      │  depends on
+usl-core (Rust)         storage engine: append-only, crash-recoverable, schema-agnostic
+```
+
+- **usl-core** owns the on-disk format, the query API, durability, and recovery.
+- **usl-capture** frames arbitrary byte streams into complete lines and appends them as records.
+- **usl-convert** maps harness-native formats to and from the ASP canonical schema.
+- **usl-fuse** (paused) was the FUSE mount layer — blocked by the lack of a usable FUSE on macOS 26.
+
+## Interactive diagram
+
+The full isometric architecture map — modules, districts, data flows, and a health report — is generated from the code and verified against it:
+
+[Open the architecture map](/universal-session-log/architecture.html)
+
+> The map is derived from `docs/architecture/wiki/` and rebuilt by `docs/architecture/verify.mjs`; every claim traces to a source file with a content hash. Run `npm run lint:architecture` to verify freshness after code changes.

@@ -1,0 +1,30 @@
+---
+title: Introduction
+description: USL — the agent-session database
+---
+
+**USL (Universal Session Log)** is the storage-first reference implementation of the [Agent Session Protocol](https://github.com/agent-session-protocol/asp). It is a **complete database for agent session logs** — not just a library:
+
+| component | what it is | where |
+|---|---|---|
+| **Storage format** | append-only single file, framed records + CRC | `crates/usl-core/src/format.rs` |
+| **Query API** | scan / get / verify / fromSeq over sessions | `crates/usl-core/src/store.rs` |
+| **Durability & recovery** | group-commit append, crash recovery from the log | `crates/usl-core/src/recover.rs` |
+| **Identity** | content-addressed session ids | `crates/usl-core/src/identity.rs` |
+| **Live capture** | file-boundary ingest, chunk-invariant framing | `crates/usl-capture/` |
+| **Conversion** | pi / dimagent / claude / codex inter-conversion | `packages/usl-convert/` |
+
+USL is **schema-agnostic**: the engine stores opaque records (`seq + session_id + kind + ts + body`); the ASP canonical schema lives a layer above. That separation is what makes it a database rather than a format.
+
+## Why USL
+
+Agent runtimes proliferate, and each locks its session history in its own log format. USL is the durable, portable layer underneath: any runtime's session can be ingested, queried, recovered after a crash, and converted into another runtime's resumable format.
+
+## Where to start
+
+- [Getting started](./getting-started) — open a store, append, scan.
+- [Storage format](./storage-format) — the on-disk byte layout.
+- [Query API](./query) — what you can ask of a store.
+- [Live capture](./capture) — ingesting a running harness's log.
+- [Conversion](./conversion) — moving sessions across harnesses.
+- [Architecture](./architecture) — the whole picture, with a diagram.

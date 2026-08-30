@@ -1,0 +1,14 @@
+{
+  "title": "Documentation",
+  "description": "USL — Universal Session Log, the agent-session database",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "getting-started",
+    "storage-format",
+    "query",
+    "capture",
+    "conversion",
+    "architecture"
+  ]
+}

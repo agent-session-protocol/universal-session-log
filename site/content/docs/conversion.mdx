@@ -1,0 +1,39 @@
+---
+title: Conversion
+description: Moving sessions across harnesses
+---
+
+`usl-convert` (TypeScript) moves session logs across harnesses via a neutral intermediate — the **asp-bundle**: a canonical `pivot` snapshot plus the full ordered `evidence` stream (its WAL).
+
+```
+pi JSONL · dimagent sqlite · claude JSONL · codex rollout
+        │  import
+        ▼
+     asp-bundle   (pivot + evidence + fidelity + loss)
+        │  export
+        ▼
+resumable pi / dimagent / codex file
+```
+
+## Supported harnesses
+
+| harness | import | export |
+|---|---|---|
+| pi | JSONL | resumable JSONL |
+| dimagent | sqlite (WAL-safe copy) | sessions+messages rows |
+| claude | JSONL (block-append journal merged) | via pi |
+| codex | rollout (dual-stream dedup) | rollout |
+
+## Declared fidelity
+
+Every conversion states, per axis, a fidelity level (`preserved / partial / evidence-only / dropped / not-in-source`) and a loss list. Round-trip fidelity comes from the **evidence layer**: exporters replay the importer's native payloads verbatim — Claude's thinking `signature`, Codex's `encrypted_content` — synthesizing only when absent.
+
+## CLI
+
+```bash
+cd packages/usl-convert && npm install
+node --import tsx src/cli.ts convert codex pi <rollout.jsonl> out.jsonl
+node --import tsx src/cli.ts convert pi codex <session.jsonl> out.jsonl
+```
+
+See the [full fidelity matrix](https://github.com/agent-session-protocol/universal-session-log/blob/main/packages/usl-convert/README.md).

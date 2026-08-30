@@ -1,0 +1,41 @@
+---
+title: Live Capture
+description: Ingesting a running harness's log at the file boundary
+---
+
+USL's capture layer (`usl-capture`) ingests a running harness's log **without FUSE and without a plugin API**: it follows the file the harness writes.
+
+```
+harness writes JSONL (arbitrary chunk boundaries)
+        │
+        ▼
+FileFollower   reads bytes appended since the last poll; resets on truncation
+        │
+        ▼
+Framer        splits bytes into complete lines; buffers partial lines
+        │
+        ▼
+CaptureSession appends each line as a record into usl-core
+```
+
+## Chunk-invariant framing
+
+The central property: **framing is independent of how the byte stream is chunked.** Feeding `"a\nb\nc"` in one call, byte-by-byte, or split mid-line yields the same complete lines in the same order — a harness's `write()` boundaries never leak into the captured records.
+
+## Capture session
+
+```rust
+let store = Store::create("live.usl", StoreOpts::default())?;
+let mut cap = CaptureSession::start(store, sid, "claude", "sess-1")?;
+
+let mut follower = FileFollower::from_start("claude.jsonl")?;
+loop {
+    let bytes = follower.poll()?;
+    if !bytes.is_empty() { cap.write(&bytes)?; }
+}
+let lines = cap.finish()?;   // flush trailing partial line + fsync
+```
+
+`CaptureSession` writes a session-header record (kind 0, carrying harness provenance) then one record per line (kind 1).
+
+See the runnable demo: [`usl-capture/examples/live_convert.rs`](https://github.com/agent-session-protocol/universal-session-log/blob/main/crates/usl-capture/examples/live_convert.rs).

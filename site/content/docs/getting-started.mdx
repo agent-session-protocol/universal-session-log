@@ -1,0 +1,50 @@
+---
+title: Getting Started
+description: Open a store, append records, scan them back
+---
+
+USL's storage engine is the `usl-core` crate. It is a library first — no daemon required to start.
+
+```bash
+git clone https://github.com/agent-session-protocol/universal-session-log
+cd universal-session-log
+cargo test --workspace   # 54 tests
+```
+
+## Open a store
+
+```rust
+use usl_core::{Store, StoreOpts, Record, SessionId};
+
+// create a new single-file store
+let mut store = Store::create("session.usl", StoreOpts::default())?;
+
+// a content-addressed session id
+let sid = usl_core::identity::session_id("claude", "sess-1", &source_sha256(b"source"));
+
+// append a record (seq is assigned by the store)
+store.append(&Record::new(sid, 1, 0, b"hello".to_vec()))?;
+store.flush()?;  // full fsync (the "handoff export" durability path)
+```
+
+## Read it back
+
+```rust
+// scan a session from a seq
+let rows = store.scan(&sid, 0)?;
+assert_eq!(rows[0].body, b"hello");
+
+// point read
+let row = store.get(&sid, 0)?.unwrap();
+```
+
+## Crash recovery
+
+Reopening a store scans the data region and truncates at the first torn frame:
+
+```rust
+// the file can be torn at any byte offset — recovery is byte-deterministic
+let store = Store::open("session.usl", StoreOpts::default())?;
+```
+
+There is no WAL or checkpoint to replay — correctness comes from the append log alone. See [Storage format](./storage-format) and [Query API](./query).

@@ -1,0 +1,33 @@
+---
+title: Query API
+description: What you can ask of a USL store
+---
+
+USL's query surface is a **domain API, not SQL**. The workload is append-heavy session logs, so reads are session-scoped scans:
+
+```rust
+Store::create(path, opts) / Store::open(path, opts) -> Store
+store.append(&Record) -> seq            // assigned monotonically
+store.flush()                           // full fsync
+store.scan(&SessionId, from_seq) -> Vec<StoredRecord>
+store.get(&SessionId, seq) -> Option<StoredRecord>
+store.next_seq() -> u64
+Store::verify(path) -> Verification     // read-only integrity report
+```
+
+## Reading
+
+- **scan** returns a session's records with `seq >= from_seq`, in ascending order — the basis for replay and live tail.
+- **get** is a point read by session + seq.
+- **verify** opens read-only and reports `data_end`, `next_seq`, `frame_count`, and the truncation offset (if any), without mutating the file.
+
+## The index
+
+The store keeps an in-memory `Index` (`session_id → frame offsets`), rebuilt by replaying the log on open. Reads open a fresh file handle and re-verify CRC on every frame — defense in depth against silent corruption.
+
+## Not in scope (roadmap)
+
+- A query *language* (SQL-like DSL) is not present; the API is typed and session-scoped.
+- WAL + checkpoint for fast open on large stores; segment rollover; retention/compaction.
+
+Source of truth: [`usl-core/src/store.rs`](https://github.com/agent-session-protocol/universal-session-log/blob/main/crates/usl-core/src/store.rs).

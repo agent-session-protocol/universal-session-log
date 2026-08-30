@@ -1,0 +1,49 @@
+---
+title: Storage Format
+description: The on-disk byte layout of a USL store
+---
+
+A USL store is a **single file**, little-endian:
+
+```
+[0..64)   Header (redundant hint; correctness never depends on it)
+  [0..6)   magic "USLDB\0"
+  [6..8)   format_version u16
+  [8..12)  page_size u32
+  [12..16) flags u32
+  [16..24) data_end u64
+  [24..32) next_seq u64
+  [32..40) session_count u64
+  [40..48) reserved
+  [48..52) header_crc u32 (covers [0..48))
+  [52..64) reserved
+[64..data_end)  framed records:
+  [len u32][crc32 u32][payload(len bytes)]
+```
+
+## The payload
+
+A record payload is a postcard-serialized `StoredRecord`:
+
+```
+seq u64 | session_id [u8;32] | kind u8 | ts_ms u64 | body bytes
+```
+
+`session_id` is content-addressed: `sha256(harness ‖ native_session_id ‖ source_sha256)` (length-prefixed).
+
+## Recovery semantics
+
+On open, the store scans frames from offset 64. A frame is treated as torn when:
+
+- `len == 0` or `len > MAX_FRAME_PAYLOAD` (64 MiB) — a torn length field, rejected without allocating;
+- the payload is truncated (UnexpectedEof);
+- `crc32(payload)` mismatches.
+
+Recovery **truncates at the first torn frame** and rebuilds the index from complete frames. The header is a redundant hint that self-heals from the data region. The result: for a given valid prefix, recovered state is **byte-deterministic** regardless of whatever torn bytes follow.
+
+## Durability
+
+- `append` is group-commit (no per-record fsync).
+- `flush` = `sync_data` → write header → `sync_all` — the full-fsync path for handoff export.
+
+Source of truth: [`usl-core/src/format.rs`](https://github.com/agent-session-protocol/universal-session-log/blob/main/crates/usl-core/src/format.rs) and [`recover.rs`](https://github.com/agent-session-protocol/universal-session-log/blob/main/crates/usl-core/src/recover.rs).
