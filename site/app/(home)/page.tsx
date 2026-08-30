@@ -25,6 +25,8 @@ const copy = {
     consoleKicker: 'SESDB Console',
     consoleTitle: 'Operate the session database with confidence.',
     consoleBody: 'Monitor ingestion, inspect real sessions and native events, compare runtime usage, and verify the physical append log from one management console.',
+    consoleDemo: 'Open interactive demo',
+    consoleDemoNote: 'Safe sample data · no setup required',
   },
   zh: {
     toggle: 'EN',
@@ -43,6 +45,8 @@ const copy = {
     consoleKicker: 'SESDB 管理控制台',
     consoleTitle: '一个后台，掌握每一条 Agent 会话。',
     consoleBody: '统一监控写入、检查真实 Session 与原生事件、比较不同 Runtime 的使用情况，并验证底层 append log 的完整性。',
+    consoleDemo: '体验交互式后台',
+    consoleDemoNote: '安全示例数据 · 无需安装',
   },
 } as const;
 
@@ -128,7 +132,7 @@ export default function HomePage() {
 
       <section className="border-b border-fd-border bg-fd-card/30 px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div className="max-w-2xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.architectureKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.architectureTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.architectureBody}</p></div><a href={`${basePath}/architecture.html?lang=${locale}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-fd-primary hover:underline">{t.fullscreen} <ArrowRight className="size-4" /></a></div><div className="overflow-hidden rounded-2xl border border-fd-border bg-fd-background p-2 shadow-[0_18px_60px_-35px_rgba(0,0,0,.35)] sm:p-3"><iframe key={locale} src={`${basePath}/architecture.html?lang=${locale}`} title={locale === 'en' ? 'Interactive USL architecture map' : 'USL 交互式架构图'} className="h-[560px] w-full rounded-xl border-0 sm:h-[680px]" /></div></div></section>
 
-      <section className="px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-10 max-w-3xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.consoleKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.consoleTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.consoleBody}</p></div><div className="grid gap-8 lg:grid-cols-2">{consolePages[locale].map(([slug, title, description]) => <figure key={slug} className="overflow-hidden rounded-xl border border-fd-border bg-fd-card shadow-sm"><div className="overflow-hidden border-b border-fd-border bg-fd-muted/30"><img src={`${basePath}/screenshots/admin/${slug}-${locale}.png`} alt={`${title} — SESDB Console`} className="aspect-[16/10] w-full object-cover object-top" /></div><figcaption className="p-5 text-left"><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm leading-6 text-fd-muted-foreground">{description}</p></figcaption></figure>)}</div></div></section>
+      <section className="px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div className="max-w-3xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.consoleKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.consoleTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.consoleBody}</p></div><div className="shrink-0"><Link href={`/console?lang=${locale}`} className="inline-flex items-center gap-2 rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-semibold text-fd-primary-foreground hover:bg-fd-primary/90">{t.consoleDemo}<ArrowRight className="size-4" /></Link><p className="mt-2 text-center text-xs text-fd-muted-foreground">{t.consoleDemoNote}</p></div></div><div className="grid gap-8 lg:grid-cols-2">{consolePages[locale].map(([slug, title, description]) => <Link key={slug} href={`/console?lang=${locale}&view=${slug}`} className="group overflow-hidden rounded-xl border border-fd-border bg-fd-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><figure><div className="overflow-hidden border-b border-fd-border bg-fd-muted/30"><img src={`${basePath}/screenshots/admin/${slug}-${locale}.png`} alt={`${title} — SESDB Console`} className="aspect-[16/10] w-full object-cover object-top transition duration-300 group-hover:scale-[1.01]" /></div><figcaption className="p-5 text-left"><h3 className="inline-flex items-center gap-2 font-semibold">{title}<ArrowRight className="size-4 text-fd-primary opacity-0 transition group-hover:opacity-100" /></h3><p className="mt-1 text-sm leading-6 text-fd-muted-foreground">{description}</p></figcaption></figure></Link>)}</div></div></section>
     </main>
   );
 }
