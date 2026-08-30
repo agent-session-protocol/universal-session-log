@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}</style>
+<defs>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#202522" flood-opacity=".08"/></filter>
+<marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#467061"/></marker>
+<marker id="arrow-orange" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#aa6948"/></marker>
+<marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#69779b"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#7b6d93"/></marker>
+</defs>
+<rect width="1200" height="720" fill="#f7f6f2"/>
+<text x="56" y="54" fill="#467061" font-size="12" font-weight="700" letter-spacing="2.2">SCENARIO 01 · SESDB</text>
+<text x="56" y="94" fill="#202522" font-size="30" font-weight="700">From agent sessions to better models</text>
+<text x="56" y="122" fill="#707873" font-size="14">Turn evidence-rich interaction histories into governed datasets for training, fine-tuning, and distillation.</text>
+<rect x="44" y="152" width="230" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="60" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">AGENT RUNTIMES</text>
+<rect x="294" y="152" width="300" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="310" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">CANONICAL DATA PLANE</text>
+<rect x="614" y="152" width="542" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="630" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">MODEL IMPROVEMENT</text>
+<g filter="url(#shadow)"><rect x="66" y="195" width="186" height="76" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="80" y="211" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="99" y="236" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">CX</text>
+<text x="130" y="226" fill="#202522" font-size="14" font-weight="700">Codex</text>
+<text x="130" y="245" fill="#707873" font-size="11">code + tool traces</text>
+<g filter="url(#shadow)"><rect x="66" y="293" width="186" height="76" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="80" y="309" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="99" y="334" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">CL</text>
+<text x="130" y="324" fill="#202522" font-size="14" font-weight="700">Claude Code</text>
+<text x="130" y="343" fill="#707873" font-size="11">reasoning + edits</text>
+<g filter="url(#shadow)"><rect x="66" y="391" width="186" height="76" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="80" y="407" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="99" y="432" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">PI</text>
+<text x="130" y="422" fill="#202522" font-size="14" font-weight="700">Pi / OpenCode</text>
+<text x="130" y="441" fill="#707873" font-size="11">messages + events</text>
+<g filter="url(#shadow)"><rect x="66" y="489" width="186" height="76" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="80" y="505" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="99" y="530" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">API</text>
+<text x="130" y="520" fill="#202522" font-size="14" font-weight="700">Custom agents</text>
+<text x="130" y="539" fill="#707873" font-size="11">domain workflows</text>
+<path d="M252,233 H320" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<rect x="256.4" y="210" width="59.1" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="286" y="224" text-anchor="middle" fill="#707873" font-size="11">capture</text>
+<path d="M252,331 H320" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M252,429 H320" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M252,527 H320" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<g filter="url(#shadow)"><rect x="320" y="260" width="248" height="122" rx="18" fill="#202522" stroke="#314139" stroke-width="2"/></g>
+<ellipse cx="366" cy="298" rx="25" ry="9" fill="#466e61" stroke="#83a99b"/>
+<path d="M341,298 v28 c0,5 11,9 25,9 s25,-4 25,-9 v-28" fill="#35584d" stroke="#83a99b"/>
+<ellipse cx="366" cy="326" rx="25" ry="9" fill="#315247" stroke="#83a99b"/>
+<text x="404" y="296" fill="#ffffff" font-size="19" font-weight="700">SESDB</text>
+<text x="404" y="319" fill="#b9c5bf" font-size="11">canonical events · lineage</text>
+<text x="404" y="337" fill="#b9c5bf" font-size="11">append-only · replayable</text>
+<g filter="url(#shadow)"><rect x="320" y="424" width="248" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="334" y="440" width="38" height="38" rx="9" fill="#f3eddf" stroke="#a1844c" stroke-opacity=".28"/>
+<text x="353" y="465" text-anchor="middle" fill="#a1844c" font-size="14" font-weight="700">ETL</text>
+<text x="384" y="455" fill="#202522" font-size="14" font-weight="700">Dataset builder</text>
+<text x="384" y="474" fill="#707873" font-size="11">filter · redact · dedupe</text>
+<g filter="url(#shadow)"><rect x="320" y="524" width="248" height="70" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="334" y="540" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="353" y="565" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">POL</text>
+<text x="384" y="555" fill="#202522" font-size="14" font-weight="700">Policy + provenance</text>
+<text x="384" y="574" fill="#707873" font-size="11">consent · source · version</text>
+<path d="M444,382 V424" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<rect x="455.0" y="394" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="482" y="408" text-anchor="middle" fill="#707873" font-size="11">curate</text>
+<path d="M444,502 V524" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<g filter="url(#shadow)"><rect x="648" y="210" width="206" height="82" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="662" y="226" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="681" y="251" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">SFT</text>
+<text x="712" y="241" fill="#202522" font-size="14" font-weight="700">SFT / fine-tuning</text>
+<text x="712" y="260" fill="#707873" font-size="11">instruction + response</text>
+<g filter="url(#shadow)"><rect x="914" y="210" width="206" height="82" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="928" y="226" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="947" y="251" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">PT</text>
+<text x="978" y="241" fill="#202522" font-size="14" font-weight="700">Pre-training mix</text>
+<text x="978" y="260" fill="#707873" font-size="11">high-signal trajectories</text>
+<g filter="url(#shadow)"><rect x="648" y="338" width="206" height="82" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="662" y="354" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="681" y="379" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">KD</text>
+<text x="712" y="369" fill="#202522" font-size="14" font-weight="700">Distillation</text>
+<text x="712" y="388" fill="#707873" font-size="11">teacher traces → student</text>
+<g filter="url(#shadow)"><rect x="914" y="338" width="206" height="82" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="928" y="354" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="947" y="379" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">DPO</text>
+<text x="978" y="369" fill="#202522" font-size="14" font-weight="700">Preference data</text>
+<text x="978" y="388" fill="#707873" font-size="11">success · retry · reject</text>
+<path d="M568,463 H610 V251 H648" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M568,463 H610 V318 H1017 V210" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<rect x="745.8" y="298" width="108.4" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="800" y="312" text-anchor="middle" fill="#707873" font-size="11">JSONL / Parquet</text>
+<path d="M610,251 V379 H648" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M610,379 V452 H1017 V420" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<rect x="752.7" y="431" width="114.6" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="810" y="445" text-anchor="middle" fill="#707873" font-size="11">preference pairs</text>
+<g filter="url(#shadow)"><rect x="752" y="488" width="270" height="104" rx="18" fill="#202522" stroke="#314139" stroke-width="2"/></g>
+<ellipse cx="798" cy="526" rx="25" ry="9" fill="#466e61" stroke="#83a99b"/>
+<path d="M773,526 v28 c0,5 11,9 25,9 s25,-4 25,-9 v-28" fill="#35584d" stroke="#83a99b"/>
+<ellipse cx="798" cy="554" rx="25" ry="9" fill="#315247" stroke="#83a99b"/>
+<text x="836" y="524" fill="#ffffff" font-size="19" font-weight="700">Evaluated LLM</text>
+<text x="836" y="547" fill="#b9c5bf" font-size="11">quality · safety · task success</text>
+<path d="M751,420 V458 H824 V488" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M1017,420 V458 H950 V488" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M752,540 C680,540 684,574 594,574" fill="none" stroke="#7b6d93" stroke-width="2.2" stroke-dasharray="7,5" marker-end="url(#arrow-purple)"/>
+<rect x="619.8" y="550" width="108.4" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="674" y="564" text-anchor="middle" fill="#707873" font-size="11">evaluation loop</text>
+<line x1="56" y1="685" x2="86" y2="685" stroke="#467061" stroke-width="2"/>
+<text x="94" y="689" fill="#707873" font-size="11">canonical data</text>
+<line x1="224.24" y1="685" x2="254.24" y2="685" stroke="#aa6948" stroke-width="2"/>
+<text x="262.24" y="689" fill="#707873" font-size="11">curation / transform</text>
+<line x1="429.44000000000005" y1="685" x2="459.44000000000005" y2="685" stroke="#7b6d93" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="467.44000000000005" y="689" fill="#707873" font-size="11">feedback / policy</text>
+<text x="1144" y="689" text-anchor="end" fill="#9aa09c" font-size="10" letter-spacing="1">UNIVERSAL SESSION LOG</text>
+</svg>

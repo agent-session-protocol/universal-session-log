@@ -18,6 +18,9 @@ const copy = {
     portableKicker: 'Portable semantics',
     portableTitle: 'One contract from storage to insight.',
     portableBody: 'The L1 log stays simple. Typed query semantics, evidence, and policy-aware sidecars compose above it without taking ownership of the facts.',
+    scenariosKicker: 'Product scenarios',
+    scenariosTitle: 'One session layer, four compounding advantages.',
+    scenariosBody: 'SESDB turns agent history into reusable infrastructure—for model improvement, personal intelligence, unified operations, and portable work.',
     architectureKicker: 'Interactive architecture',
     architectureTitle: 'Follow the data, not a slide.',
     architectureBody: 'Explore modules, dependency edges, runtime flows, and evidence-backed wiki pages in the live architecture map.',
@@ -38,6 +41,9 @@ const copy = {
     portableKicker: '可移植语义',
     portableTitle: '从存储到洞察，遵循同一份契约。',
     portableBody: 'L1 日志保持简单可靠；类型化查询、证据与策略隔离的 sidecar 在其上组合，但永远不取代事实真源。',
+    scenariosKicker: '产品场景',
+    scenariosTitle: '同一个会话数据层，产生四种复利价值。',
+    scenariosBody: 'SESDB 将 Agent 历史转化为可复用的基础设施，用于模型改进、个人智能、统一运营与跨环境协作。',
     architectureKicker: '交互式架构',
     architectureTitle: '沿着数据流理解系统，而不是看一张静态幻灯片。',
     architectureBody: '在实时架构地图中探索模块、依赖边、运行流与每条结论可追溯的 Wiki 页面。',
@@ -88,8 +94,24 @@ const consolePages = {
   ],
 } as const;
 
+const scenarioPages = {
+  en: [
+    ['training-data', 'Train and distill better models', 'Build governed SFT, pre-training, preference, and distillation datasets from evidence-rich sessions.'],
+    ['personal-insights', 'Turn activity into personal intelligence', 'Produce weekly reports, durable memory, token analytics, and project relationships from the same facts.'],
+    ['session-browser', 'Explore every session in one place', 'Search canonical timelines across runtimes, then inspect native evidence and usage without switching tools.'],
+    ['cross-harness-handoff', 'Continue work across harnesses', 'Carry checkpoints, lineage, evidence, and intent between harnesses and environments.'],
+  ],
+  zh: [
+    ['training-data', '训练、微调与蒸馏模型', '从带证据的会话中构建可治理的 SFT、预训练、偏好与蒸馏数据集。'],
+    ['personal-insights', '将个人活动转化为智能', '从同一事实产出周报、长期记忆、Token 分析与项目关系。'],
+    ['session-browser', '在一个平台浏览全部会话', '跨 Runtime 搜索 canonical timeline，并直接检查原生证据与用量。'],
+    ['cross-harness-handoff', '跨 Harness 继续工作', '在不同 Harness 与环境之间携带检查点、Lineage、证据与目标。'],
+  ],
+} as const;
+
 export default function HomePage() {
   const [locale, setLocale] = useState<Locale>('en');
+  const [activeScenario, setActiveScenario] = useState(0);
   const t = copy[locale];
 
   useEffect(() => {
@@ -129,6 +151,8 @@ export default function HomePage() {
       </section>
 
       <section className="border-b border-fd-border px-6 py-20"><div className="mx-auto max-w-6xl"><div className="mb-10 max-w-2xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.portableKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.portableTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.portableBody}</p></div><div className="grid gap-px overflow-hidden rounded-xl border border-fd-border bg-fd-border sm:grid-cols-2 lg:grid-cols-3">{capabilities[locale].map(([Icon, title, body]) => <article key={title} className="bg-fd-background p-6 text-left"><Icon className="mb-5 size-5 text-fd-primary" /><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-fd-muted-foreground">{body}</p></article>)}</div></div></section>
+
+      <section className="border-b border-fd-border bg-fd-card/30 px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-10 max-w-3xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.scenariosKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.scenariosTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.scenariosBody}</p></div><div className="grid gap-4 lg:grid-cols-[320px_1fr]"><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">{scenarioPages[locale].map(([slug, title, description], index) => <button key={slug} onClick={() => setActiveScenario(index)} className={`rounded-xl border p-4 text-left transition ${activeScenario === index ? 'border-fd-primary bg-fd-primary/5 shadow-sm' : 'border-fd-border bg-fd-background hover:bg-fd-accent'}`} aria-pressed={activeScenario === index}><span className="text-[10px] font-bold tracking-[0.18em] text-fd-primary">0{index + 1}</span><h3 className="mt-1 font-semibold">{title}</h3><p className="mt-1 text-xs leading-5 text-fd-muted-foreground">{description}</p></button>)}</div><a href={`${basePath}/diagrams/sesdb-${scenarioPages[locale][activeScenario][0]}-${locale}.svg`} target="_blank" rel="noreferrer" className="group block overflow-hidden rounded-2xl border border-fd-border bg-[#f7f6f2] shadow-sm"><img key={`${locale}-${activeScenario}`} src={`${basePath}/diagrams/sesdb-${scenarioPages[locale][activeScenario][0]}-${locale}.svg`} alt={scenarioPages[locale][activeScenario][1]} className="aspect-[5/3] w-full object-contain transition duration-300 group-hover:scale-[1.005]" /></a></div></div></section>
 
       <section className="border-b border-fd-border bg-fd-card/30 px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div className="max-w-2xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.architectureKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.architectureTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.architectureBody}</p></div><a href={`${basePath}/architecture.html?lang=${locale}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-fd-primary hover:underline">{t.fullscreen} <ArrowRight className="size-4" /></a></div><div className="overflow-hidden rounded-2xl border border-fd-border bg-fd-background p-2 shadow-[0_18px_60px_-35px_rgba(0,0,0,.35)] sm:p-3"><iframe key={locale} src={`${basePath}/architecture.html?lang=${locale}`} title={locale === 'en' ? 'Interactive USL architecture map' : 'USL 交互式架构图'} className="h-[560px] w-full rounded-xl border-0 sm:h-[680px]" /></div></div></section>
 

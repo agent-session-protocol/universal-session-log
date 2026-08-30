@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}</style>
+<defs>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#202522" flood-opacity=".08"/></filter>
+<marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#467061"/></marker>
+<marker id="arrow-orange" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#aa6948"/></marker>
+<marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#69779b"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#7b6d93"/></marker>
+</defs>
+<rect width="1200" height="720" fill="#f7f6f2"/>
+<text x="56" y="54" fill="#467061" font-size="12" font-weight="700" letter-spacing="2.2">SCENARIO 04 · SESDB</text>
+<text x="56" y="94" fill="#202522" font-size="30" font-weight="700">Handoff across harnesses and environments</text>
+<text x="56" y="122" fill="#707873" font-size="14">SESDB carries checkpoints, lineage, and evidence so another agent can continue—not merely restart.</text>
+<rect x="44" y="152" width="300" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="60" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">ORIGIN ENVIRONMENT</text>
+<rect x="368" y="152" width="464" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="384" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">PORTABLE HANDOFF PLANE</text>
+<rect x="856" y="152" width="300" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="872" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">TARGET ENVIRONMENT</text>
+<rect x="72" y="180" width="110.2" height="28" rx="14" fill="#e9edf5" stroke="#69779b" stroke-opacity=".3"/>
+<text x="127.1" y="198" text-anchor="middle" fill="#69779b" font-size="11" font-weight="600">Laptop · macOS</text>
+<g filter="url(#shadow)"><rect x="72" y="240" width="244" height="84" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="86" y="256" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="105" y="281" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">A</text>
+<text x="136" y="271" fill="#202522" font-size="14" font-weight="700">Harness A · Codex</text>
+<text x="136" y="290" fill="#707873" font-size="11">active coding session</text>
+<g filter="url(#shadow)"><rect x="72" y="374" width="244" height="84" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="86" y="390" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="105" y="415" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">FS</text>
+<text x="136" y="405" fill="#202522" font-size="14" font-weight="700">Workspace A</text>
+<text x="136" y="424" fill="#707873" font-size="11">repo · branch · files</text>
+<g filter="url(#shadow)"><rect x="72" y="508" width="244" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="86" y="524" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="105" y="549" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">CP</text>
+<text x="136" y="539" fill="#202522" font-size="14" font-weight="700">Checkpoint</text>
+<text x="136" y="558" fill="#707873" font-size="11">intent · plan · pending work</text>
+<path d="M194,324 V374" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M194,458 V508" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<g filter="url(#shadow)"><rect x="402" y="208" width="396" height="128" rx="18" fill="#202522" stroke="#314139" stroke-width="2"/></g>
+<ellipse cx="448" cy="246" rx="25" ry="9" fill="#466e61" stroke="#83a99b"/>
+<path d="M423,246 v28 c0,5 11,9 25,9 s25,-4 25,-9 v-28" fill="#35584d" stroke="#83a99b"/>
+<ellipse cx="448" cy="274" rx="25" ry="9" fill="#315247" stroke="#83a99b"/>
+<text x="486" y="244" fill="#ffffff" font-size="19" font-weight="700">SESDB Handoff Layer</text>
+<text x="486" y="267" fill="#b9c5bf" font-size="11">canonical session bundle · asOfSeq</text>
+<text x="486" y="285" fill="#b9c5bf" font-size="11">lineage · evidence · capability manifest</text>
+<g filter="url(#shadow)"><rect x="402" y="378" width="184" height="88" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="416" y="394" width="38" height="38" rx="9" fill="#f3eddf" stroke="#a1844c" stroke-opacity=".28"/>
+<text x="435" y="419" text-anchor="middle" fill="#a1844c" font-size="14" font-weight="700">POL</text>
+<text x="466" y="409" fill="#202522" font-size="14" font-weight="700">Policy gate</text>
+<text x="466" y="428" fill="#707873" font-size="11">redact · authorize</text>
+<g filter="url(#shadow)"><rect x="614" y="378" width="184" height="88" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="628" y="394" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="647" y="419" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">↻</text>
+<text x="678" y="409" fill="#202522" font-size="14" font-weight="700">Adapter B</text>
+<text x="678" y="428" fill="#707873" font-size="11">bundle → native input</text>
+<rect x="467" y="520" width="165.7" height="28" rx="14" fill="#e8f0ec" stroke="#467061" stroke-opacity=".3"/>
+<text x="549.8" y="538" text-anchor="middle" fill="#467061" font-size="11" font-weight="600">resume · fork · handoff</text>
+<path d="M316,282 H402" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<rect x="329.4" y="259" width="59.1" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="359" y="273" text-anchor="middle" fill="#707873" font-size="11">capture</text>
+<path d="M316,547 H360 V296 H402" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<rect x="321.2" y="466" width="77.6" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="360" y="480" text-anchor="middle" fill="#707873" font-size="11">checkpoint</text>
+<path d="M600,336 V378 H494" fill="none" stroke="#a1844c" stroke-width="2.2" marker-end="url(#arrow-gold)"/>
+<rect x="509.0" y="353" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="536" y="367" text-anchor="middle" fill="#707873" font-size="11">policy</text>
+<path d="M586,422 H614" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<path d="M706,378 V336" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<rect x="706.1" y="348" width="83.8" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="748" y="362" text-anchor="middle" fill="#707873" font-size="11">materialize</text>
+<rect x="884" y="180" width="104.1" height="28" rx="14" fill="#e9edf5" stroke="#69779b" stroke-opacity=".3"/>
+<text x="936.0" y="198" text-anchor="middle" fill="#69779b" font-size="11" font-weight="600">Cloud · Linux</text>
+<g filter="url(#shadow)"><rect x="884" y="240" width="244" height="84" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="898" y="256" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="917" y="281" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">B</text>
+<text x="948" y="271" fill="#202522" font-size="14" font-weight="700">Harness B · Claude</text>
+<text x="948" y="290" fill="#707873" font-size="11">resumed with context</text>
+<g filter="url(#shadow)"><rect x="884" y="374" width="244" height="84" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="898" y="390" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="917" y="415" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">ENV</text>
+<text x="948" y="405" fill="#202522" font-size="14" font-weight="700">Workspace B</text>
+<text x="948" y="424" fill="#707873" font-size="11">container · new tools</text>
+<g filter="url(#shadow)"><rect x="884" y="508" width="244" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="898" y="524" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="917" y="549" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">LN</text>
+<text x="948" y="539" fill="#202522" font-size="14" font-weight="700">Continued lineage</text>
+<text x="948" y="558" fill="#707873" font-size="11">same intent, new runtime</text>
+<path d="M798,272 H884" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<rect x="814.0" y="249" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="841" y="263" text-anchor="middle" fill="#707873" font-size="11">resume</text>
+<path d="M1006,324 V374" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<path d="M1006,458 V508" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<path d="M884,547 H832 V590 H812 V336 H798" fill="none" stroke="#7b6d93" stroke-width="2.2" stroke-dasharray="7,5" marker-end="url(#arrow-purple)"/>
+<rect x="700.7" y="570" width="114.6" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="758" y="584" text-anchor="middle" fill="#707873" font-size="11">result + lineage</text>
+<line x1="56" y1="685" x2="86" y2="685" stroke="#467061" stroke-width="2"/>
+<text x="94" y="689" fill="#707873" font-size="11">canonical capture</text>
+<line x1="242.72000000000003" y1="685" x2="272.72" y2="685" stroke="#69779b" stroke-width="2"/>
+<text x="280.72" y="689" fill="#707873" font-size="11">handoff / resume</text>
+<line x1="423.28000000000003" y1="685" x2="453.28000000000003" y2="685" stroke="#7b6d93" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="461.28000000000003" y="689" fill="#707873" font-size="11">lineage feedback</text>
+<text x="1144" y="689" text-anchor="end" fill="#9aa09c" font-size="10" letter-spacing="1">UNIVERSAL SESSION LOG</text>
+</svg>

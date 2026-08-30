@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}</style>
+<defs>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#202522" flood-opacity=".08"/></filter>
+<marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#467061"/></marker>
+<marker id="arrow-orange" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#aa6948"/></marker>
+<marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#69779b"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#7b6d93"/></marker>
+</defs>
+<rect width="1200" height="720" fill="#f7f6f2"/>
+<text x="56" y="54" fill="#467061" font-size="12" font-weight="700" letter-spacing="2.2">SCENARIO 03 · SESDB</text>
+<text x="56" y="94" fill="#202522" font-size="30" font-weight="700">在一个平台浏览所有 Agent 会话</text>
+<text x="56" y="122" fill="#707873" font-size="14">跨 Runtime 搜索和检查 canonical session，同时保留原生证据。</text>
+<rect x="44" y="152" width="250" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="60" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">全部来源</text>
+<rect x="318" y="152" width="304" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="334" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">查询平面</text>
+<rect x="646" y="152" width="510" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="662" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">交互式控制台</text>
+<g filter="url(#shadow)"><rect x="68" y="194" width="202" height="72" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="210" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="101" y="235" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">CX</text>
+<text x="132" y="225" fill="#202522" font-size="14" font-weight="700">Codex</text>
+<text x="132" y="244" fill="#707873" font-size="11">原生 Session Log</text>
+<g filter="url(#shadow)"><rect x="68" y="290" width="202" height="72" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="306" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="101" y="331" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">CL</text>
+<text x="132" y="321" fill="#202522" font-size="14" font-weight="700">Claude Code</text>
+<text x="132" y="340" fill="#707873" font-size="11">原生 Session Log</text>
+<g filter="url(#shadow)"><rect x="68" y="386" width="202" height="72" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="402" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="101" y="427" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">PI</text>
+<text x="132" y="417" fill="#202522" font-size="14" font-weight="700">Pi</text>
+<text x="132" y="436" fill="#707873" font-size="11">原生 Session Log</text>
+<g filter="url(#shadow)"><rect x="68" y="482" width="202" height="72" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="498" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="101" y="523" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">OC</text>
+<text x="132" y="513" fill="#202522" font-size="14" font-weight="700">OpenCode</text>
+<text x="132" y="532" fill="#707873" font-size="11">原生 Session Log</text>
+<path d="M270,230 H354" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M270,326 H354" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M270,422 H354" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M270,518 H354" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<g filter="url(#shadow)"><rect x="354" y="214" width="232" height="114" rx="18" fill="#202522" stroke="#314139" stroke-width="2"/></g>
+<ellipse cx="400" cy="252" rx="25" ry="9" fill="#466e61" stroke="#83a99b"/>
+<path d="M375,252 v28 c0,5 11,9 25,9 s25,-4 25,-9 v-28" fill="#35584d" stroke="#83a99b"/>
+<ellipse cx="400" cy="280" rx="25" ry="9" fill="#315247" stroke="#83a99b"/>
+<text x="438" y="250" fill="#ffffff" font-size="19" font-weight="700">SESDB</text>
+<text x="438" y="273" fill="#b9c5bf" font-size="11">canonical 时间线</text>
+<text x="438" y="291" fill="#b9c5bf" font-size="11">Runtime provenance</text>
+<g filter="url(#shadow)"><rect x="354" y="366" width="232" height="80" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="368" y="382" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="387" y="407" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">Q</text>
+<text x="418" y="397" fill="#202522" font-size="14" font-weight="700">SessionQL</text>
+<text x="418" y="416" fill="#707873" font-size="11">搜索 · 筛选 · Lineage</text>
+<g filter="url(#shadow)"><rect x="354" y="484" width="232" height="76" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="368" y="500" width="38" height="38" rx="9" fill="#f3eddf" stroke="#a1844c" stroke-opacity=".28"/>
+<text x="387" y="525" text-anchor="middle" fill="#a1844c" font-size="14" font-weight="700">EV</text>
+<text x="418" y="515" fill="#202522" font-size="14" font-weight="700">证据解析器</text>
+<text x="418" y="534" fill="#707873" font-size="11">事件 → 原始偏移</text>
+<path d="M470,328 V366" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M470,446 V484" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<g filter="url(#shadow)"><rect x="682" y="186" width="438" height="382" rx="14" fill="#fffefa" stroke="#cfd5d0"/></g>
+<rect x="682" y="186" width="438" height="34" rx="14" fill="#202522"/><rect x="682" y="207" width="438" height="13" fill="#202522"/>
+<circle cx="700" cy="203" r="4" fill="#d97663"/>
+<circle cx="716" cy="203" r="4" fill="#d7a44c"/>
+<circle cx="732" cy="203" r="4" fill="#6f9a7f"/>
+<text x="754" y="207" fill="#dfe5e1" font-size="10" font-weight="600">SESDB CONSOLE</text>
+<rect x="698" y="236" width="116" height="312" rx="8" fill="#202522"/>
+<rect x="708" y="252" width="96" height="32" rx="6" fill="none"/>
+<text x="720" y="272" fill="#d9e1dc" font-size="10">概览</text>
+<rect x="708" y="295" width="96" height="32" rx="6" fill="#355248"/>
+<text x="720" y="315" fill="#d9e1dc" font-size="10">会话</text>
+<rect x="708" y="338" width="96" height="32" rx="6" fill="none"/>
+<text x="720" y="358" fill="#d9e1dc" font-size="10">分析</text>
+<rect x="708" y="381" width="96" height="32" rx="6" fill="none"/>
+<text x="720" y="401" fill="#d9e1dc" font-size="10">Runtime</text>
+<rect x="708" y="424" width="96" height="32" rx="6" fill="none"/>
+<text x="720" y="444" fill="#d9e1dc" font-size="10">存储</text>
+<rect x="830" y="238" width="274" height="36" rx="8" fill="#f3f4f1" stroke="#d9ddd8"/><text x="846" y="261" fill="#8b918d" font-size="10">搜索会话、项目、工具…</text>
+<rect x="830" y="292" width="274" height="64" rx="8" fill="#e8f0ec" stroke="#467061" stroke-opacity=".24"/>
+<text x="846" y="317" fill="#202522" font-size="12" font-weight="700">会话时间线</text><text x="846" y="336" fill="#707873" font-size="10">消息 · 工具 · 推理</text>
+<rect x="830" y="374" width="274" height="64" rx="8" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".24"/>
+<text x="846" y="399" fill="#202522" font-size="12" font-weight="700">原生证据</text><text x="846" y="418" fill="#707873" font-size="10">原始偏移与 Payload</text>
+<rect x="830" y="456" width="274" height="64" rx="8" fill="#e9edf5" stroke="#69779b" stroke-opacity=".24"/>
+<text x="846" y="481" fill="#202522" font-size="12" font-weight="700">用量摘要</text><text x="846" y="500" fill="#707873" font-size="10">Token · 缓存 · 错误</text>
+<path d="M586,406 H646 V377 H682" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<rect x="598.3" y="354" width="71.4" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="634" y="368" text-anchor="middle" fill="#707873" font-size="11">类型化结果</text>
+<path d="M586,522 H646 V520 H682" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<rect x="605.0" y="497" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="632" y="511" text-anchor="middle" fill="#707873" font-size="11">证据</text>
+<line x1="56" y1="685" x2="86" y2="685" stroke="#467061" stroke-width="2"/>
+<text x="94" y="689" fill="#707873" font-size="11">查询与结果</text>
+<line x1="193.44" y1="685" x2="223.44" y2="685" stroke="#aa6948" stroke-width="2"/>
+<text x="231.44" y="689" fill="#707873" font-size="11">证据链接</text>
+<text x="1144" y="689" text-anchor="end" fill="#9aa09c" font-size="10" letter-spacing="1">UNIVERSAL SESSION LOG</text>
+</svg>

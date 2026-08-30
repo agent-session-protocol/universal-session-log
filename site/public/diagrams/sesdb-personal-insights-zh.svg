@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}</style>
+<defs>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="7" stdDeviation="10" flood-color="#202522" flood-opacity=".08"/></filter>
+<marker id="arrow-green" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#467061"/></marker>
+<marker id="arrow-orange" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#aa6948"/></marker>
+<marker id="arrow-blue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#69779b"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 Z" fill="#7b6d93"/></marker>
+</defs>
+<rect width="1200" height="720" fill="#f7f6f2"/>
+<text x="56" y="54" fill="#467061" font-size="12" font-weight="700" letter-spacing="2.2">SCENARIO 02 · SESDB</text>
+<text x="56" y="94" fill="#202522" font-size="30" font-weight="700">让个人会话成为工作的操作系统</text>
+<text x="56" y="122" fill="#707873" font-size="14">关联活动、项目、工具与成本，并从同一事实产出周报和长期记忆。</text>
+<rect x="44" y="152" width="266" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="60" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">个人活动</text>
+<rect x="334" y="152" width="326" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="350" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">会话智能</text>
+<rect x="684" y="152" width="472" height="472" rx="16" fill="#ffffff" fill-opacity=".45" stroke="#d9ddd8" stroke-dasharray="6,5"/>
+<text x="700" y="176" fill="#707873" font-size="10" font-weight="700" letter-spacing="1.4">可用产出</text>
+<g filter="url(#shadow)"><rect x="68" y="204" width="218" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="220" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="101" y="245" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">DEV</text>
+<text x="132" y="235" fill="#202522" font-size="14" font-weight="700">编码会话</text>
+<text x="132" y="254" fill="#707873" font-size="11">提示 · 编辑 · 工具</text>
+<g filter="url(#shadow)"><rect x="68" y="318" width="218" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="334" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="101" y="359" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">PRJ</text>
+<text x="132" y="349" fill="#202522" font-size="14" font-weight="700">项目</text>
+<text x="132" y="368" fill="#707873" font-size="11">仓库 · 分支 · 里程碑</text>
+<g filter="url(#shadow)"><rect x="68" y="432" width="218" height="78" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="82" y="448" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="101" y="473" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">TOK</text>
+<text x="132" y="463" fill="#202522" font-size="14" font-weight="700">用量与成本</text>
+<text x="132" y="482" fill="#707873" font-size="11">Token · 缓存 · Runtime</text>
+<rect x="86" y="548" width="101.6" height="28" rx="14" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".3"/>
+<text x="136.8" y="566" text-anchor="middle" fill="#7b6d93" font-size="11" font-weight="600">一条私有时间线</text>
+<path d="M286,243 H370" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<rect x="301.0" y="220" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="328" y="234" text-anchor="middle" fill="#707873" font-size="11">events</text>
+<path d="M286,357 H370" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<rect x="298.4" y="334" width="59.1" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="328" y="348" text-anchor="middle" fill="#707873" font-size="11">context</text>
+<path d="M286,471 H370" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<rect x="301.0" y="448" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="328" y="462" text-anchor="middle" fill="#707873" font-size="11">usage</text>
+<g filter="url(#shadow)"><rect x="370" y="226" width="254" height="116" rx="18" fill="#202522" stroke="#314139" stroke-width="2"/></g>
+<ellipse cx="416" cy="264" rx="25" ry="9" fill="#466e61" stroke="#83a99b"/>
+<path d="M391,264 v28 c0,5 11,9 25,9 s25,-4 25,-9 v-28" fill="#35584d" stroke="#83a99b"/>
+<ellipse cx="416" cy="292" rx="25" ry="9" fill="#315247" stroke="#83a99b"/>
+<text x="454" y="262" fill="#ffffff" font-size="19" font-weight="700">SESDB</text>
+<text x="454" y="285" fill="#b9c5bf" font-size="11">身份 · 时间 · 项目</text>
+<text x="454" y="303" fill="#b9c5bf" font-size="11">证据可追溯的历史</text>
+<g filter="url(#shadow)"><rect x="370" y="382" width="254" height="82" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="384" y="398" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="403" y="423" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">SQL</text>
+<text x="434" y="413" fill="#202522" font-size="14" font-weight="700">SessionQL 分析</text>
+<text x="434" y="432" fill="#707873" font-size="11">分组 · 关联 · 聚合</text>
+<g filter="url(#shadow)"><rect x="370" y="500" width="254" height="72" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="384" y="516" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="403" y="541" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">MEM</text>
+<text x="434" y="531" fill="#202522" font-size="14" font-weight="700">记忆编译器</text>
+<text x="434" y="550" fill="#707873" font-size="11">提取 · 整合 · 过期</text>
+<path d="M497,342 V382" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<path d="M497,464 V500" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<g filter="url(#shadow)"><rect x="720" y="204" width="188" height="86" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="734" y="220" width="38" height="38" rx="9" fill="#e8f0ec" stroke="#467061" stroke-opacity=".28"/>
+<text x="753" y="245" text-anchor="middle" fill="#467061" font-size="14" font-weight="700">W</text>
+<text x="784" y="235" fill="#202522" font-size="14" font-weight="700">个人周报</text>
+<text x="784" y="254" fill="#707873" font-size="11">成果与证据</text>
+<g filter="url(#shadow)"><rect x="934" y="204" width="188" height="86" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="948" y="220" width="38" height="38" rx="9" fill="#eeeaf3" stroke="#7b6d93" stroke-opacity=".28"/>
+<text x="967" y="245" text-anchor="middle" fill="#7b6d93" font-size="14" font-weight="700">M</text>
+<text x="998" y="235" fill="#202522" font-size="14" font-weight="700">长期记忆</text>
+<text x="998" y="254" fill="#707873" font-size="11">事实与决策</text>
+<g filter="url(#shadow)"><rect x="720" y="382" width="188" height="86" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="734" y="398" width="38" height="38" rx="9" fill="#e9edf5" stroke="#69779b" stroke-opacity=".28"/>
+<text x="753" y="423" text-anchor="middle" fill="#69779b" font-size="14" font-weight="700">T</text>
+<text x="784" y="413" fill="#202522" font-size="14" font-weight="700">Token 看板</text>
+<text x="784" y="432" fill="#707873" font-size="11">Runtime · 缓存 · 成本</text>
+<g filter="url(#shadow)"><rect x="934" y="382" width="188" height="86" rx="12" fill="#fffefa" stroke="#d9ddd8"/></g>
+<rect x="948" y="398" width="38" height="38" rx="9" fill="#f6ebe5" stroke="#aa6948" stroke-opacity=".28"/>
+<text x="967" y="423" text-anchor="middle" fill="#aa6948" font-size="14" font-weight="700">G</text>
+<text x="998" y="413" fill="#202522" font-size="14" font-weight="700">项目关系图</text>
+<text x="998" y="432" fill="#707873" font-size="11">会话 ↔ 里程碑</text>
+<path d="M624,423 H682 V247 H720" fill="none" stroke="#467061" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+<rect x="655.0" y="224" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="682" y="238" text-anchor="middle" fill="#707873" font-size="11">总结</text>
+<path d="M624,536 H700 V310 H1028 V290" fill="none" stroke="#7b6d93" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+<rect x="819.0" y="290" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="846" y="304" text-anchor="middle" fill="#707873" font-size="11">记忆</text>
+<path d="M624,423 H682 V425 H720" fill="none" stroke="#69779b" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
+<rect x="655.0" y="402" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="682" y="416" text-anchor="middle" fill="#707873" font-size="11">度量</text>
+<path d="M624,423 H682 V490 H1028 V468" fill="none" stroke="#aa6948" stroke-width="2.2" marker-end="url(#arrow-orange)"/>
+<rect x="819.0" y="470" width="54.0" height="21" rx="5" fill="#f7f6f2" fill-opacity=".96"/>
+<text x="846" y="484" text-anchor="middle" fill="#707873" font-size="11">关联</text>
+<rect x="770" y="534" width="123.8" height="28" rx="14" fill="#e8f0ec" stroke="#467061" stroke-opacity=".3"/>
+<text x="831.9" y="552" text-anchor="middle" fill="#467061" font-size="11" font-weight="600">同一事实，多种视图</text>
+<line x1="56" y1="685" x2="86" y2="685" stroke="#467061" stroke-width="2"/>
+<text x="94" y="689" fill="#707873" font-size="11">会话事实</text>
+<line x1="182.352" y1="685" x2="212.352" y2="685" stroke="#69779b" stroke-width="2"/>
+<text x="220.352" y="689" fill="#707873" font-size="11">用量指标</text>
+<line x1="308.704" y1="685" x2="338.704" y2="685" stroke="#7b6d93" stroke-width="2"/>
+<text x="346.704" y="689" fill="#707873" font-size="11">记忆写入</text>
+<text x="1144" y="689" text-anchor="end" fill="#9aa09c" font-size="10" letter-spacing="1">UNIVERSAL SESSION LOG</text>
+</svg>
