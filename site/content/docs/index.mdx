@@ -9,6 +9,7 @@ description: USL — the agent-session database
 |---|---|---|
 | **Storage format** | append-only single file, framed records + CRC | `crates/usl-core/src/format.rs` |
 | **Query API** | scan / get / verify / fromSeq over sessions | `crates/usl-core/src/store.rs` |
+| **Query plane** | SessionQL, typed Query IR, search, lineage, subscriptions | RFC 0001 (Draft) |
 | **Durability & recovery** | group-commit append, crash recovery from the log | `crates/usl-core/src/recover.rs` |
 | **Identity** | content-addressed session ids | `crates/usl-core/src/identity.rs` |
 | **Live capture** | file-boundary ingest, chunk-invariant framing | `crates/usl-capture/` |
@@ -25,6 +26,9 @@ Agent runtimes proliferate, and each locks its session history in its own log fo
 - [Getting started](./getting-started) — open a store, append, scan.
 - [Storage format](./storage-format) — the on-disk byte layout.
 - [Query API](./query) — what you can ask of a store.
+- [SessionQL](./sessionql) — the draft portable query language and typed IR.
+- [Search & indexing](./search-and-indexing) — evidence-bearing search, snapshots, and sidecars.
+- [Insights & subscriptions](./insights-and-subscriptions) — derived knowledge and replay-plus-tail audit streams.
 - [Live capture](./capture) — ingesting a running harness's log.
 - [Conversion](./conversion) — moving sessions across harnesses.
 - [Architecture](./architecture) — the whole picture, with a diagram.

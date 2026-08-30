@@ -1,0 +1,76 @@
+---
+title: SessionQL 1.0
+description: The draft engine-independent language and typed Query IR
+---
+
+> **Status: Draft.** This page summarizes RFC 0001. It is a normative implementation target, not yet the complete `usl-core` API.
+
+SessionQL is a single-source, left-to-right pipeline language for canonical agent-session data. It is intentionally narrower than SQL: each stage has a statically checked input and output row type, ordering is deterministic, and every query maps one-to-one to a typed JSON Query IR.
+
+## Sources and stages
+
+```text
+from sessions | events | turns | messages | tools | approvals
+     | artifacts | chunks | lineage | insights
+| where ...
+| search text | semantic | hybrid ...
+| match ...
+| traverse ...
+| group by ...
+| summarize ...
+| project ...
+| sort by ...
+| limit ...
+```
+
+Unknown fields fail static validation instead of becoming `null`. Strings follow JSON escaping, timestamps are zoned RFC 3339 values, and user input should be supplied as typed `$parameters` rather than interpolated into query text.
+
+```text
+from tools
+| where tool.name = $tool and event.time between $start and $end
+| project sessionId, turnId, tool.status, tool.durationMs
+| sort by event.time desc, toolCallId asc
+| limit 100
+```
+
+## Search with evidence
+
+`search text`, `search semantic`, and `search hybrid` return evidence-bearing chunks rather than opaque scores. Hybrid search uses reciprocal rank fusion with a fixed constant of 60. Without an explicit `recency_boost`, time is only a stable tie-breaker and cannot silently change relevance.
+
+```text
+from sessions
+| search hybrid $question language $language top 3
+| where provenance.runtime in $runtimes
+| project sessionId, title, search.hits, search.score
+| sort by search.score desc, sessionId asc
+| limit 20
+```
+
+## Event sequences
+
+`match` expresses bounded event patterns. `next` requires adjacency; `then` permits intervening events; `not X until B` is legal only when closed by a later positive event or finite `within` window.
+
+```text
+from events
+| match a: event.type = "tool.call"
+        then not event.type = "approval.decided" until b: event.type = "tool.result"
+        within 10m
+| project sessionId, a.eventId, b.eventId
+```
+
+## Lineage
+
+`traverse` follows explicit `fork`, `resume`, `handoff`, and `subagent` edges with a mandatory bounded depth. Results sort by depth, edge sequence, and edge identity; cycles are truncated and disclosed by `explain`.
+
+```text
+from sessions
+| where sessionId = $root
+| traverse {fork, subagent} direction out depth 1..4
+| project sessionId, lineage.depth, lineage.path
+```
+
+## Query IR is the compatibility boundary
+
+Every legal text stage has exactly one ordered, typed IR stage. `parse(print(plan))` must preserve semantics, unknown major versions are rejected, and executors may not hide capabilities in IR that text SessionQL cannot express. This lets a visual query builder, SDK, CLI, or natural-language translator produce the same portable plan.
+
+See [Query Plane](./query) for request/result envelopes and [Search & indexing](./search-and-indexing) for snapshot consistency.

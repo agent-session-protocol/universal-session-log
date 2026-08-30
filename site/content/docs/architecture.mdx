@@ -18,6 +18,8 @@ usl-core (Rust)         storage engine: append-only, crash-recoverable, schema-a
 - **usl-convert** maps harness-native formats to and from the ASP canonical schema.
 - **usl-fuse** (paused) was the FUSE mount layer — blocked by the lack of a usable FUSE on macOS 26.
 
+RFC 0001 adds a query plane above the canonical ASP projection: SessionQL/Query IR, rebuildable structured and search sidecars, fixed `asOfSeq` snapshots, lineage, Insights, subscriptions, Resume descriptors, and an optional read-only SQL attachment. These are draft contracts, not yet all implemented in `usl-core`.
+
 ## Interactive diagram
 
 The full isometric architecture map — modules, districts, data flows, and a health report — is generated from the code and verified against it:

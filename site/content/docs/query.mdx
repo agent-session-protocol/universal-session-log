@@ -1,9 +1,18 @@
 ---
-title: Query API
-description: What you can ask of a USL store
+title: Query Plane
+description: Today's storage API and the draft SessionQL 1.0 contract
 ---
 
-USL's query surface is a **domain API, not SQL**. The workload is append-heavy session logs, so reads are session-scoped scans:
+USL has two deliberately separate query surfaces:
+
+1. the **implemented L1 storage API**, a small Rust API for deterministic record reads;
+2. the **draft portable query plane** in [RFC 0001](https://github.com/agent-session-protocol/universal-session-log/blob/main/docs/rfcs/0001-sessionql-query-plane.md), which specifies SessionQL 1.0, Query IR 1.0, search, lineage, insights, subscriptions, and a read-only SQL attachment.
+
+The RFC is an implementation contract, not a claim that every capability below ships in `usl-core` today.
+
+## Implemented: L1 storage API
+
+The current Rust surface is session-scoped and schema-agnostic:
 
 ```rust
 Store::create(path, opts) / Store::open(path, opts) -> Store
@@ -23,11 +32,41 @@ Store::verify(path) -> Verification     // read-only integrity report
 
 ## The index
 
-The store keeps an in-memory `Index` (`session_id → frame offsets`), rebuilt by replaying the log on open. Reads open a fresh file handle and re-verify CRC on every frame — defense in depth against silent corruption.
+The store keeps an in-memory `Index` (`session_id → frame offsets`), rebuilt by replaying the log on open. Reads open a fresh file handle and re-verify CRC on every frame — defense in depth against silent corruption. This index is part of the current L1 engine; it is not the structured/full-text/vector sidecar system proposed by RFC 0001.
 
-## Not in scope (roadmap)
+## Draft: portable query contract
 
-- A query *language* (SQL-like DSL) is not present; the API is typed and session-scoped.
-- WAL + checkpoint for fast open on large stores; segment rollover; retention/compaction.
+The RFC adds a stable boundary shared by CLIs, SDKs, UIs, natural-language translators, and interchangeable execution engines:
+
+| operation | purpose |
+|---|---|
+| `query.execute` | Execute SessionQL text or a typed `QueryPlanV1` |
+| `query.explain` | Return the normalized plan, indexes, row counts, scores, and freshness decision |
+| `query.subscribe` | Replay then tail a deterministic, bounded audit query |
+| `resume.describe` | Locate a result in its original runtime without overstating resume capabilities |
+
+Every result is fixed to an `asOfSeq`. Cursors bind the query, access policy, snapshot, index generations, and full sort key, so pagination cannot silently drift after concurrent appends.
+
+```typescript
+interface QueryResultV1<Row> {
+  apiVersion: "query.usl.dev/v1";
+  queryHash: string;
+  asOfSeq: number;
+  watermarks: IndexWatermarkV1[];
+  rows: Row[];
+  nextCursor?: string;
+  warnings: QueryWarningV1[];
+  explain?: QueryExplainV1;
+}
+```
+
+## System boundary
+
+- **ASP** defines canonical events, identity, causality, and provenance.
+- **USL** persists the append-only source of truth and defines query semantics.
+- **SESDB** may execute the plan, but does not define the specification.
+- **SQL** is an optional read-only analytics attachment, not a SessionQL equivalent.
+
+Continue with [SessionQL](./sessionql), [Search & indexing](./search-and-indexing), or [Insights & subscriptions](./insights-and-subscriptions).
 
 Source of truth: [`usl-core/src/store.rs`](https://github.com/agent-session-protocol/universal-session-log/blob/main/crates/usl-core/src/store.rs).

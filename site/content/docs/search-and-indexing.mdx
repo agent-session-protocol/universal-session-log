@@ -1,0 +1,51 @@
+---
+title: Search & Indexing
+description: Evidence chunks, rebuildable sidecars, and fixed query snapshots
+---
+
+> **Status: Draft RFC 0001.** The append log is the source of truth; the sidecar query system described here is the target architecture.
+
+USL search is designed to be explainable and rebuildable. Structured, full-text, vector, lineage, and analytics indexes are **derived sidecars**. Deleting them must never delete canonical session facts.
+
+## Evidence-bearing chunks
+
+The default search unit is a Turn or task episode. Every `SearchChunkV1` includes:
+
+- stable `chunkId`, `sessionId`, and optional run/turn/episode identity;
+- redacted canonical text and the fields that contributed it;
+- `evidenceEventIds` back to visible canonical events;
+- UTF-8 byte offsets into the redacted text;
+- ASP, chunker, and redaction-policy versions.
+
+Chunks cannot cross Session boundaries or mix Turns in ways that blur role or causality. The default target is about 768 embedding tokens with 96 tokens of overlap; exact tokenizer and boundary rules are versioned.
+
+Raw/opaque payloads are excluded from default indexes. Tool names, parameter keys, redacted paths/domains, status, and summaries may be indexed; secrets and complete environment variables may not. Full Tool Results require an ACL-isolated text index and do not receive embeddings by default.
+
+## Immutable generations
+
+Each index generation has a manifest containing its kind, generation ID, `builtThroughSeq`, schema and ASP versions, chunker/embedding metadata, and redaction policy hash. Builders write and verify a new generation before atomically switching the manifest pointer. Queries already in flight continue on their pinned generation.
+
+## One snapshot per query
+
+The planner determines the required indexes and fixes one `asOfSeq`:
+
+- `freshness: indexed` chooses the minimum of the committed L1 sequence and every required index watermark;
+- `freshness: wait(timeout)` waits for all required indexes to reach the L1 sequence observed at query start;
+- a disclosed L1 tail scan may fill an index gap without changing snapshot semantics;
+- watermark lag must never be labeled as latest.
+
+The response reports every inspected generation and watermark. A cursor binds those generations, `asOfSeq`, query hash, access policy, and the last row's complete sort key.
+
+## Hybrid ranking
+
+Text and vector rankings combine using fixed reciprocal rank fusion:
+
+```text
+rrfScore(d) = sum(1 / (60 + rank_i(d)))
+```
+
+Stable order is `rrfScore desc`, best source rank, event time, then `chunkId`. Explain output must expose score components, fallbacks, truncation, and freshness decisions without leaking inaccessible entities.
+
+## Read-only SQL attachment
+
+An implementation may expose DuckDB/Parquet snapshots for supported projections and aggregations. The attachment is read-only, fixed to an `asOfSeq`, and must match SessionQL under the same ASP projection and ACL. It does not promise semantic search, evidence snippets, Resume, lineage semantics, or subscriptions.

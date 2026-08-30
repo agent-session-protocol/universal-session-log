@@ -1,0 +1,37 @@
+---
+title: Insights & Subscriptions
+description: Provenance-aware derived knowledge and deterministic live audit
+---
+
+> **Status: Draft RFC 0001.** These contracts keep derived interpretation separate from canonical facts.
+
+## Insight stream
+
+An Insight is a derived statement, never a canonical event. Insights live in a separate append-only stream with independent namespace, ACL, retention, indexing, and revisions, while sharing the database-wide `globalSeq` ordering domain.
+
+Every revision records the statement, confidence, status, evidence event IDs, source query hash, producer Skill/model/prompt metadata, redaction policy, actor, and sequence. Missing provenance is invalid.
+
+```text
+proposed ──► confirmed
+    ├──────► rejected
+    └──────► superseded
+confirmed ─► superseded
+```
+
+Agent context returns only confirmed insights by default. Insight generation excludes prior insights unless explicitly enabled; enabled dependencies must be marked and checked for cycles. Corrections append a new revision instead of overwriting history.
+
+## Original-runtime Resume
+
+A result does not imply that its original runtime can still resume it. `resume.describe` uses ASP provenance to return the native runtime/session identity, locate the matched run/turn/event, and list current capabilities such as `resume`, `fork-current`, `open`, or `locate-turn`. Unsupported historical fork or cross-runtime handoff is reported explicitly.
+
+## Replay plus tail
+
+A subscription first replays through a fixed `globalSeq` watermark, then tails the same ordered domain. Delivery is at least once: consumers deduplicate by `deliveryId` or a stable domain identity. Resumable cursors bind the query, parameters, policy, and processed sequence; an expired cursor returns `cursor_expired` rather than skipping retained history silently.
+
+The subscription subset must be deterministic and memory-bounded. It may include structured filters/projections, bounded `match within`, limited time-window aggregation, and stable bounded top-N. Semantic/hybrid search, LLM inference, unbounded negation, unbounded lineage, and nondeterministic functions are not allowed.
+
+## Security boundary
+
+Authorization happens before planning, statistics, index selection, and caching. Hidden entities must not leak through counts, scores, watermarks, explain output, errors, or cache timing. Audit logs capture the actor, query/policy hashes, snapshot, index generations, and outcome—but never plaintext secret parameters.
+
+Live subscriptions are for audit, alerts, and notifications. They do not block tool execution; pre-execution admission requires a separate runtime protocol.
