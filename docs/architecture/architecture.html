@@ -568,6 +568,14 @@ if (LANG === "en") {
   DATA.wiki = { ...DATA.wiki, ...EN_WIKI };
 }
 
+// The public product map shows architecture and implementation status in context.
+// Repository health metrics remain in docs/architecture/wiki/health.md for maintainers.
+delete DATA.health;
+delete DATA.wiki["health.md"];
+DATA.nodes.forEach(node => delete node.health);
+DATA.wiki["index.md"] = (DATA.wiki["index.md"] || "")
+  .replace(/\n- \[(?:体检报告|Health report)\]\(health\.md\)/g, "");
+
 const FLOWS = DATA.flows || [];
 const WIKI = DATA.wiki || {};
 
