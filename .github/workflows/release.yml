@@ -36,7 +36,3 @@ jobs:
         working-directory: packages/usl-convert
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Make the package publicly readable
-        run: gh api --method PATCH "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/npm/usl-convert" -f visibility=public
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
