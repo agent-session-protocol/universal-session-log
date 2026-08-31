@@ -54,3 +54,7 @@ This repository contains only the implementation; the protocol layer (canonical 
 ## Status
 
 **Validation stage**: storage engine 32 tests, capture 21 tests, conversion 25 tests — all green; real-data smoke — a Codex session (303 messages / 91 tools / 99 encrypted-reasoning blobs) round-trips through pi with zero loss.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=agent-session-protocol/universal-session-log&type=Date)](https://www.star-history.com/#agent-session-protocol/universal-session-log&Date)
