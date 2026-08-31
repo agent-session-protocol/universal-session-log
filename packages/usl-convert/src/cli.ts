@@ -1,11 +1,13 @@
+#!/usr/bin/env node
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { validateBundle, type SessionBundle } from "./bundle.ts";
-import { exportPiSession, importPiSessionFile } from "./pi.ts";
-import { exportDimagentSession, importDimagentSession, writeDimagentSession } from "./dimagent.ts";
-import { importClaudeSessionFile } from "./claude.ts";
-import { exportCodexSession, importCodexSessionFile } from "./codex.ts";
+import { validateBundle, type SessionBundle } from "./bundle.js";
+import { exportPiSession, importPiSessionFile } from "./pi.js";
+import { exportDimagentSession, importDimagentSession, writeDimagentSession } from "./dimagent.js";
+import { importClaudeSessionFile } from "./claude.js";
+import { exportCodexSession, importCodexSessionFile } from "./codex.js";
 import { DatabaseSync } from "node:sqlite";
 
 const usage = `usl-convert — cross-harness agent session handoff (pi <-> dimagent <-> claude)

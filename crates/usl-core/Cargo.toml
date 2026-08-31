@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2021"
 description = "USL — Universal Session Log storage engine (schema-agnostic, append-only, crash-recoverable). Incubated inside the e workspace but designed as an independent crate: zero dependencies on e."
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/agent-session-protocol/universal-session-log"
+homepage = "https://agent-session-protocol.github.io/universal-session-log/"
+keywords = ["agent", "session", "log", "storage"]
+categories = ["database-implementations", "development-tools"]
 
 [dependencies]
 crc32fast = "1"

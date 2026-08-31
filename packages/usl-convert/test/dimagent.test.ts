@@ -3,9 +3,9 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { buildDimagentFixture, buildScratchDb, DIMAGENT_FIXTURE_SESSION_ID } from "./fixtures.ts";
-import { exportDimagentSession, importDimagentSession, writeDimagentSession } from "../src/dimagent.ts";
-import { validateBundle } from "../src/bundle.ts";
+import { buildDimagentFixture, buildScratchDb, DIMAGENT_FIXTURE_SESSION_ID } from "./fixtures.js";
+import { exportDimagentSession, importDimagentSession, writeDimagentSession } from "../src/dimagent.js";
+import { validateBundle } from "../src/bundle.js";
 
 test("dimagent import builds the canonical snapshot", () => {
   const fixture = buildDimagentFixture();

@@ -4,7 +4,7 @@ import {
   validateAgentEnvelope,
   type AgentEventEnvelope,
   type AgentSessionEventType,
-} from "./asp-schema/agent-session-contracts.ts";
+} from "./asp-schema/agent-session-contracts.js";
 
 /**
  * Ordered evidence builder shared by all importers.

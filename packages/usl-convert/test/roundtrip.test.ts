@@ -3,10 +3,10 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { buildDimagentFixture, buildScratchDb, DIMAGENT_FIXTURE_SESSION_ID, PI_FIXTURE } from "./fixtures.ts";
-import { importPiSession, exportPiSession } from "../src/pi.ts";
-import { importDimagentSession, exportDimagentSession, writeDimagentSession } from "../src/dimagent.ts";
-import { makeBundle, validateBundle, SESSION_BUNDLE_FORMAT, type SessionBundle } from "../src/bundle.ts";
+import { buildDimagentFixture, buildScratchDb, DIMAGENT_FIXTURE_SESSION_ID, PI_FIXTURE } from "./fixtures.js";
+import { importPiSession, exportPiSession } from "../src/pi.js";
+import { importDimagentSession, exportDimagentSession, writeDimagentSession } from "../src/dimagent.js";
+import { makeBundle, validateBundle, SESSION_BUNDLE_FORMAT, type SessionBundle } from "../src/bundle.js";
 
 function stripPivot(bundle: SessionBundle) {
   const p = bundle.pivot;

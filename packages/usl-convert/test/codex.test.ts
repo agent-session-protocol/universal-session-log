@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { exportCodexSession, importCodexSession } from "../src/codex.ts";
-import { exportPiSession, importPiSession } from "../src/pi.ts";
-import { validateBundle } from "../src/bundle.ts";
-import { PI_FIXTURE } from "./fixtures.ts";
+import { exportCodexSession, importCodexSession } from "../src/codex.js";
+import { exportPiSession, importPiSession } from "../src/pi.js";
+import { validateBundle } from "../src/bundle.js";
+import { PI_FIXTURE } from "./fixtures.js";
 
 const record = (value: unknown): Record<string, unknown> => (value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {});
 

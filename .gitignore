@@ -1,5 +1,6 @@
 node_modules/
 target/
+packages/usl-convert/dist/
 *.log
 .DS_Store
 .env

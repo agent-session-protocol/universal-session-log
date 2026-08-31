@@ -48,7 +48,7 @@ pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex
   "format": "asp-bundle",
   "version": 1,
   "createdAt": "ISO-8601",
-  "native": { "harness": "pi" | "dimagent", "sessionId": "...", "sourcePath": "...", "sourceSha256": "..." },
+  "native": { "harness": "pi" | "dimagent" | "claude" | "codex", "sessionId": "...", "sourcePath": "...", "sourceSha256": "..." },
   "pivot": { /* ASP AgentSessionSnapshot */ },
   "evidence": [ /* AgentEventEnvelope stream; pivot derivable from it */ ],
   "fidelity": [ { "axis": "tool-chain", "level": "preserved", "detail": "..." } ],
@@ -86,30 +86,32 @@ Known cross-direction losses (declared by the exporter):
 ## Usage
 
 ```bash
-cd packages/usl-convert && npm install
+# GitHub Packages requires a GitHub token with read:packages access.
+npm config set @agent-session-protocol:registry https://npm.pkg.github.com
+npm install @agent-session-protocol/usl-convert
 
 # list dimagent sessions
-node --import tsx src/cli.ts dimagent-list ~/.dimcode/v2/dimcode.sqlite
+usl-convert dimagent-list ~/.dimcode/v2/dimcode.sqlite
 
 # import into the intermediate format
-node --import tsx src/cli.ts import pi ~/.pi/agent/sessions/<dir>/<file>.jsonl --out a.asp-bundle.json
-node --import tsx src/cli.ts import dimagent ~/.dimcode/v2/dimcode.sqlite --session <sessionId> --out b.asp-bundle.json
-node --import tsx src/cli.ts import claude ~/.claude/projects/<dir>/<uuid>.jsonl --out c.asp-bundle.json
-node --import tsx src/cli.ts import codex ~/.codex/sessions/<yyyy>/<mm>/<dd>/rollout-<ts>-<uuid>.jsonl --out d.asp-bundle.json
+usl-convert import pi ~/.pi/agent/sessions/<dir>/<file>.jsonl --out a.asp-bundle.json
+usl-convert import dimagent ~/.dimcode/v2/dimcode.sqlite --session <sessionId> --out b.asp-bundle.json
+usl-convert import claude ~/.claude/projects/<dir>/<uuid>.jsonl --out c.asp-bundle.json
+usl-convert import codex ~/.codex/sessions/<yyyy>/<mm>/<dd>/rollout-<ts>-<uuid>.jsonl --out d.asp-bundle.json
 
 # export back out
-node --import tsx src/cli.ts export pi a.asp-bundle.json --out resumed.jsonl
-node --import tsx src/cli.ts export pi a.asp-bundle.json --install-pi          # write into ~/.pi/agent/sessions/<dir>/
-node --import tsx src/cli.ts export dimagent b.asp-bundle.json --out rows.json   # portable payload
-node --import tsx src/cli.ts export dimagent b.asp-bundle.json --write --db <db> # apply transactionally
+usl-convert export pi a.asp-bundle.json --out resumed.jsonl
+usl-convert export pi a.asp-bundle.json --install-pi          # write into ~/.pi/agent/sessions/<dir>/
+usl-convert export dimagent b.asp-bundle.json --out rows.json   # portable payload
+usl-convert export dimagent b.asp-bundle.json --write --db <db> # apply transactionally
 
 # one-shot cross conversion
-node --import tsx src/cli.ts convert pi dimagent <file.jsonl> out.json
-node --import tsx src/cli.ts convert dimagent pi <db> out.jsonl --session <sessionId>
+usl-convert convert pi dimagent <file.jsonl> out.json
+usl-convert convert dimagent pi <db> out.jsonl --session <sessionId>
 
 # introspection
-node --import tsx src/cli.ts inspect a.asp-bundle.json
-node --import tsx src/cli.ts list-formats
+usl-convert inspect a.asp-bundle.json
+usl-convert list-formats
 ```
 
 ## Safety notes
@@ -134,8 +136,7 @@ src/cli.ts           subcommands: import / export / convert / inspect / list-for
 test/                fixtures (self-contained) + unit + roundtrip tests
 ```
 
-Run checks: `npm run check` (typecheck + 14 tests incl. pi→pi, dimagent→dimagent and
-cross-harness roundtrips).
+For repository development, run `npm install && npm run check` in this directory.
 
 ## Roadmap
 

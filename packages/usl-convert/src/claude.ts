@@ -3,10 +3,10 @@ import {
   jsonValue,
   type AgentSessionEventType,
   type ContentBlock,
-} from "./asp-schema/agent-session-contracts.ts";
-import { makeBundle, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.ts";
-import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.ts";
-import { buildSnapshot } from "./materialize.ts";
+} from "./asp-schema/agent-session-contracts.js";
+import { makeBundle, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.js";
+import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.js";
+import { buildSnapshot } from "./materialize.js";
 
 /**
  * Claude Code session file -> asp-bundle.

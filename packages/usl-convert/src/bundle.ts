@@ -3,7 +3,7 @@ import {
   validateAgentEnvelope,
   type AgentEventEnvelope,
   type AgentSessionSnapshot,
-} from "./asp-schema/agent-session-contracts.ts";
+} from "./asp-schema/agent-session-contracts.js";
 
 /**
  * asp-bundle — the intermediate format for cross-harness session handoff.

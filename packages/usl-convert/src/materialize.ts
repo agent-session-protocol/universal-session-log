@@ -3,13 +3,13 @@ import {
   type AgentCapability,
   type AgentEventEnvelope,
   type AgentSessionSnapshot,
-} from "./asp-schema/agent-session-contracts.ts";
+} from "./asp-schema/agent-session-contracts.js";
 import {
   materializeMessage,
   materializeRun,
   materializeTool,
   materializeTurn,
-} from "./asp-schema/agent-session-materializer.ts";
+} from "./asp-schema/agent-session-materializer.js";
 
 /**
  * Build a canonical snapshot from an ordered evidence stream without going

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { PI_FIXTURE, PI_FIXTURE_SESSION_ID } from "./fixtures.ts";
-import { importPiSession, exportPiSession } from "../src/pi.ts";
-import { validateBundle } from "../src/bundle.ts";
+import { PI_FIXTURE, PI_FIXTURE_SESSION_ID } from "./fixtures.js";
+import { importPiSession, exportPiSession } from "../src/pi.js";
+import { validateBundle } from "../src/bundle.js";
 
 test("pi import builds the canonical snapshot", () => {
   const { bundle } = importPiSession(PI_FIXTURE);

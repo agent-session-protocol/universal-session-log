@@ -1,15 +1,39 @@
 {
-  "name": "usl-convert",
+  "name": "@agent-session-protocol/usl-convert",
   "version": "0.1.0",
-  "private": true,
   "description": "Cross-harness agent session conversion (ASP reference): pi <-> dimagent <-> claude <-> codex via the asp-bundle",
   "type": "module",
-  "exports": { ".": "./src/bundle.ts" },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agent-session-protocol/universal-session-log.git",
+    "directory": "packages/usl-convert"
+  },
+  "homepage": "https://agent-session-protocol.github.io/universal-session-log/",
+  "bugs": "https://github.com/agent-session-protocol/universal-session-log/issues",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "usl-convert": "./dist/cli.js"
+  },
   "scripts": {
     "test": "node --import tsx --test test/*.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
     "check": "npm run typecheck && npm test",
-    "cli": "node --import tsx src/cli.ts"
+    "cli": "node --import tsx src/cli.ts",
+    "prepack": "npm run check && npm run build"
   },
   "dependencies": {},
   "devDependencies": {
@@ -17,5 +41,9 @@
     "tsx": "^4.23.1",
     "typescript": "^5.9.0"
   },
-  "engines": { "node": ">=22.13" }
+  "engines": { "node": ">=22.13" },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  }
 }

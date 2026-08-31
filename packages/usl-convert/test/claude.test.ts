@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { importClaudeSession } from "../src/claude.ts";
-import { exportPiSession } from "../src/pi.ts";
-import { validateBundle } from "../src/bundle.ts";
+import { importClaudeSession } from "../src/claude.js";
+import { exportPiSession } from "../src/pi.js";
+import { validateBundle } from "../src/bundle.js";
 
 /**
  * Synthetic Claude Code session log. Models the real format semantics:
