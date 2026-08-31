@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title description">
+  <title id="title">Star history for agent-session-protocol/universal-session-log</title>
+  <desc id="description">10 GitHub stars from Aug 29, 2026 through Aug 31, 2026</desc>
+  <style>
+    .background { fill: #ffffff; }
+    .title { fill: #1f2328; font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .total { fill: #656d76; font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .axis { fill: #656d76; font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .grid { stroke: #d8dee4; stroke-width: 1; }
+    .area { fill: #2f81f7; opacity: 0.14; }
+    .line { fill: none; stroke: #2f81f7; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .point { fill: #2f81f7; stroke: #ffffff; stroke-width: 3; }
+    @media (prefers-color-scheme: dark) {
+      .background { fill: #0d1117; }
+      .title { fill: #e6edf3; }
+      .total, .axis { fill: #8d96a0; }
+      .grid { stroke: #30363d; }
+      .area { fill: #4493f8; opacity: 0.18; }
+      .line { stroke: #4493f8; }
+      .point { fill: #4493f8; stroke: #0d1117; }
+    }
+  </style>
+  <rect class="background" width="900" height="520" rx="8"/>
+  <text class="title" x="76" y="46">Star History</text>
+  <text class="total" x="76" y="70">agent-session-protocol/universal-session-log · 10 stars</text>
+  <g>
+    <line class="grid" x1="76" y1="444" x2="864" y2="444"/><text class="axis" x="62" y="449" text-anchor="end">0</text>
+    <line class="grid" x1="76" y1="373.6" x2="864" y2="373.6"/><text class="axis" x="62" y="378.6" text-anchor="end">2</text>
+    <line class="grid" x1="76" y1="303.2" x2="864" y2="303.2"/><text class="axis" x="62" y="308.2" text-anchor="end">4</text>
+    <line class="grid" x1="76" y1="232.8" x2="864" y2="232.8"/><text class="axis" x="62" y="237.8" text-anchor="end">6</text>
+    <line class="grid" x1="76" y1="162.39999999999998" x2="864" y2="162.39999999999998"/><text class="axis" x="62" y="167.39999999999998" text-anchor="end">8</text>
+    <line class="grid" x1="76" y1="92" x2="864" y2="92"/><text class="axis" x="62" y="97" text-anchor="end">10</text>
+    <text class="axis" x="76" y="478" text-anchor="start">Aug 29, 18:44</text>
+    <text class="axis" x="273" y="478" text-anchor="middle">Aug 30, 03:11</text>
+    <text class="axis" x="470" y="478" text-anchor="middle">Aug 30, 11:39</text>
+    <text class="axis" x="667" y="478" text-anchor="middle">Aug 30, 20:06</text>
+    <text class="axis" x="864" y="478" text-anchor="end">Aug 31, 04:33</text>
+    <path class="area" d="M76.0,444.0 L105.2,408.8 L390.8,373.6 L818.1,338.4 L819.1,303.2 L820.2,268.0 L822.5,232.8 L822.8,197.6 L824.9,162.4 L826.0,127.2 L834.8,92.0 L864.0,92.0 L864.0,444 L76.0,444 Z"/>
+    <path class="line" d="M76.0,444.0 L105.2,408.8 L390.8,373.6 L818.1,338.4 L819.1,303.2 L820.2,268.0 L822.5,232.8 L822.8,197.6 L824.9,162.4 L826.0,127.2 L834.8,92.0 L864.0,92.0"/>
+    <circle class="point" cx="834.8148148148148" cy="92" r="5"/>
+  </g>
+</svg>

@@ -57,4 +57,4 @@ This repository contains only the implementation; the protocol layer (canonical 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=agent-session-protocol/universal-session-log&type=Date)](https://www.star-history.com/#agent-session-protocol/universal-session-log&Date)
+![Star History Chart](docs/star-history.svg)
