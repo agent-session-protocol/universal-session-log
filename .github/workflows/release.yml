@@ -3,6 +3,7 @@ name: Publish release packages
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -23,7 +24,19 @@ jobs:
           scope: '@agent-session-protocol'
       - run: npm ci
         working-directory: packages/usl-convert
-      - run: npm publish
+      - name: Publish package if this version is new
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "${name}@${version}" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "${name}@${version} is already published"
+          else
+            npm publish
+          fi
         working-directory: packages/usl-convert
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Make the package publicly readable
+        run: gh api --method PATCH "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/npm/usl-convert" -f visibility=public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
