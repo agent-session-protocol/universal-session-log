@@ -6,6 +6,14 @@
 
 USL answers one question: **how to collect the session logs of any agent runtime (pi / Claude Code / Codex / opencode / dimagent) into a unified, recoverable, inter-convertible storage layer** — making resume / fork / handoff (cross-harness continuation) and unified history rendering possible.
 
+## SESDB Console
+
+Browse sessions and native events, compare runtime usage, and inspect storage and integrity from one management console. The hosted interactive demo uses safe sample data and requires no setup.
+
+[Open the interactive demo](https://agent-session-protocol.github.io/universal-session-log/console?lang=en)
+
+[![SESDB Console overview](site/public/screenshots/admin/overview-en.png)](https://agent-session-protocol.github.io/universal-session-log/console?lang=en)
+
 ## Three core properties
 
 1. **Storage-first; correctness comes from the append log alone.** Every record carries a length prefix + CRC; recovery scans frames and truncates at the first torn frame. Recovered state is byte-deterministic (no WAL/checkpoint/header dependency).
