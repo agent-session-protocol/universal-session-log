@@ -1,6 +1,6 @@
 [package]
 name = "sesdb-engine"
-version = "0.2.0-alpha.0"
+version = "0.2.0-beta.0"
 edition = "2021"
 description = "SesDB durable USL engine NDJSON RPC daemon"
 license = "MIT OR Apache-2.0"

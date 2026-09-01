@@ -1,6 +1,6 @@
 {
   "name": "@agent-session-protocol/sesdb",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-beta.0",
   "description": "Local SesDB SDK and CLI backed by the USL durable log",
   "type": "module",
   "license": "MIT",
