@@ -5,9 +5,9 @@ sources:
   - packages/usl-convert/src/conformance.ts 4f65a7b5d384 runConformance
   - crates/usl-capture/src/follow.rs ff0d8312aa29 FileFollower poll
   - crates/usl-core/src/store.rs cda9b6f609d1 append flush
-  - packages/sesdb/src/index.ts 390298f3d548 createSesdb
+  - packages/sesdb/src/index.ts df9de71f8f65 createSesdb
   - crates/sesdb-engine/src/main.rs 514e426b6059 dispatch
-  - crates/sesdb-engine/src/daemon.rs 7bfb7bbb6ecf Writer watch_tick run
+  - crates/sesdb-engine/src/daemon.rs adb042773b4f Writer watch_tick run
   - site/app/console/api.ts 95d2f2e34691 fetchDashboard
   - site/lib/source.ts a516b27ff313 source
 ---
@@ -57,8 +57,8 @@ sources:
 
 `sesdb provider enable/reconcile` 和本地 Console 通过随机 localhost endpoint 进入同一个单写者 daemon。
 
-1. **发现与提示**：provider 默认禁用；discover 只读取路径和 stat。启用后文件系统 watcher 只发变化提示，最多 64 个热文件每 2 秒检查，30 秒全量 inventory/fingerprint audit 负责最终一致。
-2. **L1 采集**：完整 native 行依次写 evidence、canonical event 和 source checkpoint；rewrite/truncate 先写 visibility control。canonical ID、checkpoint 与 visibility 都由 L1 replay 恢复，不查询 SQLite 决定幂等。
+1. **发现与提示**：五 provider 默认禁用；discover 只读取路径和 stat，并返回 typed tree/exact-file target 与 health。启用后文件系统 watcher 只发变化提示，最多 64 个热 source 每 2 秒检查，30 秒全量 inventory/fingerprint audit 负责最终一致。
+2. **L1 采集**：单文件或多 artifact snapshot 解析为带 `EvidenceSpan[]` 的 canonical events；Kimi 保留 main/sub-agent 父子关系，DeepSeek 解压 zstd、重组 chunk 并链接 tool call/result。rewrite/truncate 先写 visibility control。canonical ID、checkpoint 与 visibility 都由 L1 replay 恢复，不查询 SQLite 决定幂等。
 3. **sidecar 投影**：L1 append 和 flush 成功后才提交 SQLite transaction。事务失败进入 degraded；下一轮采集前必须 catch-up，失败则从 L1 全量重建并原子切换 generation。
 4. **本地读取**：Console 使用 HttpOnly 只读 cookie 查询 session、timeline、generation、L1/sidecar watermark、degraded/rebuilding freshness 和 integrity；provider 配置、reconcile、rebuild 与 stop 始终要求 bearer。Host/Origin 必须与当前 daemon authority 精确一致。
 

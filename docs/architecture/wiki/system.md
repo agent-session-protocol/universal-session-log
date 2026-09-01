@@ -4,8 +4,8 @@ sources:
   - crates/usl-capture/src/lib.rs c353c76cdf5a CaptureSession Framer FileFollower
   - packages/usl-convert/src/bundle.ts a7fe35aa4a9e SessionBundle makeBundle
   - crates/sesdb-engine/src/main.rs 514e426b6059 main dispatch
-  - crates/sesdb-engine/src/daemon.rs 7bfb7bbb6ecf Writer run
-  - packages/sesdb/src/index.ts 390298f3d548 createSesdb
+  - crates/sesdb-engine/src/daemon.rs adb042773b4f Writer run
+  - packages/sesdb/src/index.ts df9de71f8f65 createSesdb
   - site/app/console/api.ts 95d2f2e34691 fetchDashboard
 ---
 
@@ -21,7 +21,7 @@ USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Co
 | 捕获 | [usl-capture](modules/usl-capture.md) | Rust | 把 harness 写日志的字节流切成完整记录，喂进存储 |
 | 挂载 | [usl-fuse](modules/usl-fuse.md) | Rust | 从文件系统级别拦截 harness 写盘（当前暂停） |
 | 转换 | [e-session-convert](modules/usl-convert.md) | TS | 各 harness 原生格式 ↔ 统一 bundle 的导入导出 |
-| 查询 | [SESDB foundation](modules/sesdb.md) | Rust + TS | JS SDK/CLI 通过 stdio engine 或 localhost daemon 有界读写 usl-core，并执行 SessionQL 子集 |
+| 查询 | [SESDB v0.2](modules/sesdb.md) | Rust + TS | 五 Provider 通过 stdio engine 或 localhost daemon 增量进入 usl-core，JS SDK/CLI 执行有界查询 |
 | 展示 | [Hosted Site](modules/site.md) | TS/React | 静态产品站、文档与仅用 demo 数据的 Console |
 
 ## 核心设计边界
@@ -47,4 +47,4 @@ Hosted Site ─读取→ MDX 文档 / Demo adapter（不连 SESDB）
 
 ## 谁在用它
 
-当前是自研验证阶段：Rust 测试覆盖崩溃恢复、sidecar kill point、watcher 审计、捕获分帧与 engine RPC；TS 测试覆盖跨 harness roundtrip 与 SESDB foundation 查询。Playwright 同时覆盖本地 daemon 的真实数据与 freshness 状态，以及 Hosted Console 不请求 localhost；Hosted Site 对外展示的 Console 数据仍只是演示样例。
+当前是自研验证阶段：Rust 测试覆盖崩溃恢复、sidecar kill point、watcher 审计、五 Provider clean-room journey、捕获分帧与 engine RPC；TS 测试覆盖跨 harness roundtrip 与 SESDB foundation 查询。I0 runner 记录同机 100/1k/10k session 结果并固定 Obelisk 黑盒 revision。Playwright 同时覆盖本地 daemon 的真实数据与 freshness 状态，以及 Hosted Console 不请求 localhost；Hosted Site 对外展示的 Console 数据仍只是演示样例。

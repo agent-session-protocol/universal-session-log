@@ -1,18 +1,20 @@
 ---
 sources:
   - crates/sesdb-engine/src/main.rs 514e426b6059 main dispatch read_request_line
-  - crates/sesdb-engine/src/daemon.rs 7bfb7bbb6ecf Writer ReplayState run reconcile watch_tick
-  - crates/sesdb-engine/src/index.rs 6e0dd0028166 Sidecar catch_up rebuild_live search
+  - crates/sesdb-engine/src/daemon.rs adb042773b4f Writer ReplayState run reconcile watch_tick
+  - crates/sesdb-engine/src/index.rs 7ae5742cba19 Sidecar catch_up rebuild_live search
   - crates/sesdb-engine/src/model.rs 65d934f45766 NativeEvidence CanonicalEventBody
-  - crates/sesdb-engine/src/provider.rs fa69869b2d28 ProviderAdapter ClaudeAdapter CodexAdapter
+  - crates/sesdb-engine/src/provider.rs 773a0a57a898 ProviderAdapter ClaudeAdapter CodexAdapter PiAdapter KimiAdapter DeepseekAdapter SourceUnit
   - packages/sesdb/src/engine.ts 5f9e4ed51bad NdjsonEngine MemoryEngine resolveEngineBinary
-  - packages/sesdb/src/index.ts 390298f3d548 createSesdb SesdbQueryError
+  - packages/sesdb/src/index.ts df9de71f8f65 createSesdb SesdbQueryError
   - packages/sesdb/src/query.ts 4df2001628a6 parseSessionQL printSessionQL SessionQLError
-  - packages/sesdb/src/cli.ts 570e8300f1df main
+  - packages/sesdb/src/cli.ts 33e9cb771ada main
   - docs/rfcs/0001-sessionql-query-plane.md 0c873e425273
 covers:
   - crates/sesdb-engine/
   - packages/sesdb/
+  - fixtures/providers/
+  - benchmarks/i0/
   - docs/rfcs/0001-sessionql-query-plane.md
 ---
 
@@ -20,7 +22,7 @@ covers:
 
 ## 职责
 
-在 usl-core 的持久记录之上提供单写者访问层。`sesdb-engine` 保留兼容 stdio；`sesdbd` 独占 L1，采集 Claude/Codex，把可删除的 FTS5 sidecar 投影到固定 watermark，并通过随机 localhost endpoint 提供 API 与最小 Console。L1 replay 是事件去重、source checkpoint 和 visibility 的权威来源，SQLite 不参与采集幂等判断。RFC 的完整 SessionQL 仍只实现已声明子集。
+在 usl-core 的持久记录之上提供单写者访问层。`sesdb-engine` 保留兼容 stdio；`sesdbd` 独占 L1，以多 artifact source unit 采集 Claude、Codex、Pi、Kimi 与 DeepSeek Harness，把可删除的 FTS5 sidecar 投影到固定 watermark，并通过随机 localhost endpoint 提供 API 与最小 Console。L1 replay 是事件去重、source checkpoint 和 visibility 的权威来源，SQLite 不参与采集幂等判断。RFC 的完整 SessionQL 仍只实现已声明子集。
 
 ## 对外接口
 
@@ -31,11 +33,11 @@ covers:
 - `sesdb` CLI（`packages/sesdb/src/cli.ts`）— daemon/provider/index/session/console 与兼容查询入口。
 - `sesdb-engine`（`crates/sesdb-engine/src/main.rs`）— stdin/stdout NDJSON RPC，实现 `appendBatch/scan/verify/stats/flush/capabilities`。
 - `sesdbd`（`crates/sesdb-engine/src/daemon.rs`）— 单 writer、分层 watcher、HTTP API、带 TTL 的 browser session 与静态 Console；状态接口返回 generation、L1/sidecar watermark、degraded 和 rebuilding。
-- `ProviderAdapter`（`crates/sesdb-engine/src/provider.rs`）— Claude/Codex 原生 JSONL 的发现、快照解析、fingerprint 与 generation 逻辑。
+- `ProviderAdapter`（`crates/sesdb-engine/src/provider.rs`）— 五 Provider 的 metadata-only discover、多 artifact snapshot、evidence span、typed watch target、health、fingerprint 与 generation 逻辑；DeepSeek 同时解压 concatenated zstd frame。
 
 ## 数据怎么流
 
-provider 默认禁用；discover 仅 stat。启用后，文件系统通知只提供提示，最多 64 个热文件每 2 秒检查快照/fingerprint，每 30 秒做一次全量 inventory/fingerprint 审计。完整行依次生成 evidence、canonical event 和 checkpoint；rewrite 先写 visibility control 并开启 source generation。writer 严格执行 L1 append → flush → SQLite transaction；若事务失败就进入 degraded，下一轮先 catch-up 或重建，不继续采集。启动时从 L1 replay 恢复 canonical ID、checkpoint 和 visibility，落后的 sidecar 自动补投影，schema/integrity 异常则从固定 L1 `asOfSeq` 写临时 generation 并原子切换。搜索同时维护 `unicode61` 与 trigram FTS，三字符以上走 trigram，短查询走显式标注 `partial` 的有界 substring fallback。Host/Origin 按当前 daemon authority 精确匹配；浏览器只持有 HttpOnly 只读 cookie，管理 API 仍要求 daemon bearer。
+provider 默认禁用；discover 仅 stat。Kimi 把 `state.json` 与 main/sub-agent wire 组成一个 source unit；DeepSeek 解压 `.jsonl.zstd` 并重组 chunk/tool linkage。启用后，文件系统通知只提供提示，最多 64 个热 source 每 2 秒检查快照/fingerprint，每 30 秒做一次全量 inventory/fingerprint 审计。完整记录依次生成 evidence、canonical event 和 checkpoint；rewrite 先写 visibility control 并开启 source generation。writer 严格执行 L1 append → flush → SQLite transaction；若事务失败就进入 degraded，下一轮先 catch-up 或重建，不继续采集。启动时从 L1 replay 恢复 canonical ID、checkpoint 和 visibility，落后的 sidecar 自动补投影，schema/integrity 异常则从固定 L1 `asOfSeq` 写临时 generation 并原子切换。搜索同时维护 `unicode61` 与 trigram FTS，三字符以上走 trigram，短查询走显式标注 `partial` 的有界 substring fallback。Host/Origin 按当前 daemon authority 精确匹配；浏览器只持有 HttpOnly 只读 cookie，管理 API 仍要求 daemon bearer。
 
 ## 改动指南
 
@@ -45,3 +47,4 @@ provider 默认禁用；discover 仅 stat。启用后，文件系统通知只提
 - engine 对同一 store 使用独占 `.lock`，store 与 lock 在 Unix 上都设为 `0600`；不要绕过锁启动第二个写者。
 - watcher 的 2 秒轮询只允许读取热文件；全树内容审计固定在 30 秒兜底周期。新增提示源不能成为正确性的唯一依据，丢提示和删除 grace 必须使用可控时钟回归测试。
 - sidecar 的 `builtThroughSeq` 必须与 L1 连续；禁止重新用 SQLite 的 `events`/`sources` 表决定 canonical 去重或 source generation。
+- `fixtures/providers/` 是 CC0 clean-room feature corpus；`benchmarks/i0/` 只通过公开 CLI 黑盒运行冻结 Obelisk，不得把其 AGPL 实现复制进仓库或自动移动 baseline commit。
