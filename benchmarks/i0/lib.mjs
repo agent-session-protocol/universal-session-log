@@ -13,7 +13,10 @@ export const writeJson = (path, value) => { mkdirSync(dirname(path), { recursive
 export function createPiCorpus(home, count) {
   const root = join(home, ".pi/agent/sessions/fixture");
   mkdirSync(root, { recursive: true });
-  const template = readFileSync(join(repoRoot, "fixtures/providers/pi/session.jsonl"), "utf8");
+  const source = readFileSync(join(repoRoot, "fixtures/providers/pi/session.jsonl"), "utf8").trimEnd().split("\n");
+  // Session-scale benchmarks use a stable two-record slice; feature coverage
+  // remains in the complete corpus and provider conformance suite.
+  const template = `${source[0]}\n${source[3]}\n`;
   for (let index = 0; index < count; index++) {
     const id = `i0-pi-${String(index).padStart(8, "0")}`;
     writeFileSync(join(root, `${id}.jsonl`), template.replaceAll("019fff74-b539-7a7d-90c9-ad8895912e04", id));

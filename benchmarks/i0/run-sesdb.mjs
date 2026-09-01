@@ -12,14 +12,14 @@ const fixtureLine = index => JSON.stringify({ type: "message", id: `benchmark-${
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 async function waitDescriptor(path) { for (let i = 0; i < 200; i++) { try { return JSON.parse(readFileSync(path, "utf8")); } catch { await sleep(25); } } throw new Error("SESDB daemon did not start"); }
 async function api(descriptor, path, init = {}) {
-  const response = await fetch(`${descriptor.baseUrl}${path}`, { ...init, headers: { authorization: `Bearer ${descriptor.token}`, ...(init.body ? { "content-type": "application/json" } : {}) } });
+  const response = await fetch(`${descriptor.baseUrl}${path}`, { ...init, signal: init.signal ?? AbortSignal.timeout(1_800_000), headers: { authorization: `Bearer ${descriptor.token}`, ...(init.body ? { "content-type": "application/json" } : {}) } });
   const body = await response.json(); if (!response.ok) throw new Error(`${path}: ${JSON.stringify(body)}`); return body;
 }
 
 const buildStarted = performance.now();
 await import("node:child_process").then(({ execFileSync }) => execFileSync("cargo", ["build", "--release", "-p", "sesdb-engine", "--bin", "sesdbd"], { cwd: repoRoot, stdio: "inherit" }));
 const buildMs = performance.now() - buildStarted;
-const result = { schemaVersion: "sesdb.i0-benchmark/v1", product: "sesdb", revision: git(repoRoot, "rev-parse", "HEAD"), hardware: hardware(), startedAt: new Date().toISOString(), buildMs, runs: [] };
+const result = { schemaVersion: "sesdb.i0-benchmark/v1", product: "sesdb", revision: git(repoRoot, "rev-parse", "HEAD"), hardware: hardware(), startedAt: new Date().toISOString(), buildMs, corpus: { provider: "pi", recordsPerSession: 2, featureCorpus: "fixtures/providers" }, runs: [] };
 
 for (const sessions of options.sizes) {
   const home = mkdtempSync(join(tmpdir(), `sesdb-i0-${sessions}-`));

@@ -17,3 +17,7 @@ black-box Obelisk runner cannot inspect its connection counters, so it reports
 sidecar size-change observations at command boundaries and labels that metric
 explicitly. Neither runner treats the 500 ms append-to-query target as a hard
 cross-platform gate.
+
+The scale corpus is a deterministic two-record (session + user message) slice
+of the Pi clean-room fixture, so the independent variable is session count.
+The full five-provider corpus remains the feature/journey input.

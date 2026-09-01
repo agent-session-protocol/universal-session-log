@@ -11,7 +11,7 @@ const checkout = resolve(options.checkout);
 if (git(checkout, "rev-parse", "HEAD") !== FROZEN) throw new Error(`Obelisk checkout must be frozen at ${FROZEN}`);
 const cli = join(checkout, "packages/cli/dist/cli/src/obelisk.js");
 const buildStarted = performance.now(); await runProcess("npm", ["ci"], { cwd: checkout }); await runProcess("npm", ["run", "build:cli"], { cwd: checkout }); const buildMs = performance.now() - buildStarted;
-const result = { schemaVersion: "sesdb.i0-benchmark/v1", product: "obelisk", revision: FROZEN, hardware: hardware(), startedAt: new Date().toISOString(), buildMs, sqliteWriteMetric: "sidecar-size-change observations at black-box command boundaries", runs: [] };
+const result = { schemaVersion: "sesdb.i0-benchmark/v1", product: "obelisk", revision: FROZEN, hardware: hardware(), startedAt: new Date().toISOString(), buildMs, corpus: { provider: "pi", recordsPerSession: 2, featureCorpus: "fixtures/providers" }, sqliteWriteMetric: "sidecar-size-change observations at black-box command boundaries", runs: [] };
 
 for (const sessions of options.sizes) {
   const home = mkdtempSync(join(tmpdir(), `obelisk-i0-${sessions}-`)); createPiCorpus(home, sessions);
