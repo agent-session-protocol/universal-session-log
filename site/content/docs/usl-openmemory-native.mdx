@@ -1,0 +1,50 @@
+---
+title: USL vs OpenMemory and Native Sessions
+description: Choosing a session porter, native harness files, or a durable protocol log
+---
+
+Native harness history, OpenMemory, and USL address adjacent portability needs.
+The right choice depends on whether you want a convenient transfer workflow or a
+durable, inspectable session substrate.
+
+| option | best fit | important boundary |
+|---|---|---|
+| **native session files** | resuming in the same harness with maximum native compatibility | formats are vendor-specific and may change without a cross-harness contract |
+| **OpenMemory** | selecting and porting local coding sessions through a user-facing CLI/TUI | portability product behavior and supported harnesses follow its current beta implementation |
+| **ASP + USL** | preserving canonical history, native evidence, declared loss, integrity, replay, and building adapters | infrastructure and protocol primitives; not yet a polished end-user sync product |
+
+OpenMemory's public beta describes session import/export for Claude Code, Codex,
+and OpenCode. USL takes a lower-level approach: an importer produces an ASP bundle
+with canonical events, ordered evidence, per-axis fidelity, and explicit loss;
+USL can then persist those records independently of any one harness.
+
+## Current USL converter support
+
+| harness | import | native export |
+|---|---|---|
+| Pi | yes | yes |
+| dimagent | yes, using a WAL-safe SQLite copy | yes |
+| Claude Code | yes | no verified Claude-native exporter |
+| Codex | yes | yes, including encrypted-reasoning evidence on round-trip |
+| OpenCode | not currently supported | no |
+
+Claude sessions can be handed off through another supported exporter such as Pi,
+but that is not the same as a verified Claude-native resume file. USL does not
+invent missing signatures or call a lossy cross-format output “native
+round-trip.” Always inspect the bundle's fidelity and loss declarations before
+using an exported file for resume.
+
+## Choose by requirement
+
+- Stay entirely in one harness: keep the native file and its original backup.
+- Want a guided local porting workflow: evaluate OpenMemory against the exact
+  harness versions and content types you use.
+- Need an auditable, rebuildable record or want to develop adapters and query
+  infrastructure: use ASP bundles and USL.
+- Need both: use a porter at the edge and retain an immutable USL evidence log as
+  the system of record.
+
+The supported formats above describe this repository on 2026-09-01. Check
+[`usl-convert`](https://github.com/agent-session-protocol/universal-session-log/tree/main/packages/usl-convert)
+and [OpenMemory's official README](https://github.com/mem0ai/openmemory) before
+depending on a particular harness version.

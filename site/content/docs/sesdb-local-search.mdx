@@ -1,0 +1,66 @@
+---
+title: SesDB Local Agent-Session Search
+description: Implemented local search, evidence, privacy, and capability boundaries
+---
+
+SesDB is the local SDK and CLI query foundation built on the USL append log. It
+is useful today for deterministic canonical-event queries and literal text
+search with evidence pointers. It is not yet a vector database, analytics
+warehouse, memory service, or complete implementation of the SessionQL RFC.
+
+## What ships in the alpha
+
+- `sesdb init` creates or opens the local store.
+- `sesdb search <text>` performs case-insensitive literal text search.
+- `sesdb query <sessionql> [--explain]` executes the supported bounded subset of
+  SessionQL over canonical `events`.
+- `sesdb context <session-id>` reads a session's current local context.
+- `sesdb capabilities`, `verify`, and `doctor` disclose features and check the
+  engine and log integrity.
+
+```bash
+cd packages/sesdb
+npm install
+npm run build
+node dist/cli.js doctor
+node dist/cli.js search "permission denied"
+node dist/cli.js query 'from events | where event.type = "message.completed" | limit 20' --explain
+```
+
+The default store is `~/.sesdb/sesdb.usl`; set `SESDB_PATH` to use another local
+profile. The TypeScript client talks to the Rust `sesdb-engine` subprocess over
+authenticated NDJSON.
+
+## Evidence and privacy boundary
+
+Searchable records contain both an ASP canonical event and a complete evidence
+pointer: session ID, event ID, native source path and digest, byte range, and
+parser version. Opaque records or events without complete evidence remain
+available through raw record access but are intentionally excluded from text
+search.
+
+The foundation engine runs locally and the documented commands do not require a
+hosted search service. Local execution is not a blanket privacy guarantee:
+native transcripts can contain secrets, and future embedding or model providers
+would have their own data policies. Keep source files read-only, apply redaction
+before derived indexing, and protect the USL file with operating-system access
+controls.
+
+## How native harness data reaches SesDB
+
+SesDB does not parse every vendor format itself. Harness adapters in
+`usl-convert` or live capture components map native history to ASP events and
+evidence; those canonical records are then stored and queried. Current converter
+support is listed in [Conversion](./conversion).
+
+## Explicitly not shipped
+
+Semantic or hybrid search, vector/provider indexes, live tail, subscriptions,
+memory extraction, SQL, an MCP server, usage dashboards, and training/evaluation
+dataset export are not implemented in this alpha. The broader contracts in
+[SessionQL](./sessionql), [Search & Indexing](./search-and-indexing), and
+[Insights & Subscriptions](./insights-and-subscriptions) remain draft target
+architecture until their capability flags say otherwise.
+
+Implementation source: [`packages/sesdb`](https://github.com/agent-session-protocol/universal-session-log/tree/main/packages/sesdb)
+and [`crates/sesdb-engine`](https://github.com/agent-session-protocol/universal-session-log/tree/main/crates/sesdb-engine).

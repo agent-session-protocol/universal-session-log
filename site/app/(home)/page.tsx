@@ -20,16 +20,19 @@ const copy = {
     portableBody: 'The L1 log stays simple. Typed query semantics, evidence, and policy-aware sidecars compose above it without taking ownership of the facts.',
     scenariosKicker: 'Product scenarios',
     scenariosTitle: 'What session data can power.',
-    scenariosBody: 'SESDB turns agent history into reusable infrastructure—for model improvement, personal intelligence, unified operations, and portable work.',
+    scenariosBody: 'SesDB turns agent history into reusable infrastructure—for model improvement, personal intelligence, unified operations, and portable work.',
     architectureKicker: 'System architecture',
     architectureTitle: 'Trace a session from capture to storage and handoff.',
     architectureBody: 'Select a module to inspect its responsibilities, dependencies, runtime flow, and source-backed implementation notes.',
     fullscreen: 'Open full screen',
-    consoleKicker: 'SESDB Console',
+    consoleKicker: 'SesDB Console',
     consoleTitle: 'Inspect sessions, usage, storage, and integrity in one console.',
     consoleBody: 'Monitor ingestion, inspect real sessions and native events, compare runtime usage, and verify the physical append log from one management console.',
     consoleDemo: 'Open interactive demo',
     consoleDemoNote: 'Safe sample data · no setup required',
+    about: 'About ASP',
+    contact: 'Contact',
+    updated: 'Last updated',
   },
   zh: {
     toggle: 'EN',
@@ -43,16 +46,19 @@ const copy = {
     portableBody: 'L1 日志保持简单可靠；类型化查询、证据与策略隔离的 sidecar 在其上组合，但永远不取代事实真源。',
     scenariosKicker: '产品场景',
     scenariosTitle: '会话数据可以用来做什么。',
-    scenariosBody: 'SESDB 将 Agent 历史转化为可复用的基础设施，用于模型改进、个人智能、统一运营与跨环境协作。',
+    scenariosBody: 'SesDB 将 Agent 历史转化为可复用的基础设施，用于模型改进、个人智能、统一运营与跨环境协作。',
     architectureKicker: '系统架构',
     architectureTitle: '查看一条会话如何被捕获、存储和交接。',
     architectureBody: '选择模块，检查它的职责、依赖、运行流以及可回溯到源码的实现说明。',
     fullscreen: '全屏打开',
-    consoleKicker: 'SESDB 管理控制台',
+    consoleKicker: 'SesDB 管理控制台',
     consoleTitle: '在一个后台检查会话、用量、存储与完整性。',
     consoleBody: '统一监控写入、检查真实 Session 与原生事件、比较不同 Runtime 的使用情况，并验证底层 append log 的完整性。',
     consoleDemo: '体验交互式后台',
     consoleDemoNote: '安全示例数据 · 无需安装',
+    about: '关于 ASP',
+    contact: '联系我们',
+    updated: '最后更新',
   },
 } as const;
 
@@ -156,7 +162,18 @@ export default function HomePage() {
 
       <section className="border-b border-fd-border bg-fd-card/30 px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div className="max-w-2xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.architectureKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.architectureTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.architectureBody}</p></div><a href={`${basePath}/architecture.html?lang=${locale}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-fd-primary hover:underline">{t.fullscreen} <ArrowRight className="size-4" /></a></div><div className="overflow-hidden rounded-2xl border border-fd-border bg-fd-background p-2 shadow-[0_18px_60px_-35px_rgba(0,0,0,.35)] sm:p-3"><iframe key={locale} src={`${basePath}/architecture.html?lang=${locale}`} title={locale === 'en' ? 'Interactive USL architecture map' : 'USL 交互式架构图'} className="h-[560px] w-full rounded-xl border-0 sm:h-[680px]" /></div></div></section>
 
-      <section className="px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div className="max-w-3xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.consoleKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.consoleTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.consoleBody}</p></div><div className="shrink-0"><Link href={`/console?lang=${locale}`} className="inline-flex items-center gap-2 rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-semibold text-fd-primary-foreground hover:bg-fd-primary/90">{t.consoleDemo}<ArrowRight className="size-4" /></Link><p className="mt-2 text-center text-xs text-fd-muted-foreground">{t.consoleDemoNote}</p></div></div><div className="grid gap-8 lg:grid-cols-2">{consolePages[locale].map(([slug, title, description]) => <Link key={slug} href={`/console?lang=${locale}&view=${slug}`} className="group overflow-hidden rounded-xl border border-fd-border bg-fd-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><figure><div className="overflow-hidden border-b border-fd-border bg-fd-muted/30"><img src={`${basePath}/screenshots/admin/${slug}-${locale}.png`} alt={`${title} — SESDB Console`} className="aspect-[16/10] w-full object-cover object-top transition duration-300 group-hover:scale-[1.01]" /></div><figcaption className="p-5 text-left"><h3 className="inline-flex items-center gap-2 font-semibold">{title}<ArrowRight className="size-4 text-fd-primary opacity-0 transition group-hover:opacity-100" /></h3><p className="mt-1 text-sm leading-6 text-fd-muted-foreground">{description}</p></figcaption></figure></Link>)}</div></div></section>
+      <section className="px-4 py-20 sm:px-6"><div className="mx-auto max-w-7xl"><div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div className="max-w-3xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-fd-primary">{t.consoleKicker}</p><h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.consoleTitle}</h2><p className="mt-4 leading-7 text-fd-muted-foreground">{t.consoleBody}</p></div><div className="shrink-0"><Link href={`/console?lang=${locale}`} className="inline-flex items-center gap-2 rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-semibold text-fd-primary-foreground hover:bg-fd-primary/90">{t.consoleDemo}<ArrowRight className="size-4" /></Link><p className="mt-2 text-center text-xs text-fd-muted-foreground">{t.consoleDemoNote}</p></div></div><div className="grid gap-8 lg:grid-cols-2">{consolePages[locale].map(([slug, title, description]) => <Link key={slug} href={`/console?lang=${locale}&view=${slug}`} className="group overflow-hidden rounded-xl border border-fd-border bg-fd-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><figure><div className="overflow-hidden border-b border-fd-border bg-fd-muted/30"><img src={`${basePath}/screenshots/admin/${slug}-${locale}.png`} alt={`${title} — SesDB Console`} className="aspect-[16/10] w-full object-cover object-top transition duration-300 group-hover:scale-[1.01]" /></div><figcaption className="p-5 text-left"><h3 className="inline-flex items-center gap-2 font-semibold">{title}<ArrowRight className="size-4 text-fd-primary opacity-0 transition group-hover:opacity-100" /></h3><p className="mt-1 text-sm leading-6 text-fd-muted-foreground">{description}</p></figcaption></figure></Link>)}</div></div></section>
+
+      <footer className="border-t border-fd-border px-6 py-8 text-sm text-fd-muted-foreground">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <nav aria-label={locale === 'en' ? 'Project information' : '项目信息'} className="flex gap-4">
+            <a href="https://agent-session-protocol.github.io/about" className="hover:text-fd-foreground hover:underline">{t.about}</a>
+            <a href="https://agent-session-protocol.github.io/contact" className="hover:text-fd-foreground hover:underline">{t.contact}</a>
+            <a href="https://github.com/agent-session-protocol/universal-session-log" className="hover:text-fd-foreground hover:underline">GitHub</a>
+          </nav>
+          <p>{t.updated} <time dateTime="2026-09-01">2026-09-01</time></p>
+        </div>
+      </footer>
     </main>
   );
 }

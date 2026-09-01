@@ -1,0 +1,61 @@
+---
+title: Session Log vs Memory vs Trace
+description: How USL differs from Mem0-style memory and observability telemetry
+---
+
+A session log, an agent memory system, and an observability trace may all ingest
+conversation data, but they preserve it for different reasons.
+
+| layer | optimized for | typical output | source of truth? |
+|---|---|---|---|
+| **USL session log** | exact history, provenance, replay, migration, and audit | ordered canonical events plus native evidence | yes, for captured session history |
+| **memory layer (for example Mem0)** | retrieving useful facts and preferences for a future prompt | extracted, updated, deduplicated, or embedded memories | no; it is a derived knowledge layer |
+| **observability trace** | diagnosing latency, errors, cost, and service behavior | spans, metrics, logs, and attributes | no; it is operational telemetry |
+
+## Why Mem0 having a `session_id` is not the same thing
+
+Mem0 can scope memories by user, agent, application, run, or session and can
+retain raw messages when configured. Its primary abstraction is still a memory:
+information selected or stored for later retrieval. USL's primary abstraction is
+an append-only record with sequence, integrity framing, canonical event meaning,
+and evidence back to the native source.
+
+That difference matters when you ask:
+
+- Can I prove the order and origin of tool calls and results?
+- Can I preserve an unknown vendor payload without understanding it?
+- Can I rebuild projections after a crash or schema change?
+- Can an exporter determine whether a native harness can safely resume?
+
+Those are session-log questions. “What preferences or facts should the next
+prompt recall?” is a memory question.
+
+## Use them together
+
+The recommended architecture is additive:
+
+```text
+native harness / ACP stream
+          |
+          v
+ASP canonical events + evidence -> USL durable append log
+          |                         |
+          |                         +-> telemetry traces and metrics
+          +-> redacted chunks -> memory extraction / semantic retrieval
+```
+
+The USL log remains the rebuildable history. A memory index can be regenerated
+under a new extraction or redaction policy, and telemetry can be retained under
+its own operational policy. A memory hit or trace span should carry evidence or
+correlation IDs back to the session rather than replace it.
+
+## Current boundary
+
+USL currently ships durable append/read/verify primitives and harness conversion
+components. The richer full-text, vector, lineage, analytics, and subscription
+system in the query RFC is a target architecture, not a claim that all features
+ship today. See [Query Plane](./query) and [Search & Indexing](./search-and-indexing).
+
+References: [Mem0 repository](https://github.com/mem0ai/mem0),
+[OpenTelemetry generative AI conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/),
+and the [ASP specification](https://github.com/agent-session-protocol/asp).

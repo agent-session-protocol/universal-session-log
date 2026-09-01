@@ -15,7 +15,7 @@ const validViews: View[] = ["overview", "sessions", "analytics", "runtimes", "st
 const englishReplacements: Array<[string, string]> = [
   ["运行概览", "Operations overview"], ["会话与事件", "Sessions & events"], ["全局分析", "Global analytics"],
   ["运行时", "Runtimes"], ["完整性", "Integrity"], ["存储", "Storage"], ["概览", "Overview"], ["会话", "Sessions"],
-  ["所有数字均从当前 SESDB append log 实时投影。", "Every metric is projected from the current SESDB append log."],
+  ["所有数字均从当前 SesDB append log 实时投影。", "Every metric is projected from the current SesDB append log."],
   ["浏览真实 Session，并检查每个来源最近写入的原生事件。", "Browse sessions and inspect the latest native events from every source."],
   ["在统一 Session 指标层上，按时间、Runtime、项目与工具交叉筛选聚合。", "Filter the unified session metrics layer by time, runtime, project, and tool."],
   ["查看各 Agent Runtime 的 Session 覆盖和接入规模。", "Compare session coverage and ingestion volume across agent runtimes."],
@@ -170,7 +170,7 @@ function Sidebar({ open, onClose, data, active, onNavigate }: {
     {open && <button className="sidebar-backdrop" onClick={onClose} aria-label="关闭导航" />}
     <aside className={`sidebar ${open ? "is-open" : ""}`}>
       <div className="brand-row">
-        <Logo /><div className="brand-name">SESDB</div><span className="brand-tag">CONSOLE</span>
+        <Logo /><div className="brand-name">SesDB</div><span className="brand-tag">CONSOLE</span>
         <button className="mobile-close" onClick={onClose} aria-label="关闭菜单"><X size={18} /></button>
       </div>
       <div className="workspace-switcher">
@@ -261,7 +261,7 @@ function IntegritySummary({ data, expanded = false }: { data: DashboardData; exp
 
 function OverviewView({ data, loading, onRefresh, onNavigate }: { data: DashboardData | null; loading: boolean; onRefresh: () => void; onNavigate: (view: View) => void }) {
   return <>
-    <PageHeading eyebrow="LIVE DATABASE" title="运行概览" description="所有数字均从当前 SESDB append log 实时投影。" loading={loading} onRefresh={onRefresh} />
+    <PageHeading eyebrow="LIVE DATABASE" title="运行概览" description="所有数字均从当前 SesDB append log 实时投影。" loading={loading} onRefresh={onRefresh} />
     <section className="metrics-grid">
       <MetricCard label="会话总数" value={data ? compactNumber(data.overview.sessionCount) : "—"} note="有效日志前缀中的唯一 Session" icon={TerminalSquare} tone="#466e61" />
       <MetricCard label="事件记录" value={data ? compactNumber(data.overview.eventCount) : "—"} note={data ? `最近 24 小时 ${compactNumber(data.overview.eventsLast24h)} 条` : "等待 API"} icon={Zap} tone="#9b6748" />
@@ -480,12 +480,12 @@ export function App() {
     <main className="main-content">
       <header className="topbar">
         <button className="menu-button" onClick={() => setSidebarOpen(true)} aria-label="打开菜单"><Menu size={20} /></button>
-        <div className="breadcrumb"><span>SESDB</span><ChevronRight size={14} /><strong>{title}</strong></div>
+        <div className="breadcrumb"><span>SesDB</span><ChevronRight size={14} /><strong>{title}</strong></div>
         <label className="command-search"><Search size={16} /><input ref={searchRef} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索会话、项目或哈希…" /><kbd><Command size={12} /> K</kbd></label>
         <div className="top-actions"><span className="demo-pill">{locale === "en" ? "INTERACTIVE DEMO" : "交互式演示"}</span><a className="locale-button" href={switchUrl}><Languages size={14} />{locale === "en" ? "中文" : "EN"}</a><a className="site-button" href="../"><ArrowUpRight size={14} /><span>{locale === "en" ? "Product site" : "产品主页"}</span></a><div className={`system-health ${error ? "is-error" : ""}`}><span /><strong>{error ? "API 离线" : loading && !data ? "连接中" : "数据库在线"}</strong></div></div>
       </header>
       <div className="page">
-        {error && <div className="api-error"><Activity size={17} /><div><strong>无法读取 SESDB</strong><span>{error}</span></div><button onClick={() => void load()}>重试</button></div>}
+        {error && <div className="api-error"><Activity size={17} /><div><strong>无法读取 SesDB</strong><span>{error}</span></div><button onClick={() => void load()}>重试</button></div>}
         {view === "overview" && <OverviewView data={data} loading={loading} onRefresh={() => void load()} onNavigate={navigate} />}
         {view === "sessions" && selectedSession && <SessionDetailView detail={detail} loading={detailLoading} error={detailError} onBack={() => { setSelectedSession(null); setDetail(null); }} />}
         {view === "sessions" && !selectedSession && <SessionsView data={data} sessions={filteredSessions} runtime={runtime} setRuntime={setRuntime} loading={loading} onRefresh={() => void load()} onSelect={(id) => void selectSession(id)} />}
