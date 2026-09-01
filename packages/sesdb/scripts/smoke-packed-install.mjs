@@ -43,6 +43,9 @@ try {
   if (!readFileSync(join(scratch, "node_modules", "@agent-session-protocol", "sesdb", "console", "site", "console.html"), "utf8").includes("console-mode.js")) {
     throw new Error("packed package is missing the shared Site Console export");
   }
+  if (!readFileSync(join(scratch, "node_modules", "@agent-session-protocol", "sesdb", "skill", "SKILL.md"), "utf8").includes("Use the `sesdb` CLI only")) {
+    throw new Error("packed package is missing the localhost-only SESDB Skill");
+  }
   console.log(`packed SESDB smoke test passed (${process.platform}-${process.arch})`);
 } finally {
   rmSync(scratch, { recursive: true, force: true });

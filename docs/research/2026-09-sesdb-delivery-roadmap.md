@@ -178,6 +178,9 @@ contract 还必须包含 typed tree/exact-file watch targets 和 provider health
 
 ## D. `v0.3`：Agent Skill 与查询体验
 
+> 实施状态：2026-09-01 已完成 localhost-only Skill、fail-closed CLI filters、
+> bounded active-only 查询、timeline window、freshness/diagnostics 与 evidence 回链。
+
 - 发布只调用 localhost API/CLI 的 SESDB Skill；Skill 不得直接打开 SQLite。
 - Skill 默认 bounded、active-only，并返回 generation、`asOf`、`builtThrough`
   和 evidence 回链。
@@ -188,6 +191,10 @@ contract 还必须包含 typed tree/exact-file watch targets 和 provider health
 - Hosted 模式始终是严格 Demo，不探测或请求 localhost。
 
 ## E. 后续：人工批准 Memory，再评估 Desktop
+
+> 实施状态：2026-09-01 已完成 evidence-linked candidate → explicit approve →
+> revisioned revoke 闭环；默认读取只返回 approved/active。Desktop、vector search
+> 与自动 Skill discovery 继续留在边界之外。
 
 - Memory 只能由用户显式批准后保存，并记录 evidence seq、scope、revision 和撤销
   控制。

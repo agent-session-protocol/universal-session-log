@@ -1,4 +1,4 @@
-# SesDB v0.2 alpha
+# SESDB v0.2 beta
 
 SesDB is a local, evidence-backed session database. The USL append log is the
 only durable authority; the bundled SQLite FTS5 database and Console are
@@ -9,14 +9,14 @@ rebuildable projections.
 ```bash
 sesdb daemon start
 sesdb provider discover
-sesdb provider enable claude       # or: codex --root /isolated/root
+sesdb provider enable claude       # or: codex/pi/kimi/deepseek
 sesdb index reconcile
 sesdb search "literal phrase"
 sesdb sessions
 sesdb console                      # returns a one-use browser URL
 ```
 
-Claude and Codex providers are disabled by default. Discovery reads only path
+All five providers are disabled by default. Discovery reads only path
 metadata. Enabling permits SesDB to read configured roots and persist exact
 source bytes as evidence. Disabling stops collection without deleting facts.
 
@@ -31,7 +31,7 @@ read-only cookie; management routes continue to require the bearer.
 import { connectSesdb } from "@agent-session-protocol/sesdb";
 
 const db = await connectSesdb();
-const page = await db.searchPage("tool failure");
+const page = await db.searchPage("tool failure", { provider: "codex", fromMs: Date.now() - 86_400_000 });
 await db.reconcile("codex");
 await db.rebuildIndex();
 ```
@@ -39,7 +39,9 @@ await db.rebuildIndex();
 `createSesdb(engine)` and the authenticated NDJSON `sesdb-engine` remain
 compatible. Set `SESDB_TRANSPORT=stdio` for that development transport.
 
-This alpha covers the Claude/Codex incremental slice, literal FTS5,
-sessions/timeline/evidence APIs, rebuild, and a minimal real Console. Pi, Kimi,
-DeepSeek, analytics, Memory, semantic search, subscriptions, SQL, and desktop
-packaging are unavailable. The five-provider I0 gate remains in progress.
+This beta covers five-provider incremental indexing, bounded CJK-aware FTS5,
+filtered sessions/timeline/evidence APIs, rebuild, the localhost-only SESDB
+Skill, and evidence-linked memory that remains invisible until explicitly
+approved. Analytics, semantic/vector search, subscriptions, SQL, Desktop, and
+automatic Skill discovery remain unavailable. The frozen five-provider I0 gate
+is passed; this does not claim complete product parity with Obelisk.

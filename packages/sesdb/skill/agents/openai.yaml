@@ -1,0 +1,4 @@
+interface:
+  display_name: "SESDB"
+  short_description: "Retrieve local agent sessions with evidence"
+  default_prompt: "Use SESDB to find bounded, evidence-backed context from my local coding-agent sessions."

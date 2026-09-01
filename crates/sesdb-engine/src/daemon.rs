@@ -1,10 +1,11 @@
+use crate::index::QueryFilters;
 use crate::index::Sidecar;
 use crate::model::*;
 use crate::provider::{
     adapter, canonical_id, complete_offset, event_digest, fingerprints, is_append, session_id,
     ProviderKind, SourceSnapshot, SourceUnit,
 };
-use crate::{canonical_session_id, Paths, LOCAL_API_VERSION, RPC_VERSION};
+use crate::{canonical_session_id, event_id, Paths, LOCAL_API_VERSION, RPC_VERSION};
 use axum::extract::{Path as AxumPath, Query, State};
 use axum::http::{header, HeaderMap, StatusCode, Uri};
 use axum::response::{Html, IntoResponse, Response};
@@ -662,6 +663,115 @@ impl Writer {
         self.degraded = false;
         Ok(serde_json::to_value(self.sidecar.status(self.store.next_seq(), false)).unwrap())
     }
+
+    pub fn propose_memory(
+        &mut self,
+        content: String,
+        scope: Value,
+        mut evidence_seqs: Vec<u64>,
+    ) -> Result<Value, String> {
+        let content = content.trim().to_owned();
+        if content.is_empty() || content.len() > 16_384 {
+            return Err("memory content must contain 1..16384 bytes".into());
+        }
+        if scope.is_null() {
+            return Err("memory scope is required".into());
+        }
+        evidence_seqs.sort_unstable();
+        evidence_seqs.dedup();
+        if evidence_seqs.is_empty() {
+            return Err("memory requires at least one evidence seq".into());
+        }
+        for seq in &evidence_seqs {
+            let valid = self
+                .store
+                .scan_all_limited(*seq, 1)
+                .map_err(|error| error.to_string())?
+                .first()
+                .is_some_and(|record| record.seq == *seq && record.kind == KIND_EVIDENCE);
+            if !valid {
+                return Err(format!(
+                    "evidence seq {seq} does not identify native evidence"
+                ));
+            }
+        }
+        let mut nonce = [0u8; 32];
+        rand::rng().fill_bytes(&mut nonce);
+        let memory_id = event_id(&[content.as_bytes(), &nonce]);
+        self.append_memory(MemoryRecord {
+            version: 1,
+            memory_id: memory_id.clone(),
+            action: MemoryAction::Candidate,
+            content,
+            scope,
+            evidence_seqs,
+            revision: 1,
+            updated_at_ms: now_ms(),
+        })?;
+        self.sidecar
+            .memory(&memory_id)?
+            .ok_or("memory projection missing".into())
+    }
+
+    pub fn decide_memory(
+        &mut self,
+        id: &str,
+        expected_revision: u64,
+        action: MemoryAction,
+    ) -> Result<Value, String> {
+        let current = self.sidecar.memory(id)?.ok_or("memory not found")?;
+        let revision = current["revision"]
+            .as_u64()
+            .ok_or("memory revision missing")?;
+        if revision != expected_revision {
+            return Err(format!(
+                "memory revision conflict: expected {expected_revision}, current {revision}"
+            ));
+        }
+        let status = current["status"].as_str().unwrap_or("unknown");
+        match action {
+            MemoryAction::Approve if status != "candidate" => {
+                return Err("only candidate memory can be approved".into())
+            }
+            MemoryAction::Revoke if status != "approved" => {
+                return Err("only approved memory can be revoked".into())
+            }
+            MemoryAction::Candidate => return Err("invalid memory decision".into()),
+            _ => {}
+        }
+        let evidence_seqs = current["evidenceSeqs"]
+            .as_array()
+            .ok_or("memory evidence missing")?
+            .iter()
+            .map(|value| value.as_u64().ok_or("invalid memory evidence"))
+            .collect::<Result<Vec<_>, _>>()?;
+        self.append_memory(MemoryRecord {
+            version: 1,
+            memory_id: id.into(),
+            action,
+            content: current["content"]
+                .as_str()
+                .ok_or("memory content missing")?
+                .into(),
+            scope: current["scope"].clone(),
+            evidence_seqs,
+            revision: revision + 1,
+            updated_at_ms: now_ms(),
+        })?;
+        self.sidecar
+            .memory(id)?
+            .ok_or("memory projection missing".into())
+    }
+
+    fn append_memory(&mut self, memory: MemoryRecord) -> Result<(), String> {
+        let session = parse_id(&canonical_session_id("memory", &memory.memory_id))?;
+        self.append_project(vec![Record::new(
+            session,
+            KIND_MEMORY,
+            memory.updated_at_ms,
+            serde_json::to_vec(&memory).map_err(|error| error.to_string())?,
+        )])
+    }
 }
 
 #[derive(Clone)]
@@ -768,6 +878,14 @@ pub async fn run(paths: Paths) -> Result<Descriptor, String> {
         .route("/sessions/{id}/events", get(events))
         .route("/search", get(search))
         .route("/evidence/{seq}", get(evidence))
+        .route("/memory", get(memories))
+        .route(
+            "/memory/candidates",
+            get(memory_candidates).post(propose_memory),
+        )
+        .route("/memory/{id}", get(memory))
+        .route("/memory/{id}/approve", post(approve_memory))
+        .route("/memory/{id}/revoke", post(revoke_memory))
         .route("/rpc", post(rpc))
         .route("/daemon/stop", post(stop))
         .route("/browser-session", post(browser_session))
@@ -883,7 +1001,7 @@ async fn health(State(s): State<AppState>, h: HeaderMap) -> Response {
 async fn capabilities(State(s): State<AppState>, h: HeaderMap) -> Response {
     with_writer(h, s, false, |_| {
         Ok(
-            json!({"apiVersion":LOCAL_API_VERSION,"rpcVersion":RPC_VERSION,"providers":["claude","codex","pi","kimi","deepseek"],"features":["fts5","evidence","rebuild","sessions"],"unavailable":["analytics","memory","semanticSearch","settings"]}),
+            json!({"apiVersion":LOCAL_API_VERSION,"rpcVersion":RPC_VERSION,"providers":["claude","codex","pi","kimi","deepseek"],"features":["fts5","evidence","rebuild","sessions","approvedMemory"],"unavailable":["analytics","semanticSearch","settings"]}),
         )
     })
 }
@@ -954,18 +1072,27 @@ async fn rebuild(State(s): State<AppState>, h: HeaderMap) -> Response {
     with_writer(h, s, true, Writer::rebuild)
 }
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct ListQuery {
     limit: Option<usize>,
     cursor: Option<String>,
+    provider: Option<String>,
+    project: Option<String>,
+    session_id: Option<String>,
+    from_ms: Option<u64>,
+    to_ms: Option<u64>,
 }
 async fn sessions(State(s): State<AppState>, h: HeaderMap, Query(q): Query<ListQuery>) -> Response {
     let token = s.token.clone();
     with_writer(h, s, false, move |w| {
         let limit = q.limit.unwrap_or(100).min(1000);
-        let offset = cursor_offset(q.cursor.as_deref(), &token, "sessions", "", w)?;
-        let value = w.sidecar.sessions(limit, offset)?;
+        let filters = checked_filters(q.provider, q.project, q.session_id, q.from_ms, q.to_ms)?;
+        let binding = serde_json::to_string(&json!({"provider":filters.provider,"project":filters.project,"sessionId":filters.session_id,"fromMs":filters.from_ms,"toMs":filters.to_ms})).map_err(|error| error.to_string())?;
+        let offset = cursor_offset(q.cursor.as_deref(), &token, "sessions", &binding, w)?;
+        let mut value = w.sidecar.sessions_filtered(limit, offset, &filters)?;
+        add_diagnostics(&mut value, &filters, limit, false);
         Ok(with_next_cursor(
-            value, &token, "sessions", "", w, offset, limit,
+            value, &token, "sessions", &binding, w, offset, limit,
         ))
     })
 }
@@ -979,10 +1106,13 @@ async fn session(
     })
 }
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct EventsQuery {
     limit: Option<usize>,
     history: Option<bool>,
     cursor: Option<String>,
+    from_ms: Option<u64>,
+    to_ms: Option<u64>,
 }
 async fn events(
     State(s): State<AppState>,
@@ -994,33 +1124,97 @@ async fn events(
     with_writer(h, s, false, move |w| {
         let history = q.history.unwrap_or(false);
         let limit = q.limit.unwrap_or(1000).min(10000);
-        let binding = format!("{id}:{history}");
+        if q.from_ms.zip(q.to_ms).is_some_and(|(from, to)| from > to) {
+            return Err("fromMs must not exceed toMs".into());
+        }
+        let binding = format!("{id}:{history}:{:?}:{:?}", q.from_ms, q.to_ms);
         let offset = cursor_offset(q.cursor.as_deref(), &token, "events", &binding, w)?;
-        let value = w.sidecar.events(&id, history, limit, offset)?;
+        let mut value = w
+            .sidecar
+            .events_window(&id, history, limit, offset, q.from_ms, q.to_ms)?;
+        add_diagnostics(
+            &mut value,
+            &QueryFilters {
+                session_id: Some(id.clone()),
+                from_ms: q.from_ms,
+                to_ms: q.to_ms,
+                ..Default::default()
+            },
+            limit,
+            history,
+        );
         Ok(with_next_cursor(
             value, &token, "events", &binding, w, offset, limit,
         ))
     })
 }
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct SearchQuery {
     q: String,
     limit: Option<usize>,
     history: Option<bool>,
     cursor: Option<String>,
+    provider: Option<String>,
+    project: Option<String>,
+    session_id: Option<String>,
+    from_ms: Option<u64>,
+    to_ms: Option<u64>,
 }
 async fn search(State(s): State<AppState>, h: HeaderMap, Query(q): Query<SearchQuery>) -> Response {
     let token = s.token.clone();
     with_writer(h, s, false, move |w| {
         let history = q.history.unwrap_or(false);
         let limit = q.limit.unwrap_or(100).min(1000);
-        let binding = format!("{}:{history}", q.q);
+        let filters = checked_filters(q.provider, q.project, q.session_id, q.from_ms, q.to_ms)?;
+        let binding = format!("{}:{history}:{}", q.q, serde_json::to_string(&json!({"provider":filters.provider,"project":filters.project,"sessionId":filters.session_id,"fromMs":filters.from_ms,"toMs":filters.to_ms})).map_err(|error| error.to_string())?);
         let offset = cursor_offset(q.cursor.as_deref(), &token, "search", &binding, w)?;
-        let value = w.sidecar.search(&q.q, history, limit, offset)?;
+        let mut value = w
+            .sidecar
+            .search_filtered(&q.q, history, limit, offset, &filters)?;
+        add_diagnostics(&mut value, &filters, limit, history);
         Ok(with_next_cursor(
             value, &token, "search", &binding, w, offset, limit,
         ))
     })
+}
+
+fn checked_filters(
+    provider: Option<String>,
+    project: Option<String>,
+    session_id: Option<String>,
+    from_ms: Option<u64>,
+    to_ms: Option<u64>,
+) -> Result<QueryFilters, String> {
+    if let Some(value) = provider.as_deref() {
+        ProviderKind::parse(value).ok_or_else(|| format!("unknown provider filter: {value}"))?;
+    }
+    if session_id.as_deref().is_some_and(|value| {
+        !value.bytes().all(|byte| byte.is_ascii_hexdigit()) || value.len() != 64
+    }) {
+        return Err("sessionId must be 64 hexadecimal characters".into());
+    }
+    if from_ms.zip(to_ms).is_some_and(|(from, to)| from > to) {
+        return Err("fromMs must not exceed toMs".into());
+    }
+    Ok(QueryFilters {
+        provider,
+        project,
+        session_id,
+        from_ms,
+        to_ms,
+    })
+}
+
+fn add_diagnostics(value: &mut Value, filters: &QueryFilters, limit: usize, history: bool) {
+    if let Some(object) = value.as_object_mut() {
+        let as_of = object
+            .get("builtThroughSeq")
+            .cloned()
+            .unwrap_or(Value::Null);
+        object.insert("asOf".into(), as_of);
+        object.insert("diagnostics".into(), json!({"bounded":true,"activeOnly":!history,"limit":limit,"filters":{"provider":filters.provider,"project":filters.project,"sessionId":filters.session_id,"fromMs":filters.from_ms,"toMs":filters.to_ms}}));
+    }
 }
 async fn evidence(
     State(s): State<AppState>,
@@ -1040,6 +1234,82 @@ async fn evidence(
         Ok(
             json!({"seq":seq,"provider":body.provider,"sourcePath":body.source_path,"byteStart":body.byte_start,"byteEnd":body.byte_end,"sha256":body.sha256,"rawBase64":base64::engine::general_purpose::STANDARD.encode(body.raw)}),
         )
+    })
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MemoryListQuery {
+    limit: Option<usize>,
+}
+async fn memories(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    Query(q): Query<MemoryListQuery>,
+) -> Response {
+    with_writer(h, s, false, |w| {
+        w.sidecar
+            .memories("approved", q.limit.unwrap_or(100).min(1000))
+    })
+}
+async fn memory_candidates(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    Query(q): Query<MemoryListQuery>,
+) -> Response {
+    with_writer(h, s, false, |w| {
+        w.sidecar
+            .memories("candidate", q.limit.unwrap_or(100).min(1000))
+    })
+}
+async fn memory(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    AxumPath(id): AxumPath<String>,
+) -> Response {
+    with_writer(h, s, false, |w| {
+        w.sidecar.memory(&id)?.ok_or("memory not found".into())
+    })
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProposeMemoryBody {
+    content: String,
+    scope: Value,
+    evidence_seqs: Vec<u64>,
+}
+async fn propose_memory(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    Json(body): Json<ProposeMemoryBody>,
+) -> Response {
+    with_writer(h, s, true, |w| {
+        w.propose_memory(body.content, body.scope, body.evidence_seqs)
+    })
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct MemoryDecisionBody {
+    expected_revision: u64,
+}
+async fn approve_memory(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    AxumPath(id): AxumPath<String>,
+    Json(body): Json<MemoryDecisionBody>,
+) -> Response {
+    with_writer(h, s, true, |w| {
+        w.decide_memory(&id, body.expected_revision, MemoryAction::Approve)
+    })
+}
+async fn revoke_memory(
+    State(s): State<AppState>,
+    h: HeaderMap,
+    AxumPath(id): AxumPath<String>,
+    Json(body): Json<MemoryDecisionBody>,
+) -> Response {
+    with_writer(h, s, true, |w| {
+        w.decide_memory(&id, body.expected_revision, MemoryAction::Revoke)
     })
 }
 #[derive(Deserialize)]

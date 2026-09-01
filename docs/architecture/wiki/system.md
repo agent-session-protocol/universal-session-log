@@ -4,8 +4,8 @@ sources:
   - crates/usl-capture/src/lib.rs c353c76cdf5a CaptureSession Framer FileFollower
   - packages/usl-convert/src/bundle.ts a7fe35aa4a9e SessionBundle makeBundle
   - crates/sesdb-engine/src/main.rs 514e426b6059 main dispatch
-  - crates/sesdb-engine/src/daemon.rs adb042773b4f Writer run
-  - packages/sesdb/src/index.ts df9de71f8f65 createSesdb
+  - crates/sesdb-engine/src/daemon.rs 63cae68156de Writer run
+  - packages/sesdb/src/index.ts 51811cf26b78 createSesdb
   - site/app/console/api.ts 95d2f2e34691 fetchDashboard
 ---
 
@@ -31,7 +31,7 @@ USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Co
 1. **正确性只来自 append log**：存储层每条记录带长度前缀 + CRC，恢复时扫帧、遇到撕裂帧就截断。header 只是冗余提示，可从数据区自愈——这跟「不依赖任何 WAL/checkpoint 也能恢复」是同一个命题（见 usl-core）。
 2. **不透明负载一等化**：claude 的 thinking `signature`、codex 的 `encrypted_content` 这类「不可解析但必须原样往返」的字节，用 typed `unknown` block 保真，不在转换时 normalize 掉。
 3. **转换保真靠 evidence 与 byte-verifiable provenance**：每个 v2 bundle 存完整事件流、派生快照、排序后的 source artifact 集合与 canonical JSON digest。roundtrip 时 exporter 优先用 evidence 逐字还原原生负载；共享 conformance runner 单独检查 native record 是否逐条映射或声明 loss。
-4. **查询不取代事实真源**：SESDB 的查询快照、索引和投影都可从 append log 重建；SDK 与 engine 通过能力协商显式限定 foundation 子集。
+4. **查询与 Memory 不取代事实真源**：SESDB 的查询快照、索引和 Memory 状态都可从 append log 重建；candidate 只有经人工批准的 revision 才进入默认读取，SDK 与 engine 通过能力协商显式限定子集。
 5. **Hosted Site 不连本地库**：Console 是静态导出中的浏览器 demo，其 adapter 只读内建样例，与 SDK/engine 不存在运行时连线。
 
 ## 依赖方向

@@ -1,6 +1,6 @@
 use crate::model::{
-    CanonicalEventBody, NativeEvidence, VisibilityControl, KIND_CANONICAL_EVENT, KIND_EVIDENCE,
-    KIND_VISIBILITY,
+    CanonicalEventBody, MemoryAction, MemoryRecord, NativeEvidence, VisibilityControl,
+    KIND_CANONICAL_EVENT, KIND_EVIDENCE, KIND_MEMORY, KIND_VISIBILITY,
 };
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::Serialize;
@@ -8,7 +8,7 @@ use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use usl_core::{Store, StoredRecord};
 
-const SCHEMA_VERSION: i64 = 4;
+const SCHEMA_VERSION: i64 = 5;
 const FALLBACK_SCAN_BUDGET: i64 = 10_000;
 
 #[derive(Debug)]
@@ -31,6 +31,15 @@ pub struct IndexStatus {
     /// SQLite row changes observed by this sidecar connection. This is a
     /// portable write-amplification signal, not a count of filesystem writes.
     pub sqlite_write_changes: u64,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct QueryFilters {
+    pub provider: Option<String>,
+    pub project: Option<String>,
+    pub session_id: Option<String>,
+    pub from_ms: Option<u64>,
+    pub to_ms: Option<u64>,
 }
 
 impl Sidecar {
@@ -80,6 +89,7 @@ impl Sidecar {
             "evidence",
             "events",
             "event_evidence",
+            "memories",
             "events_fts",
             "events_fts_trigram",
         ] {
@@ -223,10 +233,19 @@ impl Sidecar {
     }
 
     pub fn sessions(&self, limit: usize, offset: usize) -> Result<Value, String> {
+        self.sessions_filtered(limit, offset, &QueryFilters::default())
+    }
+
+    pub fn sessions_filtered(
+        &self,
+        limit: usize,
+        offset: usize,
+        filters: &QueryFilters,
+    ) -> Result<Value, String> {
         let mut statement = self.connection.prepare(
-            "SELECT session_id, native_session_id, provider, project, title, event_count, first_seen_at, last_updated_at FROM sessions WHERE active=1 ORDER BY last_updated_at DESC, session_id LIMIT ?1 OFFSET ?2"
+            "SELECT session_id, native_session_id, provider, project, title, event_count, first_seen_at, last_updated_at FROM sessions WHERE active=1 AND (?1 IS NULL OR provider=?1) AND (?2 IS NULL OR project=?2) AND (?3 IS NULL OR session_id=?3) AND (?4 IS NULL OR last_updated_at>=?4) AND (?5 IS NULL OR first_seen_at<=?5) ORDER BY last_updated_at DESC, session_id LIMIT ?6 OFFSET ?7"
         ).map_err(|e| e.to_string())?;
-        let rows = statement.query_map(params![limit as i64, offset as i64], |row| Ok(json!({
+        let rows = statement.query_map(params![filters.provider,filters.project,filters.session_id,filters.from_ms,filters.to_ms,limit as i64,offset as i64], |row| Ok(json!({
             "id": row.get::<_, String>(0)?, "nativeSessionId": row.get::<_, String>(1)?, "provider": row.get::<_, String>(2)?,
             "project": row.get::<_, Option<String>>(3)?, "title": row.get::<_, Option<String>>(4)?, "eventCount": row.get::<_, u64>(5)?,
             "firstSeenAt": row.get::<_, u64>(6)?, "lastUpdatedAt": row.get::<_, u64>(7)?, "status": "synced"
@@ -251,14 +270,31 @@ impl Sidecar {
         limit: usize,
         offset: usize,
     ) -> Result<Value, String> {
-        let sql = if include_history {
-            "SELECT seq,event_id,event_type,ts_ms,event_json,evidence_seqs,active FROM events WHERE session_id=?1 ORDER BY seq LIMIT ?2 OFFSET ?3"
-        } else {
-            "SELECT seq,event_id,event_type,ts_ms,event_json,evidence_seqs,active FROM events WHERE session_id=?1 AND active=1 ORDER BY seq LIMIT ?2 OFFSET ?3"
-        };
-        let mut statement = self.connection.prepare(sql).map_err(|e| e.to_string())?;
+        self.events_window(session_id, include_history, limit, offset, None, None)
+    }
+
+    pub fn events_window(
+        &self,
+        session_id: &str,
+        include_history: bool,
+        limit: usize,
+        offset: usize,
+        from_ms: Option<u64>,
+        to_ms: Option<u64>,
+    ) -> Result<Value, String> {
+        let mut statement = self.connection.prepare("SELECT seq,event_id,event_type,ts_ms,event_json,evidence_seqs,active FROM events WHERE session_id=?1 AND (?2 OR active=1) AND (?3 IS NULL OR ts_ms>=?3) AND (?4 IS NULL OR ts_ms<=?4) ORDER BY seq LIMIT ?5 OFFSET ?6").map_err(|e| e.to_string())?;
         let rows = statement
-            .query_map(params![session_id, limit as i64, offset as i64], event_row)
+            .query_map(
+                params![
+                    session_id,
+                    include_history,
+                    from_ms,
+                    to_ms,
+                    limit as i64,
+                    offset as i64
+                ],
+                event_row,
+            )
             .map_err(|e| e.to_string())?
             .collect::<Result<Vec<_>, _>>()
             .map_err(|e| e.to_string())?;
@@ -274,21 +310,33 @@ impl Sidecar {
         limit: usize,
         offset: usize,
     ) -> Result<Value, String> {
+        self.search_filtered(
+            text,
+            include_history,
+            limit,
+            offset,
+            &QueryFilters::default(),
+        )
+    }
+
+    pub fn search_filtered(
+        &self,
+        text: &str,
+        include_history: bool,
+        limit: usize,
+        offset: usize,
+        filters: &QueryFilters,
+    ) -> Result<Value, String> {
         if text.is_empty() {
             return Err("search text must not be empty".into());
         }
         if text.chars().count() < 3 {
-            return self.search_bounded_substring(text, include_history, limit, offset);
+            return self.search_bounded_substring(text, include_history, limit, offset, filters);
         }
         let phrase = format!("\"{}\"", text.replace('"', "\"\""));
-        let history = if include_history {
-            ""
-        } else {
-            "AND e.active=1"
-        };
-        let sql = format!("SELECT e.seq,e.event_id,e.session_id,e.event_type,e.ts_ms,e.event_json,e.evidence_seqs,bm25(events_fts_trigram) FROM events_fts_trigram JOIN events e ON e.seq=events_fts_trigram.rowid WHERE events_fts_trigram MATCH ?1 {history} ORDER BY bm25(events_fts_trigram),e.seq LIMIT ?2 OFFSET ?3");
-        let mut statement = self.connection.prepare(&sql).map_err(|e| e.to_string())?;
-        let hits = statement.query_map(params![phrase, limit as i64, offset as i64], |row| {
+        let sql = "SELECT e.seq,e.event_id,e.session_id,e.event_type,e.ts_ms,e.event_json,e.evidence_seqs,bm25(events_fts_trigram) FROM events_fts_trigram JOIN events e ON e.seq=events_fts_trigram.rowid LEFT JOIN sessions s ON s.session_id=e.session_id WHERE events_fts_trigram MATCH ?1 AND (?2 OR e.active=1) AND (?3 IS NULL OR e.provider=?3) AND (?4 IS NULL OR s.project=?4) AND (?5 IS NULL OR e.session_id=?5) AND (?6 IS NULL OR e.ts_ms>=?6) AND (?7 IS NULL OR e.ts_ms<=?7) ORDER BY bm25(events_fts_trigram),e.seq LIMIT ?8 OFFSET ?9";
+        let mut statement = self.connection.prepare(sql).map_err(|e| e.to_string())?;
+        let hits = statement.query_map(params![phrase,include_history,filters.provider,filters.project,filters.session_id,filters.from_ms,filters.to_ms,limit as i64,offset as i64], |row| {
             let event_json: String = row.get(5)?;
             let evidence: String = row.get(6)?;
             Ok(json!({"seq":row.get::<_,u64>(0)?,"eventId":row.get::<_,String>(1)?,"sessionId":row.get::<_,String>(2)?,"eventType":row.get::<_,String>(3)?,"timestamp":row.get::<_,u64>(4)?,"event":serde_json::from_str::<Value>(&event_json).unwrap_or(Value::Null),"evidenceSeqs":serde_json::from_str::<Value>(&evidence).unwrap_or(json!([])),"score":row.get::<_,f64>(7)?}))
@@ -304,23 +352,14 @@ impl Sidecar {
         include_history: bool,
         limit: usize,
         offset: usize,
+        filters: &QueryFilters,
     ) -> Result<Value, String> {
-        let active = if include_history {
-            ""
-        } else {
-            "WHERE active=1"
-        };
-        let sql = format!(
-            "SELECT seq,event_id,session_id,event_type,ts_ms,event_json,evidence_seqs FROM (SELECT seq,event_id,session_id,event_type,ts_ms,event_json,evidence_seqs FROM events {active} ORDER BY seq DESC LIMIT ?1) WHERE instr(lower(event_json),lower(?2))>0 ORDER BY seq LIMIT ?3 OFFSET ?4"
-        );
-        let mut statement = self.connection.prepare(&sql).map_err(|e| e.to_string())?;
+        let sql = "SELECT seq,event_id,session_id,event_type,ts_ms,event_json,evidence_seqs FROM (SELECT e.seq,e.event_id,e.session_id,e.event_type,e.ts_ms,e.event_json,e.evidence_seqs FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id WHERE (?1 OR e.active=1) AND (?2 IS NULL OR e.provider=?2) AND (?3 IS NULL OR s.project=?3) AND (?4 IS NULL OR e.session_id=?4) AND (?5 IS NULL OR e.ts_ms>=?5) AND (?6 IS NULL OR e.ts_ms<=?6) ORDER BY e.seq DESC LIMIT ?7) WHERE instr(lower(event_json),lower(?8))>0 ORDER BY seq LIMIT ?9 OFFSET ?10";
+        let mut statement = self.connection.prepare(sql).map_err(|e| e.to_string())?;
         let hits = statement
             .query_map(
                 params![
-                    FALLBACK_SCAN_BUDGET,
-                    text,
-                    limit as i64,
-                    offset as i64
+                    include_history,filters.provider,filters.project,filters.session_id,filters.from_ms,filters.to_ms,FALLBACK_SCAN_BUDGET,text,limit as i64,offset as i64
                 ],
                 |row| {
                     let event_json: String = row.get(5)?;
@@ -334,12 +373,8 @@ impl Sidecar {
         let eligible: i64 = self
             .connection
             .query_row(
-                if include_history {
-                    "SELECT count(*) FROM events"
-                } else {
-                    "SELECT count(*) FROM events WHERE active=1"
-                },
-                [],
+                "SELECT count(*) FROM events e LEFT JOIN sessions s ON s.session_id=e.session_id WHERE (?1 OR e.active=1) AND (?2 IS NULL OR e.provider=?2) AND (?3 IS NULL OR s.project=?3) AND (?4 IS NULL OR e.session_id=?4) AND (?5 IS NULL OR e.ts_ms>=?5) AND (?6 IS NULL OR e.ts_ms<=?6)",
+                params![include_history,filters.provider,filters.project,filters.session_id,filters.from_ms,filters.to_ms],
                 |row| row.get(0),
             )
             .map_err(|e| e.to_string())?;
@@ -382,6 +417,24 @@ impl Sidecar {
         Ok(paths)
     }
 
+    pub fn memories(&self, status: &str, limit: usize) -> Result<Value, String> {
+        let mut statement = self.connection.prepare("SELECT memory_id,content,scope_json,evidence_seqs,revision,status,updated_at_ms FROM memories WHERE status=?1 ORDER BY updated_at_ms DESC,memory_id LIMIT ?2").map_err(|error| error.to_string())?;
+        let items = statement.query_map(params![status, limit as i64], |row| {
+            let scope: String = row.get(2)?; let evidence: String = row.get(3)?;
+            Ok(json!({"id":row.get::<_,String>(0)?,"content":row.get::<_,String>(1)?,"scope":serde_json::from_str::<Value>(&scope).unwrap_or(Value::Null),"evidenceSeqs":serde_json::from_str::<Value>(&evidence).unwrap_or(json!([])),"revision":row.get::<_,u64>(4)?,"status":row.get::<_,String>(5)?,"updatedAt":row.get::<_,u64>(6)?}))
+        }).map_err(|error| error.to_string())?.collect::<Result<Vec<_>, _>>().map_err(|error| error.to_string())?;
+        Ok(
+            json!({"items":items,"generation":self.generation,"builtThroughSeq":self.built_through_seq}),
+        )
+    }
+
+    pub fn memory(&self, id: &str) -> Result<Option<Value>, String> {
+        self.connection.query_row("SELECT memory_id,content,scope_json,evidence_seqs,revision,status,updated_at_ms FROM memories WHERE memory_id=?1", [id], |row| {
+            let scope: String = row.get(2)?; let evidence: String = row.get(3)?;
+            Ok(json!({"id":row.get::<_,String>(0)?,"content":row.get::<_,String>(1)?,"scope":serde_json::from_str::<Value>(&scope).unwrap_or(Value::Null),"evidenceSeqs":serde_json::from_str::<Value>(&evidence).unwrap_or(json!([])),"revision":row.get::<_,u64>(4)?,"status":row.get::<_,String>(5)?,"updatedAt":row.get::<_,u64>(6)?}))
+        }).optional().map_err(|error| error.to_string())
+    }
+
     pub fn path(&self) -> &Path {
         &self.path
     }
@@ -395,6 +448,7 @@ fn create_schema(connection: &Connection, generation: u64) -> rusqlite::Result<(
       CREATE TABLE evidence(seq INTEGER PRIMARY KEY,provider TEXT NOT NULL,source_path TEXT NOT NULL,source_generation INTEGER NOT NULL,byte_start INTEGER NOT NULL,byte_end INTEGER NOT NULL,sha256 TEXT NOT NULL);
       CREATE TABLE events(seq INTEGER PRIMARY KEY,event_id TEXT UNIQUE NOT NULL,session_id TEXT NOT NULL,native_session_id TEXT NOT NULL,native_identity TEXT NOT NULL,provider TEXT NOT NULL,source_path TEXT NOT NULL,source_generation INTEGER NOT NULL,event_type TEXT NOT NULL,ts_ms INTEGER NOT NULL,event_json TEXT NOT NULL,evidence_seqs TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1);
       CREATE TABLE event_evidence(event_seq INTEGER NOT NULL,evidence_seq INTEGER NOT NULL,PRIMARY KEY(event_seq,evidence_seq));
+      CREATE TABLE memories(memory_id TEXT PRIMARY KEY,content TEXT NOT NULL,scope_json TEXT NOT NULL,evidence_seqs TEXT NOT NULL,revision INTEGER NOT NULL,status TEXT NOT NULL,updated_at_ms INTEGER NOT NULL);
       CREATE VIRTUAL TABLE events_fts USING fts5(text,content='',tokenize='unicode61');
       CREATE VIRTUAL TABLE events_fts_trigram USING fts5(text,content='',tokenize='trigram');")?;
     connection.execute(
@@ -419,6 +473,15 @@ fn project_record(tx: &Transaction<'_>, record: &StoredRecord) -> rusqlite::Resu
                     value.sha256
                 ],
             )?;
+        }
+    } else if record.kind == KIND_MEMORY {
+        if let Ok(value) = serde_json::from_slice::<MemoryRecord>(&record.body) {
+            let status = match value.action {
+                MemoryAction::Candidate => "candidate",
+                MemoryAction::Approve => "approved",
+                MemoryAction::Revoke => "revoked",
+            };
+            tx.execute("INSERT INTO memories VALUES(?1,?2,?3,?4,?5,?6,?7) ON CONFLICT(memory_id) DO UPDATE SET content=excluded.content,scope_json=excluded.scope_json,evidence_seqs=excluded.evidence_seqs,revision=excluded.revision,status=excluded.status,updated_at_ms=excluded.updated_at_ms WHERE excluded.revision>memories.revision", params![value.memory_id,value.content,serde_json::to_string(&value.scope).unwrap_or_else(|_| "null".into()),serde_json::to_string(&value.evidence_seqs).unwrap_or_else(|_| "[]".into()),value.revision,status,value.updated_at_ms])?;
         }
     } else if record.kind == KIND_CANONICAL_EVENT {
         if let Ok(value) = serde_json::from_slice::<CanonicalEventBody>(&record.body) {

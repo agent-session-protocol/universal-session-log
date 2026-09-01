@@ -61,10 +61,13 @@ export interface Sesdb {
 
 export interface SessionPage { items: Array<Record<string, unknown>>; generation: number; builtThroughSeq: number; nextCursor?: string; }
 export interface SearchPage { items: Array<Record<string, unknown>>; generation: number; builtThroughSeq: number; nextCursor?: string; }
+export interface LocalQueryFilters { provider?: "claude" | "codex" | "pi" | "kimi" | "deepseek"; project?: string; sessionId?: string; fromMs?: number; toMs?: number; }
+export interface LocalPageOptions extends LocalQueryFilters { limit?: number; cursor?: string; history?: boolean; }
 export interface ConnectedSesdb extends Sesdb {
   readonly engine: EngineClient;
-  searchPage(text: string, options?: { limit?: number; history?: boolean; cursor?: string }): Promise<SearchPage>;
-  sessions(options?: number | { limit?: number; cursor?: string }): Promise<SessionPage>;
+  searchPage(text: string, options?: LocalPageOptions): Promise<SearchPage>;
+  sessions(options?: number | LocalPageOptions): Promise<SessionPage>;
+  timeline(sessionId: string, options?: Omit<LocalPageOptions, "provider" | "project" | "sessionId">): Promise<SearchPage>;
   providerHealth(): Promise<unknown>;
   reconcile(provider?: "claude" | "codex" | "pi" | "kimi" | "deepseek"): Promise<unknown>;
   rebuildIndex(): Promise<unknown>;
@@ -397,12 +400,18 @@ export async function connectSesdb(options: DaemonOptions = {}): Promise<Connect
   const required = () => { if (!daemon) throw new SesdbQueryError("unsupported_capability", "operation requires daemon transport"); return daemon; };
   return Object.assign(base, {
     engine,
-    searchPage(text: string, settings: { limit?: number; history?: boolean; cursor?: string } = {}) {
+    searchPage(text: string, settings: LocalPageOptions = {}) {
       const query = new URLSearchParams({ q: text, limit: String(settings.limit ?? 100), history: String(settings.history ?? false) });
       if (settings.cursor) query.set("cursor", settings.cursor);
+      if (settings.provider) query.set("provider", settings.provider);
+      if (settings.project) query.set("project", settings.project);
+      if (settings.sessionId) query.set("sessionId", settings.sessionId);
+      if (settings.fromMs !== undefined) query.set("fromMs", String(settings.fromMs));
+      if (settings.toMs !== undefined) query.set("toMs", String(settings.toMs));
       return required().local<SearchPage>(`/search?${query}`);
     },
-    sessions(options: number | { limit?: number; cursor?: string } = 100) { const settings = typeof options === "number" ? { limit: options } : options; const query = new URLSearchParams({ limit: String(settings.limit ?? 100) }); if (settings.cursor) query.set("cursor", settings.cursor); return required().local<SessionPage>(`/sessions?${query}`); },
+    sessions(options: number | LocalPageOptions = 100) { const settings = typeof options === "number" ? { limit: options } : options; const query = new URLSearchParams({ limit: String(settings.limit ?? 100) }); if (settings.cursor) query.set("cursor", settings.cursor); if (settings.provider) query.set("provider", settings.provider); if (settings.project) query.set("project", settings.project); if (settings.sessionId) query.set("sessionId", settings.sessionId); if (settings.fromMs !== undefined) query.set("fromMs", String(settings.fromMs)); if (settings.toMs !== undefined) query.set("toMs", String(settings.toMs)); return required().local<SessionPage>(`/sessions?${query}`); },
+    timeline(sessionId: string, settings: Omit<LocalPageOptions, "provider" | "project" | "sessionId"> = {}) { const query = new URLSearchParams({ limit: String(settings.limit ?? 1000), history: String(settings.history ?? false) }); if (settings.cursor) query.set("cursor", settings.cursor); if (settings.fromMs !== undefined) query.set("fromMs", String(settings.fromMs)); if (settings.toMs !== undefined) query.set("toMs", String(settings.toMs)); return required().local<SearchPage>(`/sessions/${encodeURIComponent(sessionId)}/events?${query}`); },
     providerHealth() { return required().local("/providers"); },
     reconcile(provider?: "claude" | "codex" | "pi" | "kimi" | "deepseek") { return required().local(provider ? `/providers/${provider}/reconcile` : "/index/reconcile", { method: "POST" }); },
     rebuildIndex() { return required().local("/index/rebuild", { method: "POST" }); },

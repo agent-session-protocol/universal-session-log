@@ -32,8 +32,8 @@
     { "id": "sessionql-foundation", "obelisk": "planned", "sesdb": "delivered", "evidence": ["packages/sesdb/test/sesdb.test.ts", "docs/rfcs/0001-sessionql-query-plane.md"] },
     { "id": "provider-incremental-index", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/src/provider.rs", "crates/sesdb-engine/tests/provider_conformance.rs", "crates/sesdb-engine/tests/i0_journey.rs"] },
     { "id": "fts5-search", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/src/index.rs", "crates/sesdb-engine/tests/daemon_foundation.rs"] },
-    { "id": "agent-skill", "obelisk": "delivered", "sesdb": "planned", "evidence": [] },
-    { "id": "approved-memory", "obelisk": "delivered", "sesdb": "specified", "evidence": ["docs/research/2026-08-universal-session-log-db.md"] },
+    { "id": "agent-skill", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["skills/sesdb/SKILL.md"] },
+    { "id": "approved-memory", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/tests/i0_journey.rs", "packages/sesdb/console/index.html"] },
     { "id": "standalone-console", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["packages/sesdb/console/index.html", "crates/sesdb-engine/src/daemon.rs"] },
     { "id": "desktop-app", "obelisk": "delivered", "sesdb": "planned", "evidence": [] }
   ],
