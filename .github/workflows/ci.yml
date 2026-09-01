@@ -57,8 +57,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.5
       - run: cargo build -p sesdb-engine
       - run: npm ci && npm run build
+        working-directory: packages/sesdb
+      - run: pnpm install --frozen-lockfile && pnpm build
+        working-directory: site
+      - name: Stage the shared Console export
+        run: node scripts/prepare-console.mjs
         working-directory: packages/sesdb
       - name: Pack, install, and run from an isolated directory
         run: node scripts/smoke-packed-install.mjs
