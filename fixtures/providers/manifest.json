@@ -1,0 +1,56 @@
+{
+  "license": "CC0-1.0",
+  "provenance": "synthetic clean-room fixtures derived from public provider documentation",
+  "providers": {
+    "claude": {
+      "artifacts": ["claude/session.jsonl"],
+      "mainSubagent": "supported:isSidechain+parentUuid",
+      "toolCallResult": "supported",
+      "summary": "supported:evidence",
+      "partialWrite": "runner",
+      "rewriteTruncate": "runner",
+      "undoClear": "unsupported:no stable native control record in corpus",
+      "archiveDelete": "runner"
+    },
+    "codex": {
+      "artifacts": ["codex/rollout.jsonl"],
+      "mainSubagent": "unsupported:no subagent identity in rollout baseline",
+      "toolCallResult": "supported",
+      "summary": "supported:reasoning summary",
+      "partialWrite": "runner",
+      "rewriteTruncate": "runner",
+      "undoClear": "unsupported:no stable native control record in corpus",
+      "archiveDelete": "runner"
+    },
+    "pi": {
+      "artifacts": ["pi/session.jsonl"],
+      "mainSubagent": "partial:parent tree only",
+      "toolCallResult": "supported",
+      "summary": "unsupported:no summary record in baseline",
+      "partialWrite": "runner",
+      "rewriteTruncate": "runner",
+      "undoClear": "unsupported:no stable native control record in corpus",
+      "archiveDelete": "runner"
+    },
+    "kimi": {
+      "artifacts": ["kimi/state.json", "kimi/agents/main/wire.jsonl", "kimi/agents/agent-0/wire.jsonl"],
+      "mainSubagent": "supported:state parent + per-agent wire",
+      "toolCallResult": "supported",
+      "summary": "supported",
+      "partialWrite": "runner",
+      "rewriteTruncate": "runner",
+      "undoClear": "supported:forkedFrom + context.clear",
+      "archiveDelete": "runner"
+    },
+    "deepseek": {
+      "artifacts": ["deepseek/session.jsonl", "deepseek/session.jsonl.zstd"],
+      "mainSubagent": "supported:parentSession header",
+      "toolCallResult": "supported:callId linkage",
+      "summary": "supported:compaction/summary",
+      "partialWrite": "runner",
+      "rewriteTruncate": "runner",
+      "undoClear": "partial:surface replacement events",
+      "archiveDelete": "unsupported:backend has no delete API"
+    }
+  }
+}

@@ -13,8 +13,8 @@ Commands:
   sesdb init | search <text> | query <sessionql> [--explain] | context <session-id>
   sesdb capabilities | verify | doctor | sessions
   sesdb daemon start|run|status|stop
-  sesdb provider discover [claude|codex]
-  sesdb provider enable|disable <claude|codex> [--root <path>]
+  sesdb provider discover [claude|codex|pi|kimi|deepseek]
+  sesdb provider enable|disable <claude|codex|pi|kimi|deepseek> [--root <path>]
   sesdb provider list
   sesdb index status|reconcile|rebuild
   sesdb console`;
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
       if (action === "list") output(await daemon.local("/providers"));
       else if (action === "discover") output(await daemon.local(provider ? `/providers/discover?provider=${encodeURIComponent(provider)}` : "/providers/discover"));
       else if (action === "enable" || action === "disable") {
-        if (!provider || !["claude", "codex"].includes(provider)) throw new Error(`${action} requires claude or codex`);
+        if (!provider || !["claude", "codex", "pi", "kimi", "deepseek"].includes(provider)) throw new Error(`${action} requires a known provider`);
         const rootIndex = args.indexOf("--root"); const root = rootIndex >= 0 ? args[rootIndex + 1] : undefined;
         output(await daemon.local(`/providers/${provider}/${action}`, { method: "POST", ...(root ? { body: JSON.stringify({ root }) } : {}) }));
       } else throw new Error("provider requires discover, enable, disable, or list");

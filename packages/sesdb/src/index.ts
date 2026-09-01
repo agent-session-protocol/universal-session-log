@@ -66,7 +66,7 @@ export interface ConnectedSesdb extends Sesdb {
   searchPage(text: string, options?: { limit?: number; history?: boolean; cursor?: string }): Promise<SearchPage>;
   sessions(options?: number | { limit?: number; cursor?: string }): Promise<SessionPage>;
   providerHealth(): Promise<unknown>;
-  reconcile(provider?: "claude" | "codex"): Promise<unknown>;
+  reconcile(provider?: "claude" | "codex" | "pi" | "kimi" | "deepseek"): Promise<unknown>;
   rebuildIndex(): Promise<unknown>;
 }
 
@@ -404,7 +404,7 @@ export async function connectSesdb(options: DaemonOptions = {}): Promise<Connect
     },
     sessions(options: number | { limit?: number; cursor?: string } = 100) { const settings = typeof options === "number" ? { limit: options } : options; const query = new URLSearchParams({ limit: String(settings.limit ?? 100) }); if (settings.cursor) query.set("cursor", settings.cursor); return required().local<SessionPage>(`/sessions?${query}`); },
     providerHealth() { return required().local("/providers"); },
-    reconcile(provider?: "claude" | "codex") { return required().local(provider ? `/providers/${provider}/reconcile` : "/index/reconcile", { method: "POST" }); },
+    reconcile(provider?: "claude" | "codex" | "pi" | "kimi" | "deepseek") { return required().local(provider ? `/providers/${provider}/reconcile` : "/index/reconcile", { method: "POST" }); },
     rebuildIndex() { return required().local("/index/rebuild", { method: "POST" }); },
   });
 }

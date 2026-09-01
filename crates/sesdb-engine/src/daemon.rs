@@ -2,7 +2,7 @@ use crate::index::Sidecar;
 use crate::model::*;
 use crate::provider::{
     adapter, canonical_id, complete_offset, event_digest, fingerprints, is_append, session_id,
-    snapshot, ProviderKind,
+    ProviderKind, SourceSnapshot, SourceUnit,
 };
 use crate::{canonical_session_id, Paths, LOCAL_API_VERSION, RPC_VERSION};
 use axum::extract::{Path as AxumPath, Query, State};
@@ -60,6 +60,27 @@ impl Default for Config {
                         roots: vec![home.join(".codex/sessions")],
                     },
                 ),
+                (
+                    "pi".into(),
+                    ProviderConfig {
+                        enabled: false,
+                        roots: vec![home.join(".pi/agent/sessions")],
+                    },
+                ),
+                (
+                    "kimi".into(),
+                    ProviderConfig {
+                        enabled: false,
+                        roots: vec![home.join(".kimi-code/sessions")],
+                    },
+                ),
+                (
+                    "deepseek".into(),
+                    ProviderConfig {
+                        enabled: false,
+                        roots: vec![home.join(".dsh/sessions")],
+                    },
+                ),
             ]),
         }
     }
@@ -91,10 +112,33 @@ pub struct Writer {
 const MAX_HOT_FILES: usize = 64;
 const INVENTORY_AUDIT_MS: u64 = 30_000;
 
+fn snapshot_fingerprint(snapshot: &SourceSnapshot) -> (Vec<u8>, usize, bool) {
+    if snapshot.artifacts.len() == 1
+        && !snapshot.artifacts[0]
+            .source
+            .path
+            .to_string_lossy()
+            .ends_with(".zstd")
+    {
+        let bytes = snapshot.artifacts[0].bytes.clone();
+        let completed = complete_offset(&bytes);
+        return (bytes, completed, true);
+    }
+    let mut composite = Vec::new();
+    for artifact in &snapshot.artifacts {
+        composite.extend_from_slice(&(artifact.source.logical_path.len() as u64).to_le_bytes());
+        composite.extend_from_slice(artifact.source.logical_path.as_bytes());
+        composite.extend_from_slice(&(artifact.bytes.len() as u64).to_le_bytes());
+        composite.extend_from_slice(&artifact.bytes);
+    }
+    let completed = composite.len();
+    (composite, completed, false)
+}
+
 #[derive(Clone)]
 struct HotSource {
     provider: ProviderKind,
-    path: PathBuf,
+    source: SourceUnit,
     modified_ms: u64,
 }
 
@@ -180,8 +224,13 @@ impl Writer {
         let replay = ReplayState::load(&store)?;
         let sidecar = Sidecar::open_or_rebuild(&paths.sqlite, &store)?;
         let config = if paths.config.exists() {
-            serde_json::from_slice(&std::fs::read(&paths.config).map_err(|e| e.to_string())?)
-                .map_err(|e| e.to_string())?
+            let saved: Config =
+                serde_json::from_slice(&std::fs::read(&paths.config).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
+            let mut value = Config::default();
+            value.providers.extend(saved.providers);
+            write_json_atomic(&paths.config, &value).map_err(|e| e.to_string())?;
+            value
         } else {
             let value = Config::default();
             write_json_atomic(&paths.config, &value).map_err(|e| e.to_string())?;
@@ -224,14 +273,20 @@ impl Writer {
 
     pub fn discover(&self, selected: Option<ProviderKind>) -> Result<Value, String> {
         let mut results = Vec::new();
-        for kind in [ProviderKind::Claude, ProviderKind::Codex] {
+        let mut health = serde_json::Map::new();
+        for kind in ProviderKind::ALL {
             if selected.is_some() && selected != Some(kind) {
                 continue;
             }
             let config = &self.config.providers[kind.name()];
-            results.extend(adapter(kind).discover(&config.roots)?);
+            let provider = adapter(kind);
+            health.insert(
+                kind.name().into(),
+                serde_json::to_value(provider.health()).map_err(|error| error.to_string())?,
+            );
+            results.extend(provider.discover(&config.roots)?);
         }
-        Ok(json!({"sources":results,"contentRead":false}))
+        Ok(json!({"sources":results,"health":health,"contentRead":false}))
     }
 
     pub fn reconcile(&mut self, selected: Option<ProviderKind>) -> Result<Value, String> {
@@ -247,7 +302,7 @@ impl Writer {
         let mut sources = 0;
         let mut events = 0;
         let mut errors = Vec::new();
-        for kind in [ProviderKind::Claude, ProviderKind::Codex] {
+        for kind in ProviderKind::ALL {
             if selected.is_some() && selected != Some(kind) {
                 continue;
             }
@@ -263,12 +318,12 @@ impl Writer {
                 .collect::<HashSet<_>>();
             for source in discovered {
                 sources += 1;
-                self.remember_hot(kind, PathBuf::from(&source.path), source.modified_ms);
+                self.remember_hot(kind, source.clone());
                 let force_replacement = self
                     .missing_since
                     .remove(&(kind.name().into(), source.path.clone()))
                     == Some(u64::MAX);
-                match self.reconcile_file(kind, Path::new(&source.path), force_replacement) {
+                match self.reconcile_source(kind, &source, force_replacement) {
                     Ok(count) => events += count,
                     Err(error) => errors
                         .push(json!({"provider":kind.name(),"path":source.path,"error":error})),
@@ -302,32 +357,32 @@ impl Writer {
         )
     }
 
-    fn remember_hot(&mut self, provider: ProviderKind, path: PathBuf, modified_ms: u64) {
-        self.hot_files
-            .retain(|source| !(source.provider == provider && source.path == path));
+    fn remember_hot(&mut self, provider: ProviderKind, source: SourceUnit) {
+        self.hot_files.retain(|candidate| {
+            !(candidate.provider == provider && candidate.source.path == source.path)
+        });
+        let modified_ms = source.modified_ms;
         self.hot_files.push(HotSource {
             provider,
-            path,
+            source,
             modified_ms,
         });
         self.hot_files.sort_by(|a, b| {
             b.modified_ms
                 .cmp(&a.modified_ms)
-                .then_with(|| a.path.cmp(&b.path))
+                .then_with(|| a.source.path.cmp(&b.source.path))
         });
         self.hot_files.truncate(MAX_HOT_FILES);
     }
 
     fn provider_for_path(&self, path: &Path) -> Option<ProviderKind> {
-        [ProviderKind::Claude, ProviderKind::Codex]
-            .into_iter()
-            .find(|kind| {
-                self.config.providers[kind.name()].enabled
-                    && self.config.providers[kind.name()]
-                        .roots
-                        .iter()
-                        .any(|root| path.starts_with(root))
-            })
+        ProviderKind::ALL.into_iter().find(|kind| {
+            self.config.providers[kind.name()].enabled
+                && self.config.providers[kind.name()]
+                    .roots
+                    .iter()
+                    .any(|root| path.starts_with(root))
+        })
     }
 
     pub fn watch_tick(&mut self, hints: Vec<PathBuf>) -> Result<Value, String> {
@@ -345,29 +400,39 @@ impl Writer {
         let mut candidates = self
             .hot_files
             .iter()
-            .map(|source| (source.provider, source.path.clone()))
+            .map(|source| (source.provider, source.source.clone()))
             .collect::<Vec<_>>();
         for path in hints {
-            if path.extension().and_then(|value| value.to_str()) != Some("jsonl") {
-                continue;
-            }
             if let Some(provider) = self.provider_for_path(&path) {
-                candidates.push((provider, path));
+                let config = &self.config.providers[provider.name()];
+                for source in adapter(provider).discover(&config.roots)? {
+                    if source.artifacts.iter().any(|artifact| {
+                        artifact.path == path
+                            || path.starts_with(&artifact.path)
+                            || artifact.path.starts_with(&path)
+                    }) {
+                        candidates.push((provider, source));
+                    }
+                }
             }
         }
-        candidates.sort_by(|a, b| a.1.cmp(&b.1));
-        candidates.dedup();
+        candidates.sort_by(|a, b| a.1.path.cmp(&b.1.path));
+        candidates.dedup_by(|a, b| a.0 == b.0 && a.1.path == b.1.path);
         let mut events = 0;
         let mut errors = Vec::new();
-        for (provider, path) in candidates {
-            if !path.exists() {
+        for (provider, source) in candidates {
+            if !source
+                .artifacts
+                .iter()
+                .all(|artifact| artifact.path.exists())
+            {
                 continue;
             }
-            match self.reconcile_file(provider, &path, false) {
+            match self.reconcile_source(provider, &source, false) {
                 Ok(count) => events += count,
                 Err(error) => errors.push(json!({
                     "provider": provider.name(),
-                    "path": path,
+                    "path": source.path,
                     "error": error
                 })),
             }
@@ -377,16 +442,16 @@ impl Writer {
         )
     }
 
-    fn reconcile_file(
+    fn reconcile_source(
         &mut self,
         provider: ProviderKind,
-        path: &Path,
+        source: &SourceUnit,
         force_replacement: bool,
     ) -> Result<usize, String> {
-        let bytes = snapshot(path)?;
-        let completed = complete_offset(&bytes);
-        let complete = &bytes[..completed];
-        let path_text = path.to_string_lossy().into_owned();
+        let provider_adapter = adapter(provider);
+        let snapshot = provider_adapter.snapshot(source)?;
+        let (fingerprint_bytes, completed, append_capable) = snapshot_fingerprint(&snapshot);
+        let path_text = source.path.clone();
         let previous = self.replay.source(provider.name(), &path_text).cloned();
         let (old_generation, old_offset, old_length, old_chunks) = previous
             .as_ref()
@@ -399,8 +464,10 @@ impl Writer {
                 )
             })
             .unwrap_or((0, 0, 0, Vec::new()));
-        let append =
-            !force_replacement && previous.is_some() && is_append(old_length, &old_chunks, &bytes);
+        let append = !force_replacement
+            && append_capable
+            && previous.is_some()
+            && is_append(old_length, &old_chunks, &fingerprint_bytes);
         if previous.is_some() && append && completed as u64 <= old_offset {
             return Ok(0);
         }
@@ -412,7 +479,14 @@ impl Writer {
             old_generation + 1
         };
         let from = if append { old_offset } else { 0 };
-        let parsed = adapter(provider).parse_snapshot(path, complete, from)?;
+        let parsed_snapshot = if append_capable {
+            let mut value = snapshot.clone();
+            value.artifacts[0].bytes.truncate(completed);
+            value
+        } else {
+            snapshot.clone()
+        };
+        let parsed = provider_adapter.parse(&parsed_snapshot, from)?;
         let control = if previous.is_some() && !append {
             Some(VisibilityControl {
                 version: 1,
@@ -444,10 +518,16 @@ impl Writer {
             let sid_bytes = parse_id(&sid)?;
             let evidence_seq = self.store.next_seq() + records.len() as u64;
             let raw_digest = event_digest(&native);
+            let evidence_path = native
+                .evidence_spans
+                .first()
+                .map(|span| span.logical_path.clone())
+                .unwrap_or_else(|| path_text.clone());
+            let evidence_spans = native.evidence_spans.clone();
             let evidence = NativeEvidence {
                 version: 1,
                 provider: provider.name().into(),
-                source_path: path_text.clone(),
+                source_path: evidence_path,
                 source_generation: generation,
                 byte_start: native.byte_start,
                 byte_end: native.byte_end,
@@ -463,7 +543,7 @@ impl Writer {
             let timestamp = chrono::DateTime::from_timestamp_millis(native.timestamp_ms as i64)
                 .map(|value| value.to_rfc3339_opts(chrono::SecondsFormat::Millis, true))
                 .unwrap_or_else(|| "1970-01-01T00:00:00.000Z".into());
-            let pointer = json!({"sessionId":sid,"eventId":id,"sourcePath":path_text,"sourceDigest":raw_digest,"byteStart":native.byte_start,"byteEnd":native.byte_end,"parserVersion":format!("{}@1",provider.name())});
+            let pointer = json!({"sessionId":sid,"eventId":id,"sourcePath":path_text,"sourceDigest":raw_digest,"byteStart":native.byte_start,"byteEnd":native.byte_end,"spans":evidence_spans,"parserVersion":format!("{}@2",provider.name())});
             let canonical_event = json!({"schemaVersion":"1.0","eventId":id,"sessionId":sid,"type":native.event_type,"timestamp":timestamp,"timestampMs":native.timestamp_ms,"payload":native.event});
             let body = CanonicalEventBody {
                 version: 1,
@@ -492,8 +572,8 @@ impl Writer {
             source_path: path_text.clone(),
             generation,
             committed_offset: completed as u64,
-            snapshot_length: bytes.len() as u64,
-            chunks: fingerprints(&bytes),
+            snapshot_length: fingerprint_bytes.len() as u64,
+            chunks: fingerprints(&fingerprint_bytes),
         };
         records.push(Record::new(
             parse_id(&canonical_session_id(provider.name(), &path_text))?,
@@ -795,7 +875,7 @@ async fn health(State(s): State<AppState>, h: HeaderMap) -> Response {
 async fn capabilities(State(s): State<AppState>, h: HeaderMap) -> Response {
     with_writer(h, s, false, |_| {
         Ok(
-            json!({"apiVersion":LOCAL_API_VERSION,"rpcVersion":RPC_VERSION,"providers":["claude","codex"],"features":["fts5","evidence","rebuild","sessions"],"unavailable":["analytics","memory","semanticSearch","settings"]}),
+            json!({"apiVersion":LOCAL_API_VERSION,"rpcVersion":RPC_VERSION,"providers":["claude","codex","pi","kimi","deepseek"],"features":["fts5","evidence","rebuild","sessions"],"unavailable":["analytics","memory","semanticSearch","settings"]}),
         )
     })
 }

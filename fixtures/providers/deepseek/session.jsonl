@@ -1,0 +1,10 @@
+{"type":"session","version":0,"id":"dsh-clean-1","cwd":"/fixture/project","createdAt":"2026-08-14T12:00:00.000Z","delegationDepth":0}
+{"type":"turn/start","seq":0,"timestamp":"2026-08-14T12:00:01.000Z","data":{"turnId":"turn-1"}}
+{"type":"user/message","seq":1,"timestamp":"2026-08-14T12:00:02.000Z","data":{"message":{"id":"u1","role":"user","content":[{"type":"text","text":"inspect"}],"source":{"kind":"user"}}}}
+{"type":"assistant/chunk","seq":2,"timestamp":"2026-08-14T12:00:03.000Z","data":{"messageId":"a1","chunk":{"type":"text-delta","text":"working "}}}
+{"type":"assistant/chunk","seq":3,"timestamp":"2026-08-14T12:00:03.100Z","data":{"messageId":"a1","chunk":{"type":"tool-call-delta","id":"call-1","arguments":"{\"command\":\"printf hi\"}"}}}
+{"type":"assistant/message","seq":4,"timestamp":"2026-08-14T12:00:04.000Z","data":{"message":{"id":"a1","role":"assistant","content":[{"type":"text","text":"working"},{"type":"tool-call","id":"call-1","name":"shell","arguments":"{\"command\":\"printf hi\"}"}],"source":{"kind":"model","provider":"fixture","model":"fixture-model"}}}}
+{"type":"tool/call","seq":5,"timestamp":"2026-08-14T12:00:04.100Z","data":{"callId":"call-1","name":"shell","arguments":"{\"command\":\"printf hi\"}"},"sourceEventSeqs":[4]}
+{"type":"tool/result","seq":6,"timestamp":"2026-08-14T12:00:05.000Z","data":{"message":{"id":"r1","role":"user","source":{"kind":"tool","callId":"call-1"},"content":[{"type":"tool-result","toolCallId":"call-1","content":[{"type":"text","text":"hi"}]}]}},"sourceEventSeqs":[5]}
+{"type":"compaction/summary","seq":7,"timestamp":"2026-08-14T12:00:06.000Z","data":{"summary":"fixture summary"}}
+{"type":"turn/end","seq":8,"timestamp":"2026-08-14T12:00:07.000Z","data":{"turnId":"turn-1"}}

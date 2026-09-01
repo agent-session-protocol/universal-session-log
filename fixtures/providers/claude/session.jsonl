@@ -1,0 +1,5 @@
+{"type":"user","uuid":"u1","parentUuid":null,"sessionId":"claude-clean-1","cwd":"/fixture/project","isSidechain":false,"timestamp":"2026-08-14T09:00:00.000Z","message":{"role":"user","content":"inspect"}}
+{"type":"assistant","uuid":"a1","parentUuid":"u1","sessionId":"claude-clean-1","cwd":"/fixture/project","isSidechain":false,"timestamp":"2026-08-14T09:00:01.000Z","message":{"id":"m1","role":"assistant","content":[{"type":"tool_use","id":"call-1","name":"Read","input":{"path":"fixture.txt"}}]}}
+{"type":"user","uuid":"t1","parentUuid":"a1","sessionId":"claude-clean-1","cwd":"/fixture/project","isSidechain":false,"timestamp":"2026-08-14T09:00:02.000Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"call-1","content":"fixture"}]}}
+{"type":"assistant","uuid":"sub1","parentUuid":"a1","sessionId":"claude-clean-1","cwd":"/fixture/project","isSidechain":true,"timestamp":"2026-08-14T09:00:03.000Z","message":{"id":"sub-m1","role":"assistant","content":[{"type":"text","text":"subagent observation"}]}}
+{"type":"summary","uuid":"sum1","parentUuid":"t1","sessionId":"claude-clean-1","timestamp":"2026-08-14T09:00:04.000Z","summary":"fixture summary"}

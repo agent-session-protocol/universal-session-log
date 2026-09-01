@@ -1,0 +1,5 @@
+{"type":"user.message","id":"u1","timestamp":"2026-08-14T11:00:01.000Z","message":{"role":"user","content":"inspect"}}
+{"type":"assistant.message","id":"a1","timestamp":"2026-08-14T11:00:02.000Z","message":{"role":"assistant","content":[{"type":"tool_call","id":"call-1","name":"shell","arguments":{"command":"printf hi"}}]}}
+{"type":"tool.result","id":"r1","callId":"call-1","timestamp":"2026-08-14T11:00:03.000Z","result":"hi"}
+{"type":"context.summary","id":"s1","timestamp":"2026-08-14T11:00:04.000Z","summary":"fixture summary"}
+{"type":"context.clear","id":"c1","timestamp":"2026-08-14T11:00:05.000Z"}

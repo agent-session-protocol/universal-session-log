@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "sesdb.upstream-watch/v1",
+  "frozenBaseline": "f25666800cda53d78b4304bcd793b6e65a5aad21",
+  "observedRevision": "098838513db3151334828b6fbefca588f8becd45",
+  "observedAt": "2026-09-01",
+  "movesBaseline": false,
+  "observations": [
+    { "id": "obelisk-130", "url": "https://github.com/tommy0103/obelisk/issues/130", "sesdbCoverage": "crates/sesdb-engine/tests/daemon_foundation.rs" },
+    { "id": "same-mtime", "sesdbCoverage": "crates/sesdb-engine/tests/daemon_foundation.rs" },
+    { "id": "layered-watcher", "sesdbCoverage": "crates/sesdb-engine/tests/daemon_foundation.rs" },
+    { "id": "cjk-search", "sesdbCoverage": "crates/sesdb-engine/tests/daemon_foundation.rs" },
+    { "id": "kimi-discovery", "sesdbCoverage": "crates/sesdb-engine/tests/provider_conformance.rs" }
+  ]
+}

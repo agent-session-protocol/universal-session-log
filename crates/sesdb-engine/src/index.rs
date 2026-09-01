@@ -28,6 +28,9 @@ pub struct IndexStatus {
     pub as_of_seq: u64,
     pub degraded: bool,
     pub rebuilding: bool,
+    /// SQLite row changes observed by this sidecar connection. This is a
+    /// portable write-amplification signal, not a count of filesystem writes.
+    pub sqlite_write_changes: u64,
 }
 
 impl Sidecar {
@@ -215,6 +218,7 @@ impl Sidecar {
             as_of_seq,
             degraded,
             rebuilding: false,
+            sqlite_write_changes: self.connection.total_changes(),
         }
     }
 

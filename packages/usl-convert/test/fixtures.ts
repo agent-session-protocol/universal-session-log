@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -6,18 +6,10 @@ import { DatabaseSync } from "node:sqlite";
 /** Self-contained pi session file fixture (shape matches real pi captures). */
 export const PI_FIXTURE_SESSION_ID = "019fff74-b539-7a7d-90c9-ad8895912e04";
 
-export const PI_FIXTURE = [
-  { type: "session", version: 3, id: PI_FIXTURE_SESSION_ID, timestamp: "2026-08-14T08:47:46.489Z", cwd: "/tmp/fixture-project" },
-  { type: "model_change", id: "aaaaaaaa", parentId: null, timestamp: "2026-08-14T08:47:47.780Z", provider: "fixture", modelId: "fixture-model" },
-  { type: "thinking_level_change", id: "bbbbbbbb", parentId: "aaaaaaaa", timestamp: "2026-08-14T08:47:47.780Z", thinkingLevel: "high" },
-  { type: "message", id: "cccccccc", parentId: "bbbbbbbb", timestamp: "2026-08-14T08:47:48.000Z", message: { role: "user", content: [{ type: "text", text: "hello agent" }] } },
-  { type: "message", id: "dddddddd", parentId: "cccccccc", timestamp: "2026-08-14T08:47:49.000Z", message: { role: "assistant", content: [{ type: "thinking", thinking: "plan: use a tool", thinkingSignature: "reasoning_content" }, { type: "toolCall", id: "tool_1", name: "bash", arguments: { command: "echo hi" } }, { type: "text", text: "running..." }] } },
-  { type: "message", id: "eeeeeeee", parentId: "dddddddd", timestamp: "2026-08-14T08:47:50.000Z", message: { role: "toolResult", toolCallId: "tool_1", content: [{ type: "text", text: "hi\n" }] } },
-  { type: "message", id: "ffffffff", parentId: "eeeeeeee", timestamp: "2026-08-14T08:47:51.000Z", message: { role: "assistant", content: [{ type: "thinking", thinking: "done" }, { type: "text", text: "all done" }] } },
-  { type: "custom", customType: "fixture-ext", data: { phase: "idle" }, id: "99999999", parentId: "ffffffff", timestamp: "2026-08-14T08:47:52.000Z" },
-  { type: "message", id: "11111111", parentId: "99999999", timestamp: "2026-08-14T08:47:53.000Z", message: { role: "user", content: [{ type: "text", text: "second question" }] } },
-  { type: "message", id: "22222222", parentId: "11111111", timestamp: "2026-08-14T08:47:54.000Z", message: { role: "assistant", content: [{ type: "text", text: "answer two" }] } },
-].map(entry => JSON.stringify(entry)).join("\n") + "\n";
+export const PI_FIXTURE = readFileSync(
+  join(import.meta.dirname, "../../../fixtures/providers/pi/session.jsonl"),
+  "utf8",
+);
 
 export const CLAUDE_CONFORMANCE_FIXTURE = [
   { type: "queue-operation", operation: "enqueue", timestamp: "2026-08-14T08:47:45.000Z", sessionId: "claude-conformance", content: "hello" },

@@ -1,0 +1,8 @@
+{"timestamp":"2026-08-14T10:00:00.000Z","type":"session_meta","payload":{"id":"codex-clean-1","cwd":"/fixture/project"}}
+{"timestamp":"2026-08-14T10:00:01.000Z","type":"turn_context","payload":{"cwd":"/fixture/project","model":"fixture-model"}}
+{"timestamp":"2026-08-14T10:00:02.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"inspect"}]}}
+{"timestamp":"2026-08-14T10:00:02.100Z","type":"event_msg","payload":{"type":"user_message","message":"inspect"}}
+{"timestamp":"2026-08-14T10:00:03.000Z","type":"response_item","payload":{"type":"reasoning","summary":[{"type":"summary_text","text":"inspect safely"}],"encrypted_content":"fixture-opaque"}}
+{"timestamp":"2026-08-14T10:00:04.000Z","type":"response_item","payload":{"type":"function_call","name":"shell","arguments":"{\"command\":\"printf hi\"}","call_id":"call-1"}}
+{"timestamp":"2026-08-14T10:00:05.000Z","type":"response_item","payload":{"type":"function_call_output","call_id":"call-1","output":"hi"}}
+{"timestamp":"2026-08-14T10:00:06.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":10,"output_tokens":5}}}}
