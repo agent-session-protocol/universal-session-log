@@ -1,6 +1,6 @@
 # SESDB 交付路线：v0.2 收口、I0 五 Provider、Skill 与 Memory
 
-> 状态：执行中  
+> 状态：已完成（2026-09-01）  
 > 制定日期：2026-09-01  
 > Obelisk 验收基线：[`tommy0103/obelisk@f256668`](https://github.com/tommy0103/obelisk/tree/f25666800cda53d78b4304bcd793b6e65a5aad21)（冻结，不自动前移）  
 > 配套账本：[Obelisk 与 SESDB：冻结基线和交付账本](2026-09-obelisk-vs-sesdb.md)
@@ -261,6 +261,20 @@ contract 还必须包含 typed tree/exact-file watch targets 和 provider health
 - [x] 覆盖 offline、degraded、rebuilding 和 disabled 状态。
 
 500ms append-to-queryable 继续作为优化目标和记录指标，不作为跨平台硬阈值。
+
+## 最终交付记录
+
+- `v0.2.0-beta.0`：五 Provider 与 I0；CI `33526153164`、release
+  `33526361305` 全绿。
+- `v0.3.0-alpha.0`：bounded Skill、filters/timeline/diagnostics 与人工批准
+  Memory；CI `33526818770`、release `33527045990` 全绿。
+- I0 同机结果：Apple M1 Pro 的 100/1k/10k JSON 位于
+  `benchmarks/i0/results/`；SESDB 10k append-to-search p95 为约 415ms，冻结
+  Obelisk 黑盒结果约 5.53s。该数字不外推为跨平台硬阈值。
+- milestones 已整理为 `usl-convert v0.2 Adapter Foundation`、已关闭的
+  `SESDB v0.2 Alpha` 与 `SESDB I0 Obelisk Parity`；SESDB epic #21 及
+  #22–#27 已按交付证据关闭。#19 保持 converter 路线，#5/#8 只共享 fixture，
+  #16 继续保留 `blocked`/`needs-fixture`。
 
 ## 不变量与边界
 
