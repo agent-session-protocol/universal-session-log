@@ -122,6 +122,10 @@ CLI dispatch、format listing 和 conformance。
 
 ## C. `v0.2.0-beta.0`：五 Provider 与 I0
 
+> 实施状态：代码、clean-room corpus、双 runner、五 Provider journey 与
+> Apple M1 Pro 100/1k/10k 同机结果已于 2026-09-01 完成；I0 账本已转为
+> `passed`。beta tag 仍以远端全绿为发布条件。
+
 ### C1. 多 artifact Provider contract
 
 Rust `ProviderAdapter` 升级为 source unit 模型：

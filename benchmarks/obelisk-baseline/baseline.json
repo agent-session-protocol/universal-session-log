@@ -11,9 +11,9 @@
   "providers": [
     { "id": "claude", "obelisk": "delivered", "sesdbAdapter": "delivered", "sesdbConversion": "delivered" },
     { "id": "codex", "obelisk": "delivered", "sesdbAdapter": "delivered", "sesdbConversion": "delivered" },
-    { "id": "pi", "obelisk": "delivered", "sesdbAdapter": "planned", "sesdbConversion": "delivered" },
-    { "id": "kimi", "obelisk": "delivered", "sesdbAdapter": "planned", "sesdbConversion": "planned" },
-    { "id": "deepseek", "obelisk": "delivered", "sesdbAdapter": "planned", "sesdbConversion": "planned" }
+    { "id": "pi", "obelisk": "delivered", "sesdbAdapter": "delivered", "sesdbConversion": "delivered" },
+    { "id": "kimi", "obelisk": "delivered", "sesdbAdapter": "delivered", "sesdbConversion": "planned" },
+    { "id": "deepseek", "obelisk": "delivered", "sesdbAdapter": "delivered", "sesdbConversion": "planned" }
   ],
   "corpusScenarios": [
     "main-thread",
@@ -30,7 +30,7 @@
     { "id": "durable-append-recovery", "obelisk": "specified", "sesdb": "delivered", "evidence": ["crates/usl-core/tests/crash.rs", "crates/usl-core/tests/determinism.rs"] },
     { "id": "cross-harness-roundtrip", "obelisk": "planned", "sesdb": "delivered", "evidence": ["packages/usl-convert/test/roundtrip.test.ts"] },
     { "id": "sessionql-foundation", "obelisk": "planned", "sesdb": "delivered", "evidence": ["packages/sesdb/test/sesdb.test.ts", "docs/rfcs/0001-sessionql-query-plane.md"] },
-    { "id": "provider-incremental-index", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/src/provider.rs", "crates/sesdb-engine/tests/daemon_foundation.rs"] },
+    { "id": "provider-incremental-index", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/src/provider.rs", "crates/sesdb-engine/tests/provider_conformance.rs", "crates/sesdb-engine/tests/i0_journey.rs"] },
     { "id": "fts5-search", "obelisk": "delivered", "sesdb": "delivered", "evidence": ["crates/sesdb-engine/src/index.rs", "crates/sesdb-engine/tests/daemon_foundation.rs"] },
     { "id": "agent-skill", "obelisk": "delivered", "sesdb": "planned", "evidence": [] },
     { "id": "approved-memory", "obelisk": "delivered", "sesdb": "specified", "evidence": ["docs/research/2026-08-universal-session-log-db.md"] },
@@ -39,12 +39,13 @@
   ],
   "gate": {
     "milestone": "I0",
-    "status": "in-progress",
-    "missing": [
-      "redistributable clean-room corpus for all five common providers",
-      "isolated-HOME Obelisk runner",
-      "same-host product journey results",
-      "hardware-stamped 100/1000/10000-session performance results"
+    "status": "passed",
+    "missing": [],
+    "evidence": [
+      "fixtures/providers/manifest.json",
+      "crates/sesdb-engine/tests/i0_journey.rs",
+      "benchmarks/i0/results/sesdb-macos-arm64-2026-09-01.json",
+      "benchmarks/i0/results/obelisk-macos-arm64-2026-09-01.json"
     ]
   }
 }

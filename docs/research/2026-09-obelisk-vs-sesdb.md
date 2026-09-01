@@ -40,10 +40,14 @@ finalize 和查询边界的回归线索；二者都不能代替本项目的端�
 
 ## I0 当前状态
 
-已完成：固定 revision、clean-room 边界、五 provider 集合、共同场景枚举、
-journey 状态账本和 CI 校验。尚未完成：可再分发的五 provider 原生语料、
-隔离 HOME 的 Obelisk runner、同机 journey 输出，以及带硬件信息的
-100/1k/10k 性能结果。因此 I0 gate 明确保持 `in-progress`。
+I0 已于 2026-09-01 通过：固定 revision 与 clean-room 边界未移动；五 provider
+原生语料位于 `fixtures/providers/`；隔离 HOME 的两套 runner 位于
+`benchmarks/i0/`；同一台 Apple M1 Pro 上的 100/1k/10k 结果已落入
+`benchmarks/i0/results/`。五 provider daemon journey 由
+`crates/sesdb-engine/tests/i0_journey.rs` 验证。
+
+结果只说明冻结行为集合和本机测量通过，不把 500ms 当作跨平台硬阈值，也不把
+Kimi/DeepSeek Rust adapter 冒充为 `usl-convert` conversion 已交付。
 
 共同语料必须覆盖主线程、subagent、tool call/result、summary、partial write、
 truncate/replace、undo/clear、archive 和 delete。任一结果至少记录版本、commit、

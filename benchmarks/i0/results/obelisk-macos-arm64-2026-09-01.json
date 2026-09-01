@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "sesdb.i0-benchmark/v1",
+  "product": "obelisk",
+  "revision": "f25666800cda53d78b4304bcd793b6e65a5aad21",
+  "hardware": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "arch": "arm64",
+    "cpu": "Apple M1 Pro",
+    "logicalCpus": 10,
+    "memoryBytes": 17179869184
+  },
+  "startedAt": "2026-09-01T15:14:35.472Z",
+  "buildMs": 2682.6052090000003,
+  "corpus": {
+    "provider": "pi",
+    "recordsPerSession": 2,
+    "featureCorpus": "fixtures/providers"
+  },
+  "sqliteWriteMetric": "sidecar-size-change observations at black-box command boundaries",
+  "runs": [
+    {
+      "sessions": 100,
+      "coldIndexMs": 158.51016700000037,
+      "noopReconcileMs": 211.171875,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 247.71287500000017,
+        "p95Ms": 256.28224999999975
+      },
+      "rebuildMs": 160.43845899999997,
+      "rssBytes": 78102528,
+      "sidecarBytes": 417792,
+      "sqliteWriteObservations": 5
+    },
+    {
+      "sessions": 1000,
+      "coldIndexMs": 581.4174579999999,
+      "noopReconcileMs": 660.3561250000002,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 628.0618749999994,
+        "p95Ms": 711.7481250000019
+      },
+      "rebuildMs": 632.6141250000001,
+      "rssBytes": 142835712,
+      "sidecarBytes": 2142208,
+      "sqliteWriteObservations": 8
+    },
+    {
+      "sessions": 10000,
+      "coldIndexMs": 4342.573499999999,
+      "noopReconcileMs": 4515.826250000002,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 4844.052207999994,
+        "p95Ms": 5529.665999999997
+      },
+      "rebuildMs": 4951.039542000013,
+      "rssBytes": 461422592,
+      "sidecarBytes": 19202048,
+      "sqliteWriteObservations": 5
+    }
+  ],
+  "finishedAt": "2026-09-01T15:16:50.470Z"
+}

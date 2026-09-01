@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "sesdb.i0-benchmark/v1",
+  "product": "sesdb",
+  "revision": "5858e6c45417671dcff31131add54f2b564dfd1f",
+  "hardware": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "arch": "arm64",
+    "cpu": "Apple M1 Pro",
+    "logicalCpus": 10,
+    "memoryBytes": 17179869184
+  },
+  "startedAt": "2026-09-01T15:06:54.355Z",
+  "buildMs": 312.40833299999997,
+  "corpus": {
+    "provider": "pi",
+    "recordsPerSession": 2,
+    "featureCorpus": "fixtures/providers"
+  },
+  "runs": [
+    {
+      "sessions": 100,
+      "coldIndexMs": 1098.9551669999998,
+      "noopReconcileMs": 8.164957999999842,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 13.509041000000252,
+        "p95Ms": 15.547833000000082
+      },
+      "rebuildMs": 52.462375000000065,
+      "rssBytes": 14778368,
+      "l1Bytes": 550815,
+      "sidecarBytes": 782336,
+      "sqliteWriteChanges": 5280,
+      "events": 200,
+      "noopEvents": 0,
+      "status": {
+        "schemaVersion": 4,
+        "generation": 1788275216507,
+        "builtThroughSeq": 560,
+        "asOfSeq": 560,
+        "degraded": false,
+        "rebuilding": false,
+        "sqliteWriteChanges": 0
+      }
+    },
+    {
+      "sessions": 1000,
+      "coldIndexMs": 11825.647292,
+      "noopReconcileMs": 112.0394580000011,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 41.626125000000684,
+        "p95Ms": 52.562041999999565
+      },
+      "rebuildMs": 1011.3067919999994,
+      "rssBytes": 24100864,
+      "l1Bytes": 5008895,
+      "sidecarBytes": 5529600,
+      "sqliteWriteChanges": 52485,
+      "events": 2000,
+      "noopEvents": 0,
+      "status": {
+        "schemaVersion": 4,
+        "generation": 1788275229552,
+        "builtThroughSeq": 5060,
+        "asOfSeq": 5060,
+        "degraded": false,
+        "rebuilding": false,
+        "sqliteWriteChanges": 0
+      }
+    },
+    {
+      "sessions": 10000,
+      "coldIndexMs": 263356.021125,
+      "noopReconcileMs": 7505.606750000035,
+      "appendToSearch": {
+        "samples": 20,
+        "p50Ms": 319.593084000051,
+        "p95Ms": 414.9435420000227
+      },
+      "rebuildMs": 148182.514625,
+      "rssBytes": 34439168,
+      "l1Bytes": 49685651,
+      "sidecarBytes": 51789824,
+      "sqliteWriteChanges": 562955,
+      "events": 20000,
+      "noopEvents": 0,
+      "status": {
+        "schemaVersion": 4,
+        "generation": 1788275509950,
+        "builtThroughSeq": 50060,
+        "asOfSeq": 50060,
+        "degraded": false,
+        "rebuilding": false,
+        "sqliteWriteChanges": 0
+      }
+    }
+  ],
+  "finishedAt": "2026-09-01T15:14:20.382Z"
+}

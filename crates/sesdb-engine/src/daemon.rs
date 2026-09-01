@@ -464,6 +464,14 @@ impl Writer {
                 )
             })
             .unwrap_or((0, 0, 0, Vec::new()));
+        let current_chunks = fingerprints(&fingerprint_bytes);
+        if !force_replacement
+            && previous.is_some()
+            && old_length == fingerprint_bytes.len() as u64
+            && old_chunks == current_chunks
+        {
+            return Ok(0);
+        }
         let append = !force_replacement
             && append_capable
             && previous.is_some()
@@ -573,7 +581,7 @@ impl Writer {
             generation,
             committed_offset: completed as u64,
             snapshot_length: fingerprint_bytes.len() as u64,
-            chunks: fingerprints(&fingerprint_bytes),
+            chunks: current_chunks,
         };
         records.push(Record::new(
             parse_id(&canonical_session_id(provider.name(), &path_text))?,
