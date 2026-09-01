@@ -9,19 +9,81 @@ permissions:
   contents: read
 
 jobs:
+  sesdb-engine:
+    name: SESDB engine (${{ matrix.bundle }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            bundle: darwin-x64
+            executable: sesdb-engine
+            daemon: sesdbd
+          - os: macos-14
+            target: aarch64-apple-darwin
+            bundle: darwin-arm64
+            executable: sesdb-engine
+            daemon: sesdbd
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            bundle: linux-x64
+            executable: sesdb-engine
+            daemon: sesdbd
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundle: win32-x64
+            executable: sesdb-engine.exe
+            daemon: sesdbd.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo build --locked --release -p sesdb-engine --target ${{ matrix.target }}
+      - name: Stage engine
+        shell: bash
+        run: |
+          mkdir -p staged
+          cp "target/${{ matrix.target }}/release/${{ matrix.executable }}" staged/
+          cp "target/${{ matrix.target }}/release/${{ matrix.daemon }}" staged/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sesdb-engine-${{ matrix.bundle }}
+          path: staged/
+
   npm:
+    needs: sesdb-engine
     if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'v')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: '@agent-session-protocol'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sesdb-engine-*
+          path: packages/sesdb/bin
+      - name: Normalize downloaded engine layout
+        shell: bash
+        run: |
+          for dir in packages/sesdb/bin/sesdb-engine-*; do
+            bundle="${dir##*/sesdb-engine-}"
+            mkdir -p "packages/sesdb/bin/${bundle}"
+            mv "$dir"/* "packages/sesdb/bin/${bundle}/"
+            rmdir "$dir"
+          done
+          chmod +x packages/sesdb/bin/darwin-*/sesdb-engine packages/sesdb/bin/darwin-*/sesdbd packages/sesdb/bin/linux-*/sesdb-engine packages/sesdb/bin/linux-*/sesdbd
       - run: npm ci
         working-directory: packages/usl-convert
       - name: Publish package if this version is new
@@ -34,5 +96,21 @@ jobs:
             npm publish
           fi
         working-directory: packages/usl-convert
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm ci
+        working-directory: packages/sesdb
+      - run: pnpm install --frozen-lockfile && pnpm build
+        working-directory: site
+      - name: Publish SESDB package if this version is new
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "${name}@${version}" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "${name}@${version} is already published"
+          else
+            npm publish
+          fi
+        working-directory: packages/sesdb
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -16,6 +16,23 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libfuse-dev pkg-config
       - run: cargo test --workspace
 
+  sesdb-engine-platforms:
+    name: sesdb-engine (${{ matrix.bundle }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14, bundle: darwin-arm64 }
+          - { os: macos-15-intel, bundle: darwin-x64 }
+          - { os: ubuntu-latest, bundle: linux-x64 }
+          - { os: windows-latest, bundle: win32-x64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test -p sesdb-engine
+
   ts:
     runs-on: ubuntu-latest
     steps:
@@ -23,10 +40,51 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
+      - run: npm ci
         working-directory: packages/usl-convert
       - run: npm run check
         working-directory: packages/usl-convert
+      - run: npm ci
+        working-directory: packages/sesdb
+      - run: npm run check
+        working-directory: packages/sesdb
+
+  sesdb-package-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cargo build -p sesdb-engine
+      - run: npm ci && npm run build
+        working-directory: packages/sesdb
+      - name: Pack, install, and run from an isolated directory
+        run: node scripts/smoke-packed-install.mjs
+        working-directory: packages/sesdb
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: site/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: site
+      - run: pnpm build
+        working-directory: site
+      - run: cargo build -p sesdb-engine
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: site
+      - run: pnpm test:e2e
+        working-directory: site
 
   architecture:
     runs-on: ubuntu-latest
@@ -35,3 +93,4 @@ jobs:
         with:
           fetch-depth: 0
       - run: node docs/architecture/verify.mjs
+      - run: node benchmarks/obelisk-baseline/verify.mjs

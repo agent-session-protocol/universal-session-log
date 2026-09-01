@@ -240,7 +240,13 @@ const builtinExempt = (f) =>
 const claims = (p) => f => f === p || f.startsWith(p.endsWith("/") ? p : p + "/");
 {
   // -z: NUL-separated raw paths — non-ASCII filenames would otherwise arrive quoted/escaped.
-  const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: repoRoot, encoding: "utf8" }).split("\0").filter(Boolean);
+  // Include non-ignored working-tree additions so a new module can be verified
+  // before it is staged. CI sees the same set after the files are committed.
+  const tracked = execFileSync(
+    "git",
+    ["ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+    { cwd: repoRoot, encoding: "utf8" },
+  ).split("\0").filter(Boolean);
   const entries = [
     ...pages.flatMap((p) => p.covers.map((c) => ({ owner: p.rel, kind: "covers", match: claims(c), raw: c }))),
     ...(pages.find((p) => p.rel === "index.md")?.exclude ?? []).map((c) => ({ owner: "index.md", kind: "exclude", match: claims(c), raw: c })),

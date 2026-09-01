@@ -2,10 +2,10 @@
 sources:
   - crates/usl-core/src/format.rs 8a9230e382d8 Header encode_frame FORMAT_VERSION
   - crates/usl-core/src/recover.rs af85206e88de recover_from Recovered
-  - crates/usl-core/src/store.rs ee1cbe611338 Store append flush verify
+  - crates/usl-core/src/store.rs cda9b6f609d1 Store append flush verify
   - crates/usl-core/src/identity.rs c9e8baee2266 session_id source_sha256 SessionId
   - crates/usl-core/src/record.rs 7615544f8252 Record StoredRecord
-  - crates/usl-core/src/index.rs dfe6668f5f17 Index FrameMeta
+  - crates/usl-core/src/index.rs fae051218b8d Index FrameMeta
   - crates/usl-core/src/error.rs dbab3d8b7001 Error
 covers:
   - crates/usl-core/

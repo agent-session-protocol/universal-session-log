@@ -1,0 +1,21 @@
+query,lens
+How can I search all my AI coding agent session history from one local CLI?,general
+Where do AI coding agents store their session history on disk?,general
+Is there a private local-first way to search coding-agent conversations without uploading them?,general
+How do I browse old coding-agent sessions across multiple projects?,general
+Can I full-text search past agent tool calls and command output?,general
+What is the best way to preserve coding-agent sessions before native history is deleted?,general
+How do I analyze token usage and cost across local agent sessions?,general
+How can I reconstruct one timeline from sessions created by different coding agents?,general
+How do I find the reasoning behind an old code change in my agent history?,general
+How can I export agent trajectories as datasets for evaluation or training?,general
+How can I build a read-only search index over coding-agent session files?,general
+What is SesDB and what problem does it solve?,branded
+How do I install and use SesDB from the command line?,branded
+Does SesDB keep coding-agent session data local?,branded
+Which coding-agent session formats can SesDB index?,branded
+"Can SesDB query sessions, tool calls, usage, and runtime statistics?",branded
+coding-agent-search vs ccrider: which is better for local multi-agent session search?,comparative
+agent-history vs coding-agent-search: semantic search or full-text search for agent sessions?,comparative
+SesDB vs querying native JSONL and SQLite files directly: when is an index worth it?,comparative
+SesDB vs Langfuse: local session archive or instrumented production observability?,comparative

@@ -1,0 +1,21 @@
+query,lens
+AI Agent 的完整会话日志应该怎么存，才能保留消息、工具调用和执行结果？,general
+有没有统一的 AI 编程 Agent 会话格式，可以在不同工具之间迁移？,general
+怎么让 Agent 在进程退出或网络中断后继续同一个会话？,general
+Agent 会话持久化应该存快照，还是存追加式事件日志？,general
+AI Agent 的会话事件模型应该包含哪些事件类型？,general
+不同 Agent 的工具调用和工具结果怎么映射成统一结构？,general
+跨 Agent 转换会话时，怎么明确告诉用户哪些字段丢失了？,general
+Agent 会话里的私有扩展字段和加密推理内容怎么无损透传？,general
+会话压缩以后，怎么保留可追溯的原始 Agent 历史？,general
+不同协议里的 session ID、thread ID 和 context ID 怎么统一映射？,general
+Agent Session Protocol 是做什么的，适合哪些会话持久化场景？,branded
+Agent Session Protocol 现在成熟了吗，可以用于生产吗？,branded
+Agent Session Protocol 的 TypeScript schema 怎么接入现有 Agent Runtime？,branded
+Agent Session Protocol 怎么保证 Claude 和 Codex 会话往返不丢字段？,branded
+Agent Session Protocol 的 fidelity matrix 和 loss declaration 怎么用？,branded
+Agent Session Protocol 和 ACP 有什么区别，一个管实时交互还是持久会话？,comparative
+Agent Session Protocol 和 MCP 有什么区别，MCP 会保存完整会话吗？,comparative
+Agent Session Protocol 和 A2A 怎么选，哪一个负责会话历史迁移？,comparative
+Agent Session Protocol 和 OpenTelemetry GenAI 语义约定是互补还是重复？,comparative
+Claude Code 的历史会话怎么完整迁移到 Codex？,comparative

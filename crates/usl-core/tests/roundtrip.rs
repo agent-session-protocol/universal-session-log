@@ -14,8 +14,10 @@ fn append_scan_get_roundtrip_multisession() {
     let a = sid("pi", "sess-a");
     let b = sid("claude", "sess-a"); // same native id, different harness ⇒ distinct key
     s.append(&record("pi", "sess-a", "hello")).unwrap();
-    s.append(&Record::new(b, 1, 101, b"world".to_vec())).unwrap();
-    s.append(&Record::new(a, 2, 102, b"again".to_vec())).unwrap();
+    s.append(&Record::new(b, 1, 101, b"world".to_vec()))
+        .unwrap();
+    s.append(&Record::new(a, 2, 102, b"again".to_vec()))
+        .unwrap();
     s.flush().unwrap();
     drop(s);
 
@@ -26,7 +28,11 @@ fn append_scan_get_roundtrip_multisession() {
     assert_eq!(s.session_ids().len(), 2);
 
     let all = s.scan_all(1).unwrap();
-    assert_eq!(all.iter().map(|record| record.seq).collect::<Vec<_>>(), vec![1, 2]);
+    assert_eq!(
+        all.iter().map(|record| record.seq).collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+    assert_eq!(s.scan_all_limited(1, 1).unwrap()[0].seq, 1);
 
     let ra = s.scan(&a, 0).unwrap();
     assert_eq!(ra.len(), 2);
@@ -57,4 +63,18 @@ fn create_fails_if_exists_and_open_missing_fails() {
 
     let dir2 = TempDir::new("open-missing");
     assert!(Store::open(dir2.db(), StoreOpts::default()).is_err());
+}
+
+#[test]
+fn append_batch_assigns_one_contiguous_sequence_range() {
+    let dir = TempDir::new("append-batch");
+    let mut store = Store::create(dir.db(), StoreOpts::default()).unwrap();
+    let records = [
+        record("pi", "session", "one"),
+        record("pi", "session", "two"),
+    ];
+
+    assert_eq!(store.append_batch(&records).unwrap(), vec![0, 1]);
+    assert_eq!(store.next_seq(), 2);
+    assert_eq!(store.scan_all(0).unwrap().len(), 2);
 }

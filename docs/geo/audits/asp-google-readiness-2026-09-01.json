@@ -1,0 +1,147 @@
+{
+  "target": "agent-session-protocol.github.io",
+  "domain": "agent-session-protocol.github.io",
+  "engine": "google",
+  "checked_at": "2026-09-01T02:20:20.774574Z",
+  "checks": [
+    {
+      "id": "A1",
+      "category": "A",
+      "title": "Domain resolves & HTTPS valid",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Domain resolves and serves valid HTTPS.",
+      "remediation": null
+    },
+    {
+      "id": "A2",
+      "category": "A",
+      "title": "Homepage returns 200",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Homepage returns HTTP 200.",
+      "remediation": null
+    },
+    {
+      "id": "A3",
+      "category": "A",
+      "title": "robots.txt allows the engine's search bot",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Googlebot (the search bot for google) may fetch '/'.",
+      "remediation": null
+    },
+    {
+      "id": "A3b",
+      "category": "A",
+      "title": "robots.txt hygiene",
+      "severity": "recommended",
+      "status": "skip",
+      "detail": "No robots.txt — everything is allowed.",
+      "remediation": null
+    },
+    {
+      "id": "A4",
+      "category": "A",
+      "title": "sitemap.xml present & referenced",
+      "severity": "recommended",
+      "status": "fail",
+      "detail": "No sitemap.xml found.",
+      "remediation": "Publish /sitemap.xml and reference it in robots.txt."
+    },
+    {
+      "id": "A5",
+      "category": "A",
+      "title": "Content in raw HTML (SSR)",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Primary content is present in the raw HTML (84 words).",
+      "remediation": null
+    },
+    {
+      "id": "B1",
+      "category": "B",
+      "title": "Structured data (JSON-LD)",
+      "severity": "recommended",
+      "status": "fail",
+      "detail": "No JSON-LD structured data found.",
+      "remediation": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"<Brand>\",\"url\":\"https://<domain>/\",\"logo\":\"https://<domain>/logo.png\",\"sameAs\":[\"https://www.linkedin.com/company/<brand>\"]}</script>"
+    },
+    {
+      "id": "B2",
+      "category": "B",
+      "title": "Semantic HTML",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "Single <h1>, a <main>/<article>, and sane heading order.",
+      "remediation": null
+    },
+    {
+      "id": "B3",
+      "category": "B",
+      "title": "Meta basics",
+      "severity": "recommended",
+      "status": "warn",
+      "detail": "Missing meta: title, description, canonical.",
+      "remediation": "Add a unique <title>, a meta description and a canonical link."
+    },
+    {
+      "id": "B4",
+      "category": "B",
+      "title": "llms.txt present",
+      "severity": "nice_to_have",
+      "status": "pass",
+      "detail": "/llms.txt is present with a top-level heading.",
+      "remediation": null
+    },
+    {
+      "id": "C1",
+      "category": "C",
+      "title": "About / Contact pages",
+      "severity": "recommended",
+      "status": "fail",
+      "detail": "No About or Contact link found.",
+      "remediation": "Add About and Contact pages linked from the homepage."
+    },
+    {
+      "id": "C2",
+      "category": "C",
+      "title": "Organization schema (logo + sameAs)",
+      "severity": "recommended",
+      "status": "fail",
+      "detail": "No Organization schema found.",
+      "remediation": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"<Brand>\",\"url\":\"https://<domain>/\",\"logo\":\"https://<domain>/logo.png\",\"sameAs\":[\"https://www.linkedin.com/company/<brand>\"]}</script>"
+    },
+    {
+      "id": "D1",
+      "category": "D",
+      "title": "Visible dates",
+      "severity": "nice_to_have",
+      "status": "fail",
+      "detail": "No visible publication/update dates.",
+      "remediation": "Expose datePublished/dateModified (JSON-LD) or <time> elements."
+    },
+    {
+      "id": "D2",
+      "category": "D",
+      "title": "RSS/Atom feed",
+      "severity": "nice_to_have",
+      "status": "fail",
+      "detail": "No RSS/Atom feed linked.",
+      "remediation": "Publish an RSS/Atom feed and link it via <link rel=alternate>."
+    },
+    {
+      "id": "D3",
+      "category": "D",
+      "title": ".well-known/security.txt",
+      "severity": "nice_to_have",
+      "status": "fail",
+      "detail": "No /.well-known/security.txt.",
+      "remediation": "Add a /.well-known/security.txt contact file."
+    }
+  ],
+  "blockers": [],
+  "verdict": "ready_with_warnings",
+  "passed": true,
+  "score": 57
+}

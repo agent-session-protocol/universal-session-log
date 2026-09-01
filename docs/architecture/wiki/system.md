@@ -2,14 +2,18 @@
 sources:
   - crates/usl-core/src/lib.rs 2f9d518caa24 SessionId Store Record
   - crates/usl-capture/src/lib.rs c353c76cdf5a CaptureSession Framer FileFollower
-  - packages/usl-convert/src/bundle.ts f6c1966651ff SessionBundle makeBundle
+  - packages/usl-convert/src/bundle.ts e4065ba3e060 SessionBundle makeBundle
+  - crates/sesdb-engine/src/main.rs 514e426b6059 main dispatch
+  - crates/sesdb-engine/src/daemon.rs 7bfb7bbb6ecf Writer run
+  - packages/sesdb/src/index.ts 390298f3d548 createSesdb
+  - site/app/console/api.ts 95d2f2e34691 fetchDashboard
 ---
 
 # 系统总览
 
-USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Codex / opencode / dimagent）的 session log，收进一个统一、可恢复、可互转的存储层**，让「resume / fork / handoff（跨 harness 续跑）」和「统一历史渲染」成为可能。
+USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Codex / opencode / dimagent）的 session log，收进一个统一、可恢复、可互转且可查询的存储层**，让「resume / fork / handoff（跨 harness 续跑）」「统一历史渲染」和有边界的本地分析成为可能。
 
-系统由四个包分层组成，各管一段：
+系统由存储/捕获、转换、SESDB 查询与 Hosted Site 几个责任域组成：
 
 | 层 | 包 | 语言 | 一句话职责 |
 |---|---|---|---|
@@ -17,6 +21,8 @@ USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Co
 | 捕获 | [usl-capture](modules/usl-capture.md) | Rust | 把 harness 写日志的字节流切成完整记录，喂进存储 |
 | 挂载 | [usl-fuse](modules/usl-fuse.md) | Rust | 从文件系统级别拦截 harness 写盘（当前暂停） |
 | 转换 | [e-session-convert](modules/usl-convert.md) | TS | 各 harness 原生格式 ↔ 统一 bundle 的导入导出 |
+| 查询 | [SESDB foundation](modules/sesdb.md) | Rust + TS | JS SDK/CLI 通过 stdio engine 或 localhost daemon 有界读写 usl-core，并执行 SessionQL 子集 |
+| 展示 | [Hosted Site](modules/site.md) | TS/React | 静态产品站、文档与仅用 demo 数据的 Console |
 
 ## 核心设计边界
 
@@ -25,19 +31,20 @@ USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Co
 1. **正确性只来自 append log**：存储层每条记录带长度前缀 + CRC，恢复时扫帧、遇到撕裂帧就截断。header 只是冗余提示，可从数据区自愈——这跟「不依赖任何 WAL/checkpoint 也能恢复」是同一个命题（见 usl-core）。
 2. **不透明负载一等化**：claude 的 thinking `signature`、codex 的 `encrypted_content` 这类「不可解析但必须原样往返」的字节，用 typed `unknown` block 保真，不在转换时 normalize 掉。
 3. **转换保真靠 evidence 层**：每个 bundle 存完整事件流（evidence）+ 派生快照（pivot）。roundtrip 时 exporter 优先用 evidence 逐字还原原生负载，缺失才合成并声明 loss。
+4. **查询不取代事实真源**：SESDB 的查询快照、索引和投影都可从 append log 重建；SDK 与 engine 通过能力协商显式限定 foundation 子集。
+5. **Hosted Site 不连本地库**：Console 是静态导出中的浏览器 demo，其 adapter 只读内建样例，与 SDK/engine 不存在运行时连线。
 
 ## 依赖方向
 
 ```
-e-session-convert（TS 转换层）
-      │ 依赖 e-core 的 schema 定义（本 wiki 范围外）
-usl-capture（捕获层）
-      │ 依赖
-usl-core（存储引擎，叶子 crate）
+SESDB JS SDK/CLI ─NDJSON/localhost→ sesdb-engine/sesdbd ─调用→ usl-core
+e-session-convert ─依赖→ 内置 ASP schema
+usl-fuse ─依赖→ usl-capture ─依赖→ usl-core
+Hosted Site ─读取→ MDX 文档 / Demo adapter（不连 SESDB）
 ```
 
-`usl-fuse` 依赖 `usl-core` + `usl-capture`，因 macOS 26 无可用 FUSE 而暂停。`usl-core` 是叶子 crate，零依赖本仓库其它代码——这是它将来独立成库的前提。
+`sesdb-engine`/`sesdbd` 是 usl-core 的单写者进程边界，JS SDK 和 Console 都不直接打开 store。`usl-fuse` 依赖 `usl-core` + `usl-capture`，因 macOS 26 无可用 FUSE 而暂停。Hosted Site 独立静态导出，没有对 SESDB SDK 的代码依赖；共享 Console 只有由本地 daemon 托管时才切换到 localhost adapter。
 
 ## 谁在用它
 
-当前是自研验证阶段：`usl-core` 有 32 个测试证明崩溃恢复与确定性，`usl-capture` 有 21 个测试证明分帧与转换，`e-session-convert` 有 25 个测试证明四路 harness 互转。真实数据冒烟：codex 会话（303 消息 / 91 工具）经 pi 往返零丢失。
+当前是自研验证阶段：Rust 测试覆盖崩溃恢复、sidecar kill point、watcher 审计、捕获分帧与 engine RPC；TS 测试覆盖跨 harness roundtrip 与 SESDB foundation 查询。Playwright 同时覆盖本地 daemon 的真实数据与 freshness 状态，以及 Hosted Console 不请求 localhost；Hosted Site 对外展示的 Console 数据仍只是演示样例。

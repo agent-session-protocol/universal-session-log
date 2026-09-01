@@ -18,6 +18,7 @@ pub struct FrameMeta {
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Index {
     by_session: HashMap<SessionId, Vec<FrameMeta>>,
+    global: Vec<(SessionId, FrameMeta)>,
 }
 
 impl Index {
@@ -27,6 +28,7 @@ impl Index {
         let list = self.by_session.entry(session).or_default();
         let is_new = list.is_empty();
         list.push(meta);
+        self.global.push((session, meta));
         is_new
     }
 
@@ -43,7 +45,21 @@ impl Index {
     }
 
     pub fn total_frames(&self) -> u64 {
-        self.by_session.values().map(|v| v.len() as u64).sum()
+        self.global.len() as u64
+    }
+
+    pub fn global_frames(&self) -> &[(SessionId, FrameMeta)] {
+        &self.global
+    }
+
+    /// Remove a failed append suffix. The durable log remains authoritative;
+    /// this only restores derived state to the specified sequence boundary.
+    pub fn truncate_from_seq(&mut self, from_seq: u64) {
+        self.global.retain(|(_, meta)| meta.seq < from_seq);
+        self.by_session.retain(|_, frames| {
+            frames.retain(|meta| meta.seq < from_seq);
+            !frames.is_empty()
+        });
     }
 
     pub fn is_empty(&self) -> bool {

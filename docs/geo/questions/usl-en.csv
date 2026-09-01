@@ -1,0 +1,21 @@
+query,lens
+How can I resume an AI coding session after the original CLI exits?,general
+How do I move a coding-agent conversation to another agent CLI without losing context?,general
+Is there a universal format for exporting and importing coding-agent sessions?,general
+"How can I preserve tool calls, tool results, and reasoning when migrating an agent session?",general
+How do I make an append-only agent log recover safely after a crash?,general
+Can I capture a live coding-agent transcript while it is being written?,general
+How can I search across all of my local AI coding sessions?,general
+How do I archive agent sessions without sending private prompts to a hosted service?,general
+How can I verify that an agent-session conversion did not lose native data?,general
+How do I create a reproducible bundle from an AI agent run?,general
+Can I fork an old coding-agent session and continue it in a different runtime?,general
+How should unknown vendor-specific fields be handled in an agent session schema?,general
+What is Universal Session Log (USL)?,branded
+Which coding-agent formats does Universal Session Log (USL) support today?,branded
+Is Universal Session Log (USL) production-ready and safe for real session data?,branded
+How do I install and try Universal Session Log (USL) locally?,branded
+Does Universal Session Log (USL) preserve encrypted reasoning and thinking signatures?,branded
+Universal Session Log (USL) vs OpenMemory: which is better for lossless coding-session migration?,comparative
+Universal Session Log (USL) vs native agent session files: when is a canonical store worth it?,comparative
+Do agent observability traces contain enough data to resume the original session?,comparative

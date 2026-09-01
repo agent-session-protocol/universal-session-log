@@ -1,0 +1,21 @@
+query,lens
+"How should I store complete AI agent session logs with messages, tool calls, results, and file diffs?",general
+What is a good portable format for AI coding-agent sessions?,general
+How do I hand off an unfinished coding task from one AI agent to another and continue the same session?,general
+How do I design an append-only event log for deterministic replay of AI agent runs?,general
+What events should an AI agent audit trail capture?,general
+"Is there a canonical event schema for agent messages, thinking, tool calls, tool results, and usage?",general
+How can an agent session format preserve unknown vendor fields for lossless round trips?,general
+How do I prove what was lost when converting a session between different agent runtimes?,general
+How do I persist agent state so a run can resume after an interruption or approval?,general
+How should conversation compaction be represented without losing the original agent-session evidence?,general
+What is Agent Session Protocol for durable AI agent sessions?,branded
+Is Agent Session Protocol stable enough to implement today?,branded
+How do I implement the Agent Session Protocol schema in TypeScript?,branded
+Does Agent Session Protocol preserve Claude thinking signatures and Codex encrypted reasoning?,branded
+How does Agent Session Protocol declare conversion fidelity and data loss?,branded
+Agent Session Protocol vs Agent Client Protocol: durable history or live editor integration?,comparative
+Agent Session Protocol vs MCP: which one handles session persistence and replay?,comparative
+Agent Session Protocol vs A2A: session history portability or agent-to-agent task exchange?,comparative
+Agent Session Protocol vs OpenTelemetry GenAI conventions: storage format or observability telemetry?,comparative
+Claude Code vs Codex: how can I migrate a session without losing tool history?,comparative

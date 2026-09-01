@@ -55,6 +55,15 @@ export interface Integrity {
 }
 
 export interface DashboardData {
+  runtime: {
+    mode: "demo" | "daemon";
+    degraded: boolean;
+    rebuilding: boolean;
+    generation: number | null;
+    builtThroughSeq: number | null;
+    asOfSeq: number | null;
+    enabledProviders: string[];
+  };
   overview: Overview;
   sessions: SessionSummary[];
   events: EventSummary[];
@@ -148,19 +157,19 @@ export interface AnalyticsFilters {
   to?: number;
 }
 
-export async function fetchDashboard(signal?: AbortSignal): Promise<DashboardData> {
+async function fetchDemoDashboard(signal?: AbortSignal): Promise<DashboardData> {
   await delay(signal);
   return structuredClone(dashboard);
 }
 
-export async function fetchSessionDetail(id: string, signal?: AbortSignal): Promise<SessionDetail> {
+async function fetchDemoSessionDetail(id: string, signal?: AbortSignal): Promise<SessionDetail> {
   await delay(signal);
   const detail = details[id];
   if (!detail) throw new Error(`Session not found: ${id}`);
   return structuredClone(detail);
 }
 
-export async function fetchGlobalAnalytics(filters: AnalyticsFilters = {}, signal?: AbortSignal): Promise<GlobalAnalytics> {
+async function fetchDemoGlobalAnalytics(filters: AnalyticsFilters = {}, signal?: AbortSignal): Promise<GlobalAnalytics> {
   await delay(signal);
   const selected = dashboard.sessions.filter((session) => {
     const detail = details[session.id];
@@ -173,6 +182,74 @@ export async function fetchGlobalAnalytics(filters: AnalyticsFilters = {}, signa
   });
   return buildAnalytics(selected);
 }
+
+export interface ConsoleDataSource {
+  dashboard(signal?: AbortSignal): Promise<DashboardData>;
+  session(id: string, signal?: AbortSignal): Promise<SessionDetail>;
+  analytics(filters?: AnalyticsFilters, signal?: AbortSignal): Promise<GlobalAnalytics>;
+}
+
+declare global {
+  interface Window { __SESDB_CONSOLE__?: { mode: "demo" | "daemon"; baseUrl?: string } }
+}
+
+const demoDataSource: ConsoleDataSource = {
+  dashboard: fetchDemoDashboard,
+  session: fetchDemoSessionDetail,
+  analytics: fetchDemoGlobalAnalytics,
+};
+
+async function daemonJson<T>(path: string, signal?: AbortSignal, init?: RequestInit): Promise<T> {
+  const baseUrl = window.__SESDB_CONSOLE__?.baseUrl ?? "";
+  const response = await fetch(`${baseUrl}${path}`, { ...init, credentials: "same-origin", signal });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.message ?? `SesDB daemon returned ${response.status}`);
+  return body as T;
+}
+
+const daemonDataSource: ConsoleDataSource = {
+  async dashboard(signal) {
+    const [sessionPage, index, providers, stats, integrity] = await Promise.all([
+      daemonJson<{ items: Array<Record<string, unknown>> }>("/sessions?limit=1000", signal),
+      daemonJson<{ generation: number; builtThroughSeq: number; asOfSeq: number; degraded: boolean; rebuilding?: boolean }>("/index/status", signal),
+      daemonJson<{ providers: Record<string, { enabled: boolean }> }>("/providers", signal),
+      daemonJson<{ result?: { nextSeq: number; sessionCount: number; dataEnd: number }; nextSeq?: number; sessionCount?: number; dataEnd?: number }>("/rpc", signal, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method: "stats" }) }),
+      daemonJson<{ result?: Integrity }>("/rpc", signal, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method: "verify" }) }),
+    ]);
+    const rawStats = stats.result ?? stats as { nextSeq: number; sessionCount: number; dataEnd: number };
+    const nativeSessions = sessionPage.items;
+    const sessions: SessionSummary[] = nativeSessions.map((item) => ({
+      id: String(item.id), nativeSessionId: String(item.nativeSessionId), runtime: String(item.provider), project: typeof item.project === "string" ? item.project : null,
+      title: typeof item.title === "string" ? item.title : null, eventCount: Number(item.eventCount), firstSeenAt: Number(item.firstSeenAt), lastUpdatedAt: Number(item.lastUpdatedAt), status: "synced",
+    }));
+    const now = Date.now();
+    const throughput = Array.from({ length: 24 }, (_, index) => ({ startMs: now - (23 - index) * 3600000, events: 0 }));
+    const events: EventSummary[] = [];
+    const storage: Storage = { fileBytes: rawStats.dataEnd, dataBytes: Math.max(0, rawStats.dataEnd - 4096), headerBytes: 4096, recordCount: rawStats.nextSeq, sessionCount: rawStats.sessionCount };
+    const verified = integrity.result;
+    const health: Integrity = verified ? { ...verified, status: verified.truncationOffset == null ? "healthy" : "recovery-required", integrityPercent: verified.truncationOffset == null ? 100 : 0, checkedFrames: verified.nextSeq, quarantineCount: verified.truncationOffset == null ? 0 : 1, checkedAt: now } : { status: index.degraded ? "recovery-required" : "healthy", integrityPercent: index.degraded ? 0 : 100, checkedFrames: index.builtThroughSeq, dataEnd: rawStats.dataEnd, nextSeq: rawStats.nextSeq, sessionCount: rawStats.sessionCount, truncationOffset: null, quarantineCount: 0, checkedAt: now };
+    const enabledProviders = Object.entries(providers.providers).filter(([, value]) => value.enabled).map(([provider]) => provider);
+    return { runtime: { mode: "daemon", degraded: index.degraded, rebuilding: index.rebuilding ?? false, generation: index.generation, builtThroughSeq: index.builtThroughSeq, asOfSeq: index.asOfSeq, enabledProviders }, overview: { sessionCount: sessions.length, eventCount: index.builtThroughSeq, eventsLast24h: 0, fileBytes: storage.fileBytes, dataBytes: storage.dataBytes, integrityPercent: health.integrityPercent, runtimes: Object.entries(Object.groupBy(sessions, value => value.runtime)).map(([runtime, values]) => ({ runtime, sessions: values!.length })), throughput, generatedAt: now }, sessions, events, storage, integrity: health };
+  },
+  async session(id, signal) {
+    const [session, page] = await Promise.all([
+      daemonJson<Record<string, unknown>>(`/sessions/${encodeURIComponent(id)}`, signal),
+      daemonJson<{ items: Array<Record<string, unknown>> }>(`/sessions/${encodeURIComponent(id)}/events?limit=10000`, signal),
+    ]);
+    const summary: SessionSummary = { id: String(session.id), nativeSessionId: String(session.nativeSessionId), runtime: String(session.provider), project: typeof session.project === "string" ? session.project : null, title: typeof session.title === "string" ? session.title : null, eventCount: Number(session.eventCount), firstSeenAt: Number(session.firstSeenAt), lastUpdatedAt: Number(session.lastUpdatedAt), status: "synced" };
+    const timeline: SessionDetail["timeline"] = page.items.map((item) => { const event = item.event as Record<string, unknown>; const type = String(item.eventType); const category = type.includes("tool.called") ? "tool-call" : type.includes("tool.completed") ? "tool-result" : type.includes("reasoning") ? "reasoning" : type.includes("message") ? "message" : "event"; return { id: String(item.eventId), seq: Number(item.seq), timestamp: Number(item.timestamp), category, role: null, title: type, content: JSON.stringify(event, null, 2), toolName: null, callId: null, isError: false }; });
+    return { session: summary, analytics: { tokens: { input: 0, cachedInput: 0, cacheWrite: 0, output: 0, reasoning: 0, total: 0, contextWindow: null, cacheHitRate: 0 }, messageCount: timeline.filter(value => value.category === "message").length, reasoningCount: timeline.filter(value => value.category === "reasoning").length, toolCallCount: timeline.filter(value => value.category === "tool-call").length, toolResultCount: timeline.filter(value => value.category === "tool-result").length, toolErrorCount: 0, tools: [] }, timeline };
+  },
+  async analytics() { throw new Error("Capability unavailable: analytics is not part of the Claude/Codex I2 milestone."); },
+};
+
+function dataSource(): ConsoleDataSource {
+  return typeof window !== "undefined" && window.__SESDB_CONSOLE__?.mode === "daemon" ? daemonDataSource : demoDataSource;
+}
+
+export function fetchDashboard(signal?: AbortSignal): Promise<DashboardData> { return dataSource().dashboard(signal); }
+export function fetchSessionDetail(id: string, signal?: AbortSignal): Promise<SessionDetail> { return dataSource().session(id, signal); }
+export function fetchGlobalAnalytics(filters: AnalyticsFilters = {}, signal?: AbortSignal): Promise<GlobalAnalytics> { return dataSource().analytics(filters, signal); }
 
 const HOUR = 60 * 60 * 1000;
 const now = Date.now();
@@ -223,6 +300,7 @@ const throughput = Array.from({ length: 24 }, (_, index) => ({ startMs: now - (2
 const storage: Storage = { fileBytes: 7_675_904, dataBytes: 7_671_808, headerBytes: 4096, recordCount, sessionCount: sessions.length };
 const integrity: Integrity = { status: "healthy", integrityPercent: 100, checkedFrames: recordCount, dataEnd: storage.dataBytes, nextSeq: 1709, sessionCount: sessions.length, truncationOffset: null, quarantineCount: 0, checkedAt: now };
 const dashboard: DashboardData = {
+  runtime: { mode: "demo", degraded: false, rebuilding: false, generation: null, builtThroughSeq: null, asOfSeq: null, enabledProviders: [] },
   overview: { sessionCount: sessions.length, eventCount: recordCount, eventsLast24h: throughput.reduce((sum, item) => sum + item.events, 0), fileBytes: storage.fileBytes, dataBytes: storage.dataBytes, integrityPercent: 100, runtimes: Object.entries(Object.groupBy(sessions, (session) => session.runtime)).map(([runtime, values]) => ({ runtime, sessions: values!.length })), throughput, generatedAt: now },
   sessions, events, storage, integrity,
 };

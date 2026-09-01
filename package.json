@@ -2,6 +2,7 @@
   "name": "universal-session-log",
   "private": true,
   "scripts": {
-    "lint:architecture": "node docs/architecture/verify.mjs"
+    "lint:architecture": "node docs/architecture/verify.mjs",
+    "lint:baseline": "node benchmarks/obelisk-baseline/verify.mjs"
   }
 }

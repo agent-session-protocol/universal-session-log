@@ -1,13 +1,13 @@
 ---
 sources:
-  - packages/usl-convert/src/bundle.ts f6c1966651ff SessionBundle validateBundle makeBundle
-  - packages/usl-convert/src/evidence.ts 9c7a318d34a7 EvidenceBuilder importSourceFor
-  - packages/usl-convert/src/pi.ts cf5bece974af importPiSession exportPiSession
-  - packages/usl-convert/src/dimagent.ts e673305be668 importDimagentSession exportDimagentSession
-  - packages/usl-convert/src/claude.ts cfa296d685d9 importClaudeSession
-  - packages/usl-convert/src/codex.ts 7a4ff75586b5 importCodexSession exportCodexSession
-  - packages/usl-convert/src/cli.ts 58905c2df914 main
-  - packages/usl-convert/src/materialize.ts fed4dae92561 buildSnapshot
+  - packages/usl-convert/src/bundle.ts e4065ba3e060 SessionBundle validateBundle makeBundle
+  - packages/usl-convert/src/evidence.ts 5a32569bbef3 EvidenceBuilder importSourceFor
+  - packages/usl-convert/src/pi.ts 0ca0719d75fd importPiSession exportPiSession
+  - packages/usl-convert/src/dimagent.ts ca2682e02dae importDimagentSession exportDimagentSession
+  - packages/usl-convert/src/claude.ts c73673c89753 importClaudeSession
+  - packages/usl-convert/src/codex.ts 2a0be20eaf1b importCodexSession exportCodexSession
+  - packages/usl-convert/src/cli.ts 8871ac368eb8 main
+  - packages/usl-convert/src/materialize.ts f2c7b312f69c buildSnapshot
 covers:
   - packages/usl-convert/
 ---

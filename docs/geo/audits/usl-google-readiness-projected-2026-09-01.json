@@ -1,0 +1,147 @@
+{
+  "target": "agent-session-protocol.github.io/universal-session-log",
+  "domain": "agent-session-protocol.github.io",
+  "engine": "google",
+  "checked_at": "2026-09-01T05:48:19.955359Z",
+  "checks": [
+    {
+      "id": "A1",
+      "category": "A",
+      "title": "Domain resolves & HTTPS valid",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Domain resolves and serves valid HTTPS.",
+      "remediation": null
+    },
+    {
+      "id": "A2",
+      "category": "A",
+      "title": "Homepage returns 200",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Homepage returns HTTP 200.",
+      "remediation": null
+    },
+    {
+      "id": "A3",
+      "category": "A",
+      "title": "robots.txt allows the engine's search bot",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Googlebot (the search bot for google) may fetch '/'.",
+      "remediation": null
+    },
+    {
+      "id": "A3b",
+      "category": "A",
+      "title": "robots.txt hygiene",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "No other search bots blocked.",
+      "remediation": null
+    },
+    {
+      "id": "A4",
+      "category": "A",
+      "title": "sitemap.xml present & referenced",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "sitemap.xml is valid XML and referenced in robots.txt.",
+      "remediation": null
+    },
+    {
+      "id": "A5",
+      "category": "A",
+      "title": "Content in raw HTML (SSR)",
+      "severity": "blocker",
+      "status": "pass",
+      "detail": "Primary content is present in the raw HTML (450 words).",
+      "remediation": null
+    },
+    {
+      "id": "B1",
+      "category": "B",
+      "title": "Structured data (JSON-LD)",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "Valid JSON-LD present: Organization, WebSite.",
+      "remediation": null
+    },
+    {
+      "id": "B2",
+      "category": "B",
+      "title": "Semantic HTML",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "Single <h1>, a <main>/<article>, and sane heading order.",
+      "remediation": null
+    },
+    {
+      "id": "B3",
+      "category": "B",
+      "title": "Meta basics",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "Title, description and canonical present; not noindex.",
+      "remediation": null
+    },
+    {
+      "id": "B4",
+      "category": "B",
+      "title": "llms.txt present",
+      "severity": "nice_to_have",
+      "status": "pass",
+      "detail": "/llms.txt is present with a top-level heading.",
+      "remediation": null
+    },
+    {
+      "id": "C1",
+      "category": "C",
+      "title": "About / Contact pages",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "About and Contact links found.",
+      "remediation": null
+    },
+    {
+      "id": "C2",
+      "category": "C",
+      "title": "Organization schema (logo + sameAs)",
+      "severity": "recommended",
+      "status": "pass",
+      "detail": "Organization schema with logo and sameAs.",
+      "remediation": null
+    },
+    {
+      "id": "D1",
+      "category": "D",
+      "title": "Visible dates",
+      "severity": "nice_to_have",
+      "status": "pass",
+      "detail": "Publication/update dates present.",
+      "remediation": null
+    },
+    {
+      "id": "D2",
+      "category": "D",
+      "title": "RSS/Atom feed",
+      "severity": "nice_to_have",
+      "status": "pass",
+      "detail": "RSS/Atom feed linked.",
+      "remediation": null
+    },
+    {
+      "id": "D3",
+      "category": "D",
+      "title": ".well-known/security.txt",
+      "severity": "nice_to_have",
+      "status": "pass",
+      "detail": "/.well-known/security.txt present.",
+      "remediation": null
+    }
+  ],
+  "blockers": [],
+  "verdict": "ready",
+  "passed": true,
+  "score": 100
+}

@@ -19,7 +19,10 @@ pub struct StoreOpts {
 
 impl Default for StoreOpts {
     fn default() -> Self {
-        StoreOpts { page_size: DEFAULT_PAGE_SIZE, flags: 0 }
+        StoreOpts {
+            page_size: DEFAULT_PAGE_SIZE,
+            flags: 0,
+        }
     }
 }
 
@@ -46,7 +49,11 @@ pub struct Store {
 impl Store {
     /// Create a brand-new store. Fails if the path already exists.
     pub fn create(path: impl AsRef<Path>, opts: StoreOpts) -> Result<Store, Error> {
-        let mut file = OpenOptions::new().read(true).write(true).create_new(true).open(path.as_ref())?;
+        let mut file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(path.as_ref())?;
         let header = Header {
             page_size: opts.page_size,
             flags: opts.flags,
@@ -118,12 +125,42 @@ impl Store {
         self.next_seq += 1;
         let is_new = self.index.push(
             rec.session_id,
-            FrameMeta { seq, offset, payload_len: payload.len() as u32 },
+            FrameMeta {
+                seq,
+                offset,
+                payload_len: payload.len() as u32,
+            },
         );
         if is_new {
             self.session_count += 1;
         }
         Ok(seq)
+    }
+
+    /// Append a validated logical batch. If encoding or writing any record
+    /// fails, the file and derived in-memory index are restored to their
+    /// pre-batch state. Durability is still controlled separately by
+    /// [`flush`], allowing callers to group commit explicitly.
+    pub fn append_batch(&mut self, records: &[Record]) -> Result<Vec<u64>, Error> {
+        let data_end = self.data_end;
+        let next_seq = self.next_seq;
+        let mut seqs = Vec::with_capacity(records.len());
+
+        for record in records {
+            match self.append(record) {
+                Ok(seq) => seqs.push(seq),
+                Err(error) => {
+                    self.file.set_len(data_end)?;
+                    self.file.seek(SeekFrom::Start(data_end))?;
+                    self.data_end = data_end;
+                    self.next_seq = next_seq;
+                    self.index.truncate_from_seq(next_seq);
+                    self.session_count = self.index.session_count();
+                    return Err(error);
+                }
+            }
+        }
+        Ok(seqs)
     }
 
     /// Durability ordering: sync data first, then rewrite the header, then
@@ -146,12 +183,28 @@ impl Store {
 
     /// All records for a session with `seq >= from_seq`, in ascending seq.
     pub fn scan(&self, session: &SessionId, from_seq: u64) -> Result<Vec<StoredRecord>, Error> {
-        let Some(metas) = self.index.frames(session) else { return Ok(Vec::new()) };
+        self.scan_limited(session, from_seq, usize::MAX)
+    }
+
+    /// At most `limit` records for one session, preserving global sequence
+    /// order without materializing the rest of the session.
+    pub fn scan_limited(
+        &self,
+        session: &SessionId,
+        from_seq: u64,
+        limit: usize,
+    ) -> Result<Vec<StoredRecord>, Error> {
+        let Some(metas) = self.index.frames(session) else {
+            return Ok(Vec::new());
+        };
         let mut reader = OpenOptions::new().read(true).open(&self.path)?;
         let mut out = Vec::new();
         for m in metas {
             if m.seq < from_seq {
                 continue;
+            }
+            if out.len() == limit {
+                break;
             }
             out.push(read_frame_at(&mut reader, *m)?);
         }
@@ -159,7 +212,9 @@ impl Store {
     }
 
     pub fn get(&self, session: &SessionId, seq: u64) -> Result<Option<StoredRecord>, Error> {
-        let Some(metas) = self.index.frames(session) else { return Ok(None) };
+        let Some(metas) = self.index.frames(session) else {
+            return Ok(None);
+        };
         let mut reader = OpenOptions::new().read(true).open(&self.path)?;
         for m in metas {
             if m.seq == seq {
@@ -195,11 +250,28 @@ impl Store {
     /// append-path optimization. Future checkpoint indexes can replace the
     /// current replay-backed implementation without changing callers.
     pub fn scan_all(&self, from_seq: u64) -> Result<Vec<StoredRecord>, Error> {
-        let mut out = Vec::new();
-        for session in self.session_ids() {
-            out.extend(self.scan(&session, from_seq)?);
+        self.scan_all_limited(from_seq, usize::MAX)
+    }
+
+    /// At most `limit` records in global sequence order. The global frame
+    /// index is derived entirely from replay and contains metadata only, so a
+    /// bounded query never materializes unrelated record bodies.
+    pub fn scan_all_limited(
+        &self,
+        from_seq: u64,
+        limit: usize,
+    ) -> Result<Vec<StoredRecord>, Error> {
+        let mut reader = OpenOptions::new().read(true).open(&self.path)?;
+        let mut out = Vec::with_capacity(limit.min(1024));
+        for (_, meta) in self.index.global_frames() {
+            if meta.seq < from_seq {
+                continue;
+            }
+            if out.len() == limit {
+                break;
+            }
+            out.push(read_frame_at(&mut reader, *meta)?);
         }
-        out.sort_by_key(|record| record.seq);
         Ok(out)
     }
 
@@ -230,7 +302,10 @@ fn read_frame_at(reader: &mut File, m: FrameMeta) -> Result<StoredRecord, Error>
         u32::from_le_bytes(crc_buf)
     };
     if crc32fast::hash(&payload) != stored_crc {
-        return Err(Error::Corrupt(format!("frame at offset {} failed CRC on read", m.offset)));
+        return Err(Error::Corrupt(format!(
+            "frame at offset {} failed CRC on read",
+            m.offset
+        )));
     }
     postcard::from_bytes(&payload).map_err(|e| Error::Schema(e.to_string()))
 }

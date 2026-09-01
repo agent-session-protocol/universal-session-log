@@ -1,6 +1,9 @@
 node_modules/
 target/
 packages/usl-convert/dist/
+packages/sesdb/dist/
+packages/sesdb/console/site/
+output/
 *.log
 .DS_Store
 .env

@@ -3,6 +3,7 @@
 
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use usl_capture::{CaptureSession, KIND_RAW_LINE, KIND_SESSION_HEADER};
@@ -10,10 +11,16 @@ use usl_core::identity::{session_id, source_sha256, SessionId};
 use usl_core::{Store, StoreOpts};
 
 struct TempDir(PathBuf);
+static NEXT_TEMP_DIR: AtomicU64 = AtomicU64::new(0);
 impl TempDir {
     fn new(tag: &str) -> Self {
-        let n = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
-        let p = std::env::temp_dir().join(format!("uslcap-{tag}-{}-{n}", std::process::id()));
+        let n = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let ordinal = NEXT_TEMP_DIR.fetch_add(1, Ordering::Relaxed);
+        let p =
+            std::env::temp_dir().join(format!("uslcap-{tag}-{}-{n}-{ordinal}", std::process::id()));
         fs::create_dir_all(&p).unwrap();
         TempDir(p)
     }
@@ -28,7 +35,11 @@ impl Drop for TempDir {
 }
 
 fn sid() -> SessionId {
-    session_id("claude", "sess-live-1", &source_sha256(b"live capture test"))
+    session_id(
+        "claude",
+        "sess-live-1",
+        &source_sha256(b"live capture test"),
+    )
 }
 
 /// Run a full capture (chunked writes → finish → reopen) and return the

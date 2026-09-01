@@ -7,6 +7,7 @@
     "build": "next build",
     "dev": "next dev",
     "start": "serve out",
+    "test:e2e": "playwright test",
     "types:check": "next typegen && tsc --noEmit"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/mdx": "^2.0.14",
     "@types/node": "^26.3.0",

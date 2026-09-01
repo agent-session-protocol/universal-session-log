@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/usl-core", "crates/usl-capture", "crates/usl-fuse"]
+members = ["crates/usl-core", "crates/usl-capture", "crates/usl-fuse", "crates/sesdb-engine"]
 resolver = "2"
 
 [profile.release]

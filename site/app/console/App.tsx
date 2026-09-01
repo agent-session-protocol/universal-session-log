@@ -57,7 +57,7 @@ const englishReplacements: Array<[string, string]> = [
   ["个错误", " errors"], ["推理记录", "Reasoning records"], ["结构化日志", "Structured log"], ["个可渲染节点", " renderable nodes"],
   ["全部", "All"], ["消息", "Messages"], ["推理", "Reasoning"], ["此筛选下没有记录", "No records for this filter"],
   ["Token 明细", "Token breakdown"], ["按 Runtime 原生 usage 聚合", "Aggregated from native runtime usage"], ["工具使用", "Tool usage"], ["调用次数与错误数", "Calls and errors"],
-  ["搜索会话、项目或哈希…", "Search sessions, projects, or hashes…"], ["数据库在线", "Demo data ready"], ["连接中", "Loading demo"], ["API 离线", "Demo unavailable"],
+  ["搜索会话、项目或哈希…", "Search sessions, projects, or hashes…"], ["数据库在线", "Database online"], ["连接中", "Connecting"], ["API 离线", "Daemon offline"],
   ["关闭导航", "Close navigation"], ["关闭菜单", "Close menu"], ["打开菜单", "Open menu"], ["主导航", "Main navigation"],
   ["暂无事件", "No events yet"], ["事件写入后会出现在这里。", "New events appear here as they are written."], ["正在读取…", "Loading…"], ["正在同步", "Syncing"],
 ];
@@ -412,7 +412,8 @@ export function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [view, setView] = useState<View>("overview");
   const [locale, setLocale] = useState<"en" | "zh">("zh");
-  const [runtime, setRuntime] = useState("all");
+  const [configuredMode, setConfiguredMode] = useState<"demo" | "daemon">("demo");
+  const [runtimeFilter, setRuntimeFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -435,6 +436,7 @@ export function App() {
     const requestedView = params.get("view") as View | null;
     if (requestedView && validViews.includes(requestedView)) setView(requestedView);
     setLocale(params.get("lang") === "en" ? "en" : "zh");
+    setConfiguredMode(window.__SESDB_CONSOLE__?.mode === "daemon" ? "daemon" : "demo");
   }, []);
 
   useEffect(() => {
@@ -452,17 +454,17 @@ export function App() {
   }, []);
 
   const filteredSessions = useMemo(() => (data?.sessions ?? []).filter((session) => {
-    const runtimeMatch = runtime === "all" || session.runtime === runtime;
+    const runtimeMatch = runtimeFilter === "all" || session.runtime === runtimeFilter;
     const needle = search.trim().toLowerCase();
     return runtimeMatch && (!needle || [session.id, session.nativeSessionId, session.project, session.title, session.runtime].some((value) => value?.toLowerCase().includes(needle)));
-  }), [data, runtime, search]);
+  }), [data, runtimeFilter, search]);
 
   const navigate = (next: View) => {
     setSelectedSession(null); setDetail(null); setView(next);
     const url = new URL(window.location.href); url.searchParams.set("view", next); window.history.replaceState({}, "", url);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const selectRuntime = (selected: string) => { setRuntime(selected); navigate("sessions"); };
+  const selectRuntime = (selected: string) => { setRuntimeFilter(selected); navigate("sessions"); };
   const selectSession = async (id: string) => {
     setSelectedSession(id); setDetail(null); setDetailError(null); setDetailLoading(true); window.scrollTo({ top: 0, behavior: "smooth" });
     try { setDetail(await fetchSessionDetail(id)); }
@@ -473,6 +475,10 @@ export function App() {
   const title = selectedSession ? "Session 详情" : views.find((item) => item.id === view)?.label ?? "概览";
 
   const switchUrl = `?lang=${locale === "en" ? "zh" : "en"}&view=${view}`;
+  const runtime = data?.runtime;
+  const activeMode = runtime?.mode ?? configuredMode;
+  const healthLabel = error ? (locale === "en" ? "Daemon offline" : "API 离线") : loading && !data ? (locale === "en" ? "Connecting" : "连接中") : runtime?.degraded ? (locale === "en" ? "Index degraded" : "索引降级") : runtime?.rebuilding ? (locale === "en" ? "Index rebuilding" : "正在重建") : runtime?.mode === "daemon" && runtime.enabledProviders.length === 0 ? (locale === "en" ? "Providers disabled" : "Provider 已禁用") : activeMode === "daemon" ? (locale === "en" ? "Database online" : "数据库在线") : (locale === "en" ? "Demo data ready" : "数据库在线");
+  const unhealthy = Boolean(error || runtime?.degraded);
 
   return <div className="app-shell">
     <EnglishLocaleBridge />
@@ -482,13 +488,14 @@ export function App() {
         <button className="menu-button" onClick={() => setSidebarOpen(true)} aria-label="打开菜单"><Menu size={20} /></button>
         <div className="breadcrumb"><span>SesDB</span><ChevronRight size={14} /><strong>{title}</strong></div>
         <label className="command-search"><Search size={16} /><input ref={searchRef} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索会话、项目或哈希…" /><kbd><Command size={12} /> K</kbd></label>
-        <div className="top-actions"><span className="demo-pill">{locale === "en" ? "INTERACTIVE DEMO" : "交互式演示"}</span><a className="locale-button" href={switchUrl}><Languages size={14} />{locale === "en" ? "中文" : "EN"}</a><a className="site-button" href="../"><ArrowUpRight size={14} /><span>{locale === "en" ? "Product site" : "产品主页"}</span></a><div className={`system-health ${error ? "is-error" : ""}`}><span /><strong>{error ? "API 离线" : loading && !data ? "连接中" : "数据库在线"}</strong></div></div>
+        <div className="top-actions"><span className="demo-pill">{activeMode === "daemon" ? (locale === "en" ? "LOCAL DAEMON" : "本地 DAEMON") : (locale === "en" ? "INTERACTIVE DEMO" : "交互式演示")}</span><a className="locale-button" href={switchUrl}><Languages size={14} />{locale === "en" ? "中文" : "EN"}</a><a className="site-button" href="../"><ArrowUpRight size={14} /><span>{locale === "en" ? "Product site" : "产品主页"}</span></a><div className={`system-health ${unhealthy ? "is-error" : ""}`}><span /><strong>{healthLabel}</strong></div></div>
       </header>
       <div className="page">
-        {error && <div className="api-error"><Activity size={17} /><div><strong>无法读取 SesDB</strong><span>{error}</span></div><button onClick={() => void load()}>重试</button></div>}
+        {runtime?.mode === "daemon" && <div className={`runtime-status ${runtime.degraded ? "is-degraded" : ""}`} data-testid="runtime-status"><strong>{runtime.rebuilding ? "REBUILDING" : runtime.degraded ? "DEGRADED" : "FRESH"}</strong><span>Generation {runtime.generation ?? "—"}</span><span>Built {runtime.builtThroughSeq ?? "—"} / As of {runtime.asOfSeq ?? "—"}</span><span>{runtime.enabledProviders.length ? runtime.enabledProviders.join(", ") : "Providers disabled"}</span></div>}
+        {error && <div className="api-error"><Activity size={17} /><div><strong>{locale === "en" ? "Unable to read SesDB" : "无法读取 SesDB"}</strong><span>{error}</span></div><button onClick={() => void load()}>{locale === "en" ? "Retry" : "重试"}</button></div>}
         {view === "overview" && <OverviewView data={data} loading={loading} onRefresh={() => void load()} onNavigate={navigate} />}
         {view === "sessions" && selectedSession && <SessionDetailView detail={detail} loading={detailLoading} error={detailError} onBack={() => { setSelectedSession(null); setDetail(null); }} />}
-        {view === "sessions" && !selectedSession && <SessionsView data={data} sessions={filteredSessions} runtime={runtime} setRuntime={setRuntime} loading={loading} onRefresh={() => void load()} onSelect={(id) => void selectSession(id)} />}
+        {view === "sessions" && !selectedSession && <SessionsView data={data} sessions={filteredSessions} runtime={runtimeFilter} setRuntime={setRuntimeFilter} loading={loading} onRefresh={() => void load()} onSelect={(id) => void selectSession(id)} />}
         {view === "analytics" && <AnalyticsView onSelectSession={selectAnalyticsSession} />}
         {view === "runtimes" && <RuntimesView data={data} loading={loading} onRefresh={() => void load()} onSelect={selectRuntime} />}
         {view === "storage" && <StorageView data={data} loading={loading} onRefresh={() => void load()} />}

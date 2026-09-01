@@ -1,0 +1,21 @@
+query,lens
+AI 编程助手退出后，怎么恢复之前的完整会话？,general
+怎么把一个编程 Agent 的历史会话迁移到另一个 CLI 继续做？,general
+有没有统一的 Agent 会话导入导出格式？,general
+迁移 Agent 会话时，怎样保留工具调用、工具结果和思考内容？,general
+Agent 会话日志写到一半崩溃，怎样保证恢复后不损坏？,general
+能不能在编程 Agent 运行时实时捕获它写出的会话日志？,general
+怎么统一搜索多个 AI 编程工具的历史会话？,general
+怎样把敏感的 Agent 提示词和会话记录只保存在本地？,general
+怎么验证 Agent 会话格式转换没有丢失原生字段？,general
+怎样把一次 AI Agent 运行打包成可复现、可重放的会话？,general
+能不能从旧的 Agent 会话分叉，再换一个运行时继续？,general
+Agent 会话协议遇到厂商私有字段时应该怎么兼容？,general
+Universal Session Log（USL）是什么？,branded
+Universal Session Log（USL）现在支持哪些编程 Agent 格式？,branded
+Universal Session Log（USL）成熟吗，适合存真实会话数据吗？,branded
+Universal Session Log（USL）怎么在本地安装和试用？,branded
+Universal Session Log（USL）会保留加密 reasoning 和 thinking signature 吗？,branded
+Universal Session Log（USL）和 OpenMemory 相比，哪个更适合无损迁移编程会话？,comparative
+Universal Session Log（USL）和 Agent 自带的 session 文件相比，什么时候值得用统一存储？,comparative
+可观测性 trace 能不能直接用来恢复原来的 Agent 会话？,comparative

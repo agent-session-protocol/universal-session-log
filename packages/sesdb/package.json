@@ -1,0 +1,21 @@
+{
+  "name": "@agent-session-protocol/sesdb",
+  "version": "0.2.0-alpha.0",
+  "description": "Local SesDB SDK and CLI backed by the USL durable log",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "bin", "console", "README.md"],
+  "bin": { "sesdb": "./dist/cli.js" },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "typecheck": "tsc -p tsconfig.json --noEmit", "test": "node --import tsx --test test/*.test.ts", "check": "npm run typecheck && npm test", "prepack": "node scripts/prepare-console.mjs && npm run check && npm run build && node scripts/verify-engine-package.mjs" },
+  "engines": { "node": ">=22.13" },
+  "dependencies": {},
+  "devDependencies": { "@types/node": "^24.0.0", "tsx": "^4.23.1", "typescript": "^5.9.0" }
+}

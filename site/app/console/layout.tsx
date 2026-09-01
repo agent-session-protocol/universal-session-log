@@ -42,6 +42,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
   return (
     <>
+      <script src="/universal-session-log/console-mode.js" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }}

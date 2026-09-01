@@ -1,0 +1,21 @@
+query,lens
+怎么在本地统一搜索多个 AI 编程助手的历史会话？,general
+AI 编程助手的会话记录一般保存在电脑哪里？,general
+有没有不上传云端的本地 AI 编程会话搜索工具？,general
+怎么浏览和检索不同项目里的编程 Agent 历史对话？,general
+怎样全文检索过去 Agent 的工具调用和命令输出？,general
+怎样永久保存会被自动清理的编程助手会话记录？,general
+如何统计本地 Agent 会话的 token 用量、成本和运行时分布？,general
+怎么把不同编程 Agent 的会话整理成同一条时间线？,general
+如何从旧的 Agent 会话里找到某次代码修改的原因？,general
+如何把 Agent 运行轨迹导出成评测或训练数据集？,general
+怎样为本地编程 Agent 会话文件建立只读搜索索引？,general
+SesDB 是什么，主要解决什么问题？,branded
+SesDB 怎么安装并通过命令行使用？,branded
+SesDB 会把编程 Agent 的会话数据保存在本地吗？,branded
+SesDB 支持索引哪些 AI 编程助手的会话格式？,branded
+SesDB 能查询会话、工具调用、用量和运行时统计吗？,branded
+coding-agent-search 和 ccrider 哪个更适合本地多 Agent 会话检索？,comparative
+agent-history 和 coding-agent-search 怎么选，语义搜索还是全文搜索？,comparative
+SesDB 和直接查询原生 JSONL、SQLite 文件相比有什么优势？,comparative
+SesDB 和 Langfuse 有什么区别，本地会话库还是生产可观测平台？,comparative

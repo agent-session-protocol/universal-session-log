@@ -1,0 +1,22 @@
+[package]
+name = "sesdb-engine"
+version = "0.2.0-alpha.0"
+edition = "2021"
+description = "SesDB durable USL engine NDJSON RPC daemon"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+usl-core = { path = "../usl-core" }
+fs2 = "0.4"
+axum = "0.8"
+base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+hex = "0.4"
+notify = "8"
+rand = "0.9"
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "sync", "time"] }
+walkdir = "2"

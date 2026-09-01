@@ -105,6 +105,9 @@ button { color: inherit; }
 .api-error strong { font-size: 10px; }
 .api-error span { font-size: 8px; }
 .api-error button { border: 1px solid #d5b2aa; border-radius: 4px; padding: 5px 9px; background: #fff9f7; color: #855148; font-size: 8px; cursor: pointer; }
+.runtime-status { min-height: 34px; margin-bottom: 12px; padding: 7px 10px; display: flex; align-items: center; gap: 14px; border: 1px solid #d5ddd8; border-radius: 5px; background: #edf3ef; color: #587066; font: 500 8px/1.4 DM Mono, monospace; }
+.runtime-status strong { font-size: 8px; letter-spacing: .06em; }
+.runtime-status.is-degraded { border-color: #dfc3bd; background: #f8eeeb; color: #89554d; }
 
 .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
 .metric-card, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 1px 1px rgba(30,38,33,.02); }
