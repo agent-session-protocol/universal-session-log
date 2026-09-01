@@ -1,5 +1,5 @@
 ---
-baseline: cd30a198a160afa854b4e83bb6f58e9fd4aaeb6a
+baseline: 65031d774a4557ab35cd9c746ee9f4feace1b853
 exclude:
   - Cargo.toml
   - CHANGELOG.md

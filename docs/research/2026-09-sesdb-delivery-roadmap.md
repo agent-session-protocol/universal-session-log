@@ -215,7 +215,8 @@ contract 还必须包含 typed tree/exact-file watch targets 和 provider health
 - [x] Site build 全绿（本地，2026-09-01）。
 - [x] 架构 verifier 与 Obelisk baseline verifier 全绿（本地，2026-09-01）。
 - [x] 隔离 tarball journey 全绿（本地 macOS arm64，2026-09-01）。
-- [ ] 四平台 GitHub CI 全绿后才发布 tag。
+- [x] 四平台 GitHub CI 全绿后才发布 tag（CI run `33517726286`；
+  `v0.2.0-alpha.0` release run `33518018563`，2026-09-01）。
 
 ### Durability
 
@@ -235,12 +236,12 @@ contract 还必须包含 typed tree/exact-file watch targets 和 provider health
 
 ### Provenance
 
-- [ ] 覆盖单文件与多文件 source set。
-- [ ] 覆盖 SQLite snapshot。
-- [ ] 覆盖源字节篡改。
-- [ ] 覆盖移动根目录且不泄漏绝对 HOME。
-- [ ] 覆盖 v1 兼容读取。
-- [ ] 覆盖 byte-identical rerun。
+- [x] 覆盖单文件与多文件 source set（`packages/usl-convert/test/provenance.test.ts`，2026-09-01）。
+- [x] 覆盖 SQLite transaction-consistent backup snapshot（同上，2026-09-01）。
+- [x] 覆盖源字节篡改（同上，2026-09-01）。
+- [x] 覆盖移动根目录且不泄漏绝对 HOME（同上，2026-09-01）。
+- [x] 覆盖 v1 兼容读取（同上，2026-09-01）。
+- [x] 覆盖 byte-identical rerun（四 adapter shared conformance，2026-09-01）。
 
 ### Console
 

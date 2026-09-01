@@ -26,8 +26,9 @@ pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex
 2. **Copy-on-write, with the evidence array as the WAL.** Importers never mutate the source
    session log; every conversion writes a new immutable bundle. Inside the bundle, `evidence`
    is the full ordered `AgentEventEnvelope` stream and `pivot` is always derivable from it —
-   that is the WAL role. `native.sourceSha256` pins the source file for provenance, and
-   re-importing the same file yields the same event ids (idempotent).
+   that is the WAL role. `provenance.sources` pins the complete logical source set by size and
+   SHA-256, and re-importing the same source set with the same adapter revision yields identical
+   canonical bundle bytes.
 
 3. **Imported archives are read-only and unauthenticated.** Every imported event is marked
    `adapter: "usl-convert"`, `authenticated: false`, `authority: "authoritative"`,
@@ -41,24 +42,32 @@ pi session JSONL          dimcode.sqlite (WAL)      claude JSONL           codex
 
 ## Format
 
-`asp-bundle` v1 is a single JSON file:
+`asp-bundle` v2 is the default write format; v1 remains readable. It is a canonical JSON file:
 
 ```jsonc
 {
   "format": "asp-bundle",
-  "version": 1,
-  "createdAt": "ISO-8601",
-  "native": { "harness": "pi" | "dimagent" | "claude" | "codex", "sessionId": "...", "sourcePath": "...", "sourceSha256": "..." },
+  "version": 2,
+  "createdAt": "source-derived ISO-8601",
+  "native": { "harness": "pi" | "dimagent" | "claude" | "codex", "sessionId": "...", "sourceSha256": "..." },
+  "provenance": {
+    "nativeFormat": "pi",
+    "sources": [{ "logicalPath": "session.jsonl", "role": "session-log", "size": 123, "sha256": "...", "captureMode": "exact-file" }],
+    "adapter": { "id": "usl-convert/pi", "version": "0.2.0-alpha.0", "revision": "asp-bundle/v2" }
+  },
   "pivot": { /* ASP AgentSessionSnapshot */ },
   "evidence": [ /* AgentEventEnvelope stream; pivot derivable from it */ ],
   "fidelity": [ { "axis": "tool-chain", "level": "preserved", "detail": "..." } ],
-  "loss": [ "human-readable loss declarations" ]
+  "loss": [ "human-readable loss declarations" ],
+  "integrity": { "algorithm": "sha256", "canonicalization": "canonical-json/v1", "digest": "..." }
 }
 ```
 
 Bundle invariants (enforced by `validateBundle`): `pivot.revision === evidence.length`,
 `pivot.seq === evidence.length - 1`, `pivot.id === evidence[0].correlation.agentSessionId`,
 every envelope passes the production `validateAgentEnvelope` exact-schema check.
+The v2 validator also rejects absolute source paths, unsorted source sets, and integrity digest
+mismatches. The source verifier resolves only portable logical paths under an explicit root.
 
 ## Fidelity matrix (current)
 
@@ -111,14 +120,22 @@ usl-convert convert dimagent pi <db> out.jsonl --session <sessionId>
 
 # introspection
 usl-convert inspect a.asp-bundle.json
+usl-convert verify a.asp-bundle.json --source-root /path/to/captured/source-set
+usl-convert conformance pi /path/to/session.jsonl
+usl-convert conformance dimagent /path/to/dimcode.sqlite --session <sessionId>
 usl-convert list-formats
 ```
 
 ## Safety notes
 
-- **Reading a live dimagent DB is WAL-safe**: the importer copies `dimcode.sqlite` + `-wal` +
-  `-shm` to a temp dir and opens the copy; the source is never opened for write and is
-  verified byte-identical after import.
+- **Reading a live dimagent DB is transaction-consistent**: Node's SQLite backup API captures
+  a retained snapshot artifact. Its digest proves the backup bytes, not byte identity with the
+  concurrently changing live database or WAL files.
+- v2 does not serialize absolute HOME paths. Move the captured source root and bundle together,
+  then pass the new root to `verify`; verification remains valid.
+- Deterministic bytes prove reproducibility for a declared source set and adapter revision. They
+  do not by themselves prove that an importer accounted for every native record; the shared
+  conformance runner separately enforces evidence/loss accounting.
 - **Writing (`--write`) is transactional** (`BEGIN IMMEDIATE`) and inserts a fresh session id;
   message ids are derived from the target session id so repeated exports never collide.
 - The exporter never fabricates control-plane facts: exported sessions have no live
@@ -130,9 +147,11 @@ usl-convert list-formats
 src/bundle.ts        asp-bundle schema + validation + fidelity types
 src/evidence.ts      deterministic envelope builder shared by importers
 src/materialize.ts   evidence -> AgentSessionSnapshot (reuses ASP materializer)
+src/registry.ts      single adapter registry for CLI dispatch/listing/conformance
+src/conformance.ts   byte determinism, source verification, native-record accounting
 src/pi.ts            pi JSONL importer + exporter
 src/dimagent.ts      dimagent sqlite importer + exporter (node:sqlite, WAL-safe)
-src/cli.ts           subcommands: import / export / convert / inspect / list-formats
+src/cli.ts           import/export/convert/verify/conformance/inspect/list-formats
 test/                fixtures (self-contained) + unit + roundtrip tests
 ```
 

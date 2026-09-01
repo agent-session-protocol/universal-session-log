@@ -1,6 +1,8 @@
 ---
 sources:
-  - packages/usl-convert/src/cli.ts 8871ac368eb8 importCodexSessionFile exportCodexSession
+  - packages/usl-convert/src/cli.ts 3d4127b793a0 main
+  - packages/usl-convert/src/registry.ts b902040ee78e ADAPTER_REGISTRY adapterFor
+  - packages/usl-convert/src/conformance.ts 4f65a7b5d384 runConformance
   - crates/usl-capture/src/follow.rs ff0d8312aa29 FileFollower poll
   - crates/usl-core/src/store.rs cda9b6f609d1 append flush
   - packages/sesdb/src/index.ts 390298f3d548 createSesdb
@@ -18,11 +20,12 @@ sources:
 
 `node src/cli.ts convert <from> <to> <input> <output>` 是转换层唯一入口（`cli.ts` 的 `main()`）。
 
-1. **读源 → 建 bundle**：按 `from` 选 importer（`importPiSessionFile` / `importClaudeSessionFile` / `importCodexSessionFile` / `importDimagentSession`）。每个 importer 把原生条目映射成 canonical event（`EvidenceBuilder.emit`），攒成 `evidence` 流。
+1. **读源 → 建 bundle**：CLI 通过 `ADAPTER_REGISTRY` 按 `from` 选择 importer。每个 importer 固化源 artifact（SQLite 使用 transaction-consistent backup），并把原生条目映射成 canonical event（`EvidenceBuilder.emit`），攒成 `evidence` 流。
 2. **evidence → 快照**：`buildSnapshot` 把事件流按 run/turn/message/tool 分组，物化成 `AgentSessionSnapshot`（pivot）。bundle 不变式由 `validateBundle` 硬检（pivot.revision === evidence.length 等）。
-3. **写 bundle → 目标**：按 `to` 选 exporter（`exportPiSession` / `exportDimagentSession` / `exportCodexSession`），把 canonical 重编码成目标 harness 原生格式，声明 loss。
+3. **签名与验证**：v2 从 evidence 派生 `createdAt`，对 canonical JSON 计算 integrity digest；`verify` 再按 portable logical path 对 capture root 中每个 artifact 校验大小与 SHA-256。
+4. **写 bundle → 目标**：按 `to` 从同一 registry 选 exporter，把 canonical 重编码成目标 harness 原生格式，声明 loss。
 
-关键性质：同一 bundle 是「WAL 角色」——pivot 永远可从 evidence 重放重建；exporter 优先用 evidence 里存的原生负载逐字还原（如 codex 的 `encrypted_content`、claude 的 `signature`）。
+关键性质：同一 bundle 是「WAL 角色」——pivot 永远可从 evidence 重放重建；同一 source set 与 adapter revision 生成 byte-identical bundle。`conformance` 另行逐条对账 native record，要求每条都有 evidence、明确 loss 或确定性失败，避免把“可复现”误写成“无遗漏”。
 
 ## live 捕获（文件边界入口）
 

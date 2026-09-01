@@ -1,6 +1,6 @@
 {
   "name": "@agent-session-protocol/usl-convert",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.0",
   "description": "Cross-harness agent session conversion (ASP reference): pi <-> dimagent <-> claude <-> codex via the asp-bundle",
   "type": "module",
   "license": "MIT",

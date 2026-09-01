@@ -6,7 +6,7 @@ import {
   type AgentSessionEventType,
   type ContentBlock,
 } from "./asp-schema/agent-session-contracts.js";
-import { makeBundle, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.js";
+import { makeBundle, makeSourceArtifact, makeSourceProvenance, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.js";
 import { EvidenceBuilder, importSourceFor, type EmitOptions } from "./evidence.js";
 import { buildSnapshot } from "./materialize.js";
 
@@ -24,7 +24,7 @@ import { buildSnapshot } from "./materialize.js";
 type Record = { [key: string]: unknown };
 const record = (value: unknown): Record => (value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record : {});
 const str = (value: unknown): string | undefined => (typeof value === "string" && value.length > 0 ? value : undefined);
-const iso = (value: unknown): string => (typeof value === "number" && Number.isFinite(value) ? new Date(value).toISOString() : typeof value === "string" && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : new Date().toISOString());
+const iso = (value: unknown): string => (typeof value === "number" && Number.isFinite(value) ? new Date(value).toISOString() : typeof value === "string" && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : new Date(0).toISOString());
 
 /** Nested-message keys that pass validateMessage's exact-key check. */
 const MESSAGE_KEYS = new Set(["role", "content", "toolCallId", "toolResultId", "toolName", "details", "isError", "timestamp", "api", "provider", "model", "usage", "stopReason", "error", "thinking", "contentTypes", "markers", "modelPresent", "usageKeys", "byteLength"]);
@@ -188,6 +188,7 @@ export function importPiSession(text: string, options: PiImportOptions = {}): Pi
   ];
   const bundle = makeBundle({
     native: { harness: "pi", sessionId, ...(options.sourcePath ? { sourcePath: options.sourcePath } : {}), sourceSha256: digest },
+    provenance: makeSourceProvenance("pi", [makeSourceArtifact({ bytes: text, logicalPath: options.sourcePath, role: "session-log" })]),
     pivot: snapshot,
     evidence: builder.events,
     fidelity,

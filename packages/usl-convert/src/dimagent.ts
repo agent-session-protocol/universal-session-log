@@ -1,14 +1,15 @@
 import { DatabaseSync } from "node:sqlite";
-import { copyFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import {
   jsonValue,
   stableId,
   type ContentBlock,
 } from "./asp-schema/agent-session-contracts.js";
-import { makeBundle, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.js";
+import { makeBundle, makeSourceArtifact, makeSourceProvenance, sha256Of, type FidelityAxis, type SessionBundle } from "./bundle.js";
 import { EvidenceBuilder, importSourceFor } from "./evidence.js";
 import { buildSnapshot } from "./materialize.js";
 
@@ -40,17 +41,17 @@ interface DimMessageRow {
   readonly updatedAt: string;
 }
 
-/** Open a WAL-safe read-only view of a live sqlite DB by copying db+wal+shm. */
-function openDbCopy(dbPath: string): { db: DatabaseSync; cleanup: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), "usl-convert-"));
-  const copy = join(dir, "db.sqlite");
-  copyFileSync(dbPath, copy);
-  for (const suffix of ["-wal", "-shm"]) {
-    const side = `${dbPath}${suffix}`;
-    if (existsSync(side)) copyFileSync(side, `${copy}${suffix}`);
-  }
-  const db = new DatabaseSync(copy);
-  return { db, cleanup: () => { try { db.close(); } catch { /* already closed */ } rmSync(dir, { recursive: true, force: true }); } };
+/** Capture a transaction-consistent SQLite backup. Its bytes, not the racing live files, are attested. */
+function openDbSnapshot(dbPath: string, retainedPath?: string): { db: DatabaseSync; bytes: Buffer; logicalPath: string; cleanup: () => void } {
+  const dir = retainedPath ? undefined : mkdtempSync(join(tmpdir(), "usl-convert-"));
+  const snapshot = retainedPath ?? join(dir!, "dimagent.snapshot.sqlite");
+  mkdirSync(dirname(snapshot), { recursive: true });
+  rmSync(snapshot, { force: true });
+  const program = "import {DatabaseSync,backup} from 'node:sqlite'; const db=new DatabaseSync(process.argv[1],{readOnly:true}); await backup(db,process.argv[2]); db.close();";
+  execFileSync(process.execPath, ["--input-type=module", "-e", program, dbPath, snapshot]);
+  const bytes = readFileSync(snapshot);
+  const db = new DatabaseSync(snapshot, { readOnly: true });
+  return { db, bytes, logicalPath: snapshot.replaceAll("\\", "/").split("/").at(-1)!, cleanup: () => { try { db.close(); } catch { /* already closed */ } if (dir) rmSync(dir, { recursive: true, force: true }); } };
 }
 
 function parseRows(db: DatabaseSync, sessionId: string): { session: Record; states: Record; messages: DimMessageRow[] } {
@@ -99,13 +100,13 @@ export interface DimagentImportResult {
   readonly bundle: SessionBundle;
 }
 
-export function importDimagentSession(dbPath: string, sessionId: string, options: { sourcePath?: string } = {}): DimagentImportResult {
-  const { db, cleanup } = openDbCopy(dbPath);
+export function importDimagentSession(dbPath: string, sessionId: string, options: { sourcePath?: string; snapshotPath?: string } = {}): DimagentImportResult {
+  const { db, bytes: snapshotBytes, logicalPath, cleanup } = openDbSnapshot(dbPath, options.snapshotPath);
   let result: DimagentImportResult;
   try {
     const { session, states, messages } = parseRows(db, sessionId);
     const loss: string[] = [];
-    const digest = sha256Of(`${sessionId}|${String(session.createdAt)}|${messages.length}`);
+    const digest = sha256Of(snapshotBytes);
     const source = importSourceFor(sessionId, digest);
     const builder = new EvidenceBuilder(source);
     const cwd = str(session.cwd);
@@ -233,6 +234,7 @@ export function importDimagentSession(dbPath: string, sessionId: string, options
     ];
     const bundle = makeBundle({
       native: { harness: "dimagent", sessionId, ...(options.sourcePath ? { sourcePath: options.sourcePath } : {}), sourceSha256: digest },
+      provenance: makeSourceProvenance("dimagent", [makeSourceArtifact({ bytes: snapshotBytes, logicalPath, role: "sqlite-snapshot", captureMode: "sqlite-backup" })], { snapshotSemantics: "SHA-256 attests a transaction-consistent SQLite backup artifact, not the byte identity of the changing live database and WAL files." }),
       pivot: snapshot,
       evidence: builder.events,
       fidelity,

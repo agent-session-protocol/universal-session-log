@@ -19,6 +19,21 @@ export const PI_FIXTURE = [
   { type: "message", id: "22222222", parentId: "11111111", timestamp: "2026-08-14T08:47:54.000Z", message: { role: "assistant", content: [{ type: "text", text: "answer two" }] } },
 ].map(entry => JSON.stringify(entry)).join("\n") + "\n";
 
+export const CLAUDE_CONFORMANCE_FIXTURE = [
+  { type: "queue-operation", operation: "enqueue", timestamp: "2026-08-14T08:47:45.000Z", sessionId: "claude-conformance", content: "hello" },
+  { type: "user", uuid: "claude-u1", parentUuid: null, sessionId: "claude-conformance", cwd: "/tmp/fixture", timestamp: "2026-08-14T08:47:46.000Z", message: { role: "user", content: "hello" } },
+  { type: "assistant", uuid: "claude-a1", parentUuid: "claude-u1", sessionId: "claude-conformance", cwd: "/tmp/fixture", timestamp: "2026-08-14T08:47:47.000Z", message: { id: "claude-msg-1", role: "assistant", content: [{ type: "thinking", thinking: "plan" }] } },
+  { type: "assistant", uuid: "claude-a2", parentUuid: "claude-a1", sessionId: "claude-conformance", cwd: "/tmp/fixture", timestamp: "2026-08-14T08:47:48.000Z", message: { id: "claude-msg-1", role: "assistant", content: [{ type: "text", text: "done" }] } },
+].map(entry => JSON.stringify(entry)).join("\n") + "\n";
+
+export const CODEX_CONFORMANCE_FIXTURE = [
+  { timestamp: "2026-08-14T08:47:45.000Z", type: "session_meta", payload: { id: "codex-conformance", cwd: "/tmp/fixture", timestamp: "2026-08-14T08:47:45.000Z" } },
+  { timestamp: "2026-08-14T08:47:46.000Z", type: "turn_context", payload: { cwd: "/tmp/fixture", model: "fixture-model" } },
+  { timestamp: "2026-08-14T08:47:47.000Z", type: "response_item", payload: { type: "message", role: "user", content: [{ type: "input_text", text: "hello" }] } },
+  { timestamp: "2026-08-14T08:47:47.100Z", type: "event_msg", payload: { type: "user_message", message: "hello" } },
+  { timestamp: "2026-08-14T08:47:48.000Z", type: "event_msg", payload: { type: "token_count", info: { input_tokens: 1 } } },
+].map(entry => JSON.stringify(entry)).join("\n") + "\n";
+
 export const DIMAGENT_FIXTURE_SESSION_ID = "sess_fixture_0001";
 
 export interface DimagentFixture {

@@ -66,7 +66,7 @@ test("dimagent -> pi -> dimagent preserves messages and tool chain (declared los
 test("bundle validation rejects inconsistent pivots", () => {
   const { bundle } = importPiSession(PI_FIXTURE);
   assert.throws(() => validateBundle({ ...bundle, format: "other" }), /unsupported bundle format/);
-  assert.throws(() => validateBundle({ ...bundle, version: 2 }), /unsupported bundle version/);
+  assert.throws(() => validateBundle({ ...bundle, version: 3 }), /unsupported bundle version/);
   assert.throws(() => validateBundle({ ...bundle, pivot: { ...bundle.pivot, revision: bundle.pivot.revision + 1 } }), /revision/);
   assert.throws(() => validateBundle({ ...bundle, evidence: [] }), /revision/);
   assert.throws(() => validateBundle({ ...bundle, native: { ...bundle.native, harness: "gemini" } }), /native identity/);
@@ -74,7 +74,7 @@ test("bundle validation rejects inconsistent pivots", () => {
 
 test("makeBundle stamps format and createdAt", () => {
   const { bundle } = importPiSession(PI_FIXTURE);
-  const rebuilt = makeBundle({ native: bundle.native, pivot: bundle.pivot, evidence: bundle.evidence, fidelity: bundle.fidelity, loss: bundle.loss });
+  const rebuilt = makeBundle({ native: bundle.native, provenance: bundle.provenance!, pivot: bundle.pivot, evidence: bundle.evidence, fidelity: bundle.fidelity, loss: bundle.loss });
   assert.equal(rebuilt.format, SESSION_BUNDLE_FORMAT);
   assert.ok(Number.isFinite(Date.parse(rebuilt.createdAt)));
 });

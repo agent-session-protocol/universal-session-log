@@ -3,12 +3,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { validateBundle, type SessionBundle } from "./bundle.js";
-import { exportPiSession, importPiSessionFile } from "./pi.js";
-import { exportDimagentSession, importDimagentSession, writeDimagentSession } from "./dimagent.js";
-import { importClaudeSessionFile } from "./claude.js";
-import { exportCodexSession, importCodexSessionFile } from "./codex.js";
+import { serializeBundle, validateBundle, verifyBundleSources, type SessionBundle } from "./bundle.js";
+import { writeDimagentSession, type DimagentExportResult } from "./dimagent.js";
 import { DatabaseSync } from "node:sqlite";
+import { ADAPTER_REGISTRY, adapterFor } from "./registry.js";
+import { runConformance } from "./conformance.js";
 
 const usage = `usl-convert — cross-harness agent session handoff (pi <-> dimagent <-> claude)
 
@@ -22,6 +21,8 @@ Usage:
   usl-convert export codex <bundle.json> [--out rollout.jsonl]
   usl-convert convert <from> <to> <input> <output>
   usl-convert inspect <bundle.json>
+  usl-convert verify <bundle.json> [--source-root <dir>]
+  usl-convert conformance <format> <source> [--session <id>] [--snapshot <path>]
   usl-convert dimagent-list <dimcode.sqlite>
   usl-convert list-formats`;
 
@@ -49,6 +50,11 @@ function writeJson(path: string, value: unknown): void {
   writeFileSync(path, JSON.stringify(value, null, 2) + "\n");
 }
 
+function writeBundle(path: string, bundle: SessionBundle): void {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, serializeBundle(bundle));
+}
+
 function main(): void {
   const args = process.argv.slice(2);
   const [command, subcommand, ...rest] = args;
@@ -56,14 +62,32 @@ function main(): void {
 
   if (command === "list-formats") {
     console.log(JSON.stringify({
-      intermediate: { format: "asp-bundle", version: 1, storage: "copy-on-write; evidence array acts as WAL" },
-      harnesses: [
-        { name: "pi", import: "session JSONL (~/.pi/agent/sessions/<dir>/<ts>_<uuid>.jsonl)", export: "same format, resumable session file" },
-        { name: "dimagent", import: "dimcode.sqlite messages/sessions tables (WAL-safe copy)", export: "sessions+messages rows (JSON payload or direct --write)" },
-        { name: "claude", import: "session JSONL (~/.claude/projects/<dir>/<uuid>.jsonl); block-append journal merged per message.id", export: "via pi export (cross-handoff)" },
-        { name: "codex", import: "rollout JSONL (~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl); dual-stream dedup, encrypted reasoning passthrough", export: "rollout JSONL (round-trip; session_meta/turn_context verbatim from evidence)" },
-      ],
+      intermediate: { format: "asp-bundle", version: 2, storage: "canonical JSON; byte-verifiable source set; evidence array acts as WAL" },
+      harnesses: ADAPTER_REGISTRY.map(adapter => ({ name: adapter.name, nativeFormat: adapter.nativeFormat, import: adapter.importDescription, export: adapter.exportDescription })),
     }, null, 2));
+    return;
+  }
+
+  if (command === "verify") {
+    const path = subcommand ?? fail("verify requires a bundle path");
+    const bundle = readBundle(path);
+    const rootIndex = rest.indexOf("--source-root");
+    const sourceRoot = rootIndex >= 0 ? argValue(rest, rootIndex, "--source-root") : dirname(path);
+    const sources = verifyBundleSources(bundle, sourceRoot);
+    console.log(JSON.stringify({ ok: true, version: bundle.version, integrity: bundle.integrity, sourceRoot, ...sources }, null, 2));
+    return;
+  }
+
+  if (command === "conformance") {
+    const format = subcommand ?? fail("conformance requires a source format");
+    const input = rest[0] ?? fail("conformance requires a source path");
+    const sessionIndex = rest.indexOf("--session");
+    const snapshotIndex = rest.indexOf("--snapshot");
+    const result = runConformance(format, input, {
+      ...(sessionIndex >= 0 ? { sessionId: argValue(rest, sessionIndex, "--session") } : {}),
+      ...(snapshotIndex >= 0 ? { snapshotPath: argValue(rest, snapshotIndex, "--snapshot") } : {}),
+    });
+    console.log(JSON.stringify({ ok: true, ...result }, null, 2));
     return;
   }
 
@@ -93,114 +117,59 @@ function main(): void {
   }
 
   if (command === "import") {
-    if (subcommand === "pi") {
-      const input = rest[0] ?? fail("import pi requires a session file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
-      const { bundle } = importPiSessionFile(input);
-      writeJson(out, bundle);
-      console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
-      return;
-    }
-    if (subcommand === "dimagent") {
-      const input = rest[0] ?? fail("import dimagent requires a database path");
-      const sessionIdx = rest.indexOf("--session");
-      const sessionId = sessionIdx >= 0 ? argValue(rest, sessionIdx, "--session") : fail("import dimagent requires --session <sessionId> (use dimagent-list to find one)");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `dimagent-${sessionId}.asp-bundle.json`;
-      const { bundle } = importDimagentSession(input, sessionId, { sourcePath: input });
-      writeJson(out, bundle);
-      console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
-      return;
-    }
-    if (subcommand === "claude") {
-      const input = rest[0] ?? fail("import claude requires a session file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
-      const { bundle } = importClaudeSessionFile(input);
-      writeJson(out, bundle);
-      console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
-      return;
-    }
-    if (subcommand === "codex") {
-      const input = rest[0] ?? fail("import codex requires a rollout file");
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.asp-bundle.json`;
-      const { bundle } = importCodexSessionFile(input);
-      writeJson(out, bundle);
-      console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
-      return;
-    }
-    fail(`unsupported import source: ${String(subcommand)}`);
+    const format = subcommand ?? fail("import requires a source format");
+    let adapter;
+    try { adapter = adapterFor(format); } catch (error) { fail(error instanceof Error ? error.message : String(error)); }
+    const input = rest[0] ?? fail(`import ${format} requires a source file`);
+    const sessionIdx = rest.indexOf("--session");
+    const sessionId = sessionIdx >= 0 ? argValue(rest, sessionIdx, "--session") : undefined;
+    if (format === "dimagent" && !sessionId) fail("import dimagent requires --session <sessionId> (use dimagent-list to find one)");
+    const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : format === "dimagent" ? `dimagent-${sessionId}.asp-bundle.json` : `${input}.asp-bundle.json`;
+    const bundle = adapter.importFile(input, { ...(sessionId ? { sessionId } : {}), ...(format === "dimagent" ? { snapshotPath: `${out}.dimagent.snapshot.sqlite` } : {}) });
+    writeBundle(out, bundle);
+    console.log(JSON.stringify({ ok: true, bundle: out, sessionId: bundle.native.sessionId, messages: bundle.pivot.messages.length, tools: bundle.pivot.tools.length, loss: bundle.loss }, null, 2));
+    return;
   }
 
   if (command === "export") {
-    if (subcommand === "pi") {
-      const input = rest[0] ?? fail("export pi requires a bundle path");
-      const bundle = readBundle(input);
-      const { jsonl, suggestedPath, loss } = exportPiSession(bundle);
-      if (rest.includes("--install-pi")) {
-        const dir = join(homedir(), ".pi", "agent", "sessions", dirname(suggestedPath ?? "."));
-        mkdirSync(dir, { recursive: true });
-        const path = join(dir, (suggestedPath ?? "session.jsonl").split("/").at(-1)!);
-        writeFileSync(path, jsonl);
-        console.log(JSON.stringify({ ok: true, installed: path, loss }, null, 2));
-        return;
-      }
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.pi.jsonl`;
-      mkdirSync(dirname(out), { recursive: true });
-      writeFileSync(out, jsonl);
-      console.log(JSON.stringify({ ok: true, out, suggestedPath, loss }, null, 2));
+    const format = subcommand ?? fail("export requires a target format");
+    let adapter;
+    try { adapter = adapterFor(format); } catch (error) { fail(error instanceof Error ? error.message : String(error)); }
+    const input = rest[0] ?? fail(`export ${format} requires a bundle path`);
+    const bundle = readBundle(input);
+    let artifact;
+    try { artifact = adapter.exportBundle(bundle); } catch (error) { fail(error instanceof Error ? error.message : String(error)); }
+    if (format === "pi" && rest.includes("--install-pi")) {
+      const dir = join(homedir(), ".pi", "agent", "sessions", dirname(artifact.suggestedPath ?? "."));
+      mkdirSync(dir, { recursive: true });
+      const path = join(dir, (artifact.suggestedPath ?? "session.jsonl").split("/").at(-1)!);
+      writeFileSync(path, String(artifact.value));
+      console.log(JSON.stringify({ ok: true, installed: path, loss: artifact.loss }, null, 2));
       return;
     }
-    if (subcommand === "dimagent") {
-      const input = rest[0] ?? fail("export dimagent requires a bundle path");
-      const bundle = readBundle(input);
-      const rows = exportDimagentSession(bundle);
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.dimagent.json`;
-      writeJson(out, { session: rows.session, messages: rows.messages, loss: rows.loss });
-      let written: string | undefined;
-      if (rest.includes("--write")) {
-        const db = rest.includes("--db") ? argValue(rest, rest.indexOf("--db"), "--db") : join(homedir(), ".dimcode", "v2", "dimcode.sqlite");
-        writeDimagentSession(db, rows);
-        written = db;
-      }
-      console.log(JSON.stringify({ ok: true, out, sessionId: rows.session.sessionId, messageRows: rows.messages.length, loss: rows.loss, ...(written ? { written } : {}) }, null, 2));
-      return;
+    const suffix = format === "pi" || format === "codex" ? `${format}.jsonl` : `${format}.json`;
+    const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.${suffix}`;
+    if (artifact.kind === "text") { mkdirSync(dirname(out), { recursive: true }); writeFileSync(out, String(artifact.value)); }
+    else writeJson(out, artifact.value);
+    let written: string | undefined;
+    if (format === "dimagent" && rest.includes("--write")) {
+      const db = rest.includes("--db") ? argValue(rest, rest.indexOf("--db"), "--db") : join(homedir(), ".dimcode", "v2", "dimcode.sqlite");
+      writeDimagentSession(db, artifact.value as DimagentExportResult);
+      written = db;
     }
-    if (subcommand === "codex") {
-      const input = rest[0] ?? fail("export codex requires a bundle path");
-      const bundle = readBundle(input);
-      const { jsonl, loss } = exportCodexSession(bundle);
-      const out = rest.includes("--out") ? argValue(rest, rest.indexOf("--out"), "--out") : `${input}.codex.jsonl`;
-      mkdirSync(dirname(out), { recursive: true });
-      writeFileSync(out, jsonl);
-      console.log(JSON.stringify({ ok: true, out, sessionId: bundle.pivot.nativeSessionId, loss }, null, 2));
-      return;
-    }
-    fail(`unsupported export target: ${String(subcommand)}`);
+    console.log(JSON.stringify({ ok: true, out, sessionId: bundle.pivot.nativeSessionId, loss: artifact.loss, ...(artifact.suggestedPath ? { suggestedPath: artifact.suggestedPath } : {}), ...(written ? { written } : {}) }, null, 2));
+    return;
   }
 
   if (command === "convert") {
     const [from, to, input, output, ...extra] = [subcommand, ...rest];
     if (!from || !to || !input || !output) fail("convert requires <from> <to> <input> <output>");
-    let bundle: SessionBundle;
-    if (from === "pi") bundle = importPiSessionFile(input).bundle;
-    else if (from === "claude") bundle = importClaudeSessionFile(input).bundle;
-    else if (from === "codex") bundle = importCodexSessionFile(input).bundle;
-    else if (from === "dimagent") {
-      const sessionIdx = extra.indexOf("--session");
-      const sessionId = sessionIdx >= 0 ? argValue(extra, sessionIdx, "--session") : fail("convert from dimagent requires --session <sessionId>");
-      bundle = importDimagentSession(input, sessionId, { sourcePath: input }).bundle;
-    } else fail(`unsupported source harness: ${from}`);
-    if (to === "pi") {
-      const { jsonl } = exportPiSession(bundle);
-      mkdirSync(dirname(output), { recursive: true });
-      writeFileSync(output, jsonl);
-    } else if (to === "dimagent") {
-      const rows = exportDimagentSession(bundle);
-      writeJson(output, { session: rows.session, messages: rows.messages, loss: rows.loss });
-    } else if (to === "codex") {
-      const { jsonl } = exportCodexSession(bundle);
-      mkdirSync(dirname(output), { recursive: true });
-      writeFileSync(output, jsonl);
-    } else fail(`unsupported target harness: ${to}`);
+    const sessionIdx = extra.indexOf("--session");
+    const bundle = adapterFor(from).importFile(input, { ...(sessionIdx >= 0 ? { sessionId: argValue(extra, sessionIdx, "--session") } : {}) });
+    let artifact;
+    try { artifact = adapterFor(to).exportBundle(bundle); } catch (error) { fail(error instanceof Error ? error.message : String(error)); }
+    if (artifact.kind === "text") { mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, String(artifact.value)); }
+    else writeJson(output, artifact.value);
     console.log(JSON.stringify({ ok: true, output, fidelity: bundle.fidelity, loss: bundle.loss }, null, 2));
     return;
   }

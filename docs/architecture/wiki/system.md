@@ -2,7 +2,7 @@
 sources:
   - crates/usl-core/src/lib.rs 2f9d518caa24 SessionId Store Record
   - crates/usl-capture/src/lib.rs c353c76cdf5a CaptureSession Framer FileFollower
-  - packages/usl-convert/src/bundle.ts e4065ba3e060 SessionBundle makeBundle
+  - packages/usl-convert/src/bundle.ts a7fe35aa4a9e SessionBundle makeBundle
   - crates/sesdb-engine/src/main.rs 514e426b6059 main dispatch
   - crates/sesdb-engine/src/daemon.rs 7bfb7bbb6ecf Writer run
   - packages/sesdb/src/index.ts 390298f3d548 createSesdb
@@ -30,7 +30,7 @@ USL 回答一个问题：**如何把任意 agent runtime（pi / Claude Code / Co
 
 1. **正确性只来自 append log**：存储层每条记录带长度前缀 + CRC，恢复时扫帧、遇到撕裂帧就截断。header 只是冗余提示，可从数据区自愈——这跟「不依赖任何 WAL/checkpoint 也能恢复」是同一个命题（见 usl-core）。
 2. **不透明负载一等化**：claude 的 thinking `signature`、codex 的 `encrypted_content` 这类「不可解析但必须原样往返」的字节，用 typed `unknown` block 保真，不在转换时 normalize 掉。
-3. **转换保真靠 evidence 层**：每个 bundle 存完整事件流（evidence）+ 派生快照（pivot）。roundtrip 时 exporter 优先用 evidence 逐字还原原生负载，缺失才合成并声明 loss。
+3. **转换保真靠 evidence 与 byte-verifiable provenance**：每个 v2 bundle 存完整事件流、派生快照、排序后的 source artifact 集合与 canonical JSON digest。roundtrip 时 exporter 优先用 evidence 逐字还原原生负载；共享 conformance runner 单独检查 native record 是否逐条映射或声明 loss。
 4. **查询不取代事实真源**：SESDB 的查询快照、索引和投影都可从 append log 重建；SDK 与 engine 通过能力协商显式限定 foundation 子集。
 5. **Hosted Site 不连本地库**：Console 是静态导出中的浏览器 demo，其 adapter 只读内建样例，与 SDK/engine 不存在运行时连线。
 
