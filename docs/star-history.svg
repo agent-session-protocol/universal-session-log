@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title description">
   <title id="title">Star history for agent-session-protocol/universal-session-log</title>
-  <desc id="description">23 GitHub stars from Aug 29, 2026 through Sep 1, 2026</desc>
+  <desc id="description">31 GitHub stars from Aug 30, 2026 through Sep 2, 2026</desc>
   <style>
     .background { fill: #ffffff; }
     .title { fill: #1f2328; font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -23,7 +23,7 @@
   </style>
   <rect class="background" width="900" height="520" rx="8"/>
   <text class="title" x="76" y="46">Star History</text>
-  <text class="total" x="76" y="70">agent-session-protocol/universal-session-log · 23 stars</text>
+  <text class="total" x="76" y="70">agent-session-protocol/universal-session-log · 31 stars</text>
   <g>
     <line class="grid" x1="76" y1="444" x2="864" y2="444"/><text class="axis" x="62" y="449" text-anchor="end">0</text>
     <line class="grid" x1="76" y1="373.6" x2="864" y2="373.6"/><text class="axis" x="62" y="378.6" text-anchor="end">10</text>
@@ -31,13 +31,13 @@
     <line class="grid" x1="76" y1="232.8" x2="864" y2="232.8"/><text class="axis" x="62" y="237.8" text-anchor="end">30</text>
     <line class="grid" x1="76" y1="162.39999999999998" x2="864" y2="162.39999999999998"/><text class="axis" x="62" y="167.39999999999998" text-anchor="end">40</text>
     <line class="grid" x1="76" y1="92" x2="864" y2="92"/><text class="axis" x="62" y="97" text-anchor="end">50</text>
-    <text class="axis" x="76" y="478" text-anchor="start">Aug 29, 17:21</text>
-    <text class="axis" x="273" y="478" text-anchor="middle">Aug 30, 11:08</text>
-    <text class="axis" x="470" y="478" text-anchor="middle">Aug 31, 04:56</text>
-    <text class="axis" x="667" y="478" text-anchor="middle">Aug 31, 22:43</text>
-    <text class="axis" x="864" y="478" text-anchor="end">Sep 1, 16:30</text>
-    <path class="area" d="M76.0,444.0 L105.2,437.0 L240.9,429.9 L444.0,422.9 L444.5,415.8 L445.0,408.8 L446.1,401.8 L446.2,394.7 L447.2,387.7 L447.8,380.6 L451.9,373.6 L474.1,366.6 L740.8,359.5 L740.8,352.5 L741.8,345.4 L812.6,338.4 L824.1,331.4 L825.4,324.3 L832.2,317.3 L832.2,310.2 L832.4,303.2 L832.6,296.2 L833.4,289.1 L834.8,282.1 L864.0,282.1 L864.0,444 L76.0,444 Z"/>
-    <path class="line" d="M76.0,444.0 L105.2,437.0 L240.9,429.9 L444.0,422.9 L444.5,415.8 L445.0,408.8 L446.1,401.8 L446.2,394.7 L447.2,387.7 L447.8,380.6 L451.9,373.6 L474.1,366.6 L740.8,359.5 L740.8,352.5 L741.8,345.4 L812.6,338.4 L824.1,331.4 L825.4,324.3 L832.2,317.3 L832.2,310.2 L832.4,303.2 L832.6,296.2 L833.4,289.1 L834.8,282.1 L864.0,282.1"/>
-    <circle class="point" cx="834.8148148148148" cy="282.08" r="5"/>
+    <text class="axis" x="76" y="478" text-anchor="start">Aug 30, 2026</text>
+    <text class="axis" x="273" y="478" text-anchor="middle">Aug 30, 2026</text>
+    <text class="axis" x="470" y="478" text-anchor="middle">Aug 31, 2026</text>
+    <text class="axis" x="667" y="478" text-anchor="middle">Sep 1, 2026</text>
+    <text class="axis" x="864" y="478" text-anchor="end">Sep 2, 2026</text>
+    <path class="area" d="M76.0,444.0 L105.2,437.0 L302.2,429.9 L302.7,422.9 L303.2,415.8 L304.2,408.8 L304.4,401.8 L305.3,394.7 L305.9,387.7 L309.9,380.6 L331.5,373.6 L590.1,366.6 L590.2,359.5 L591.1,352.5 L659.8,345.4 L671.0,338.4 L672.2,331.4 L678.8,324.3 L678.8,317.3 L679.0,310.2 L679.2,303.2 L679.9,296.2 L681.3,289.1 L683.0,282.1 L686.7,275.0 L689.5,268.0 L706.4,261.0 L713.1,253.9 L791.0,246.9 L802.8,239.8 L834.3,232.8 L834.8,225.8 L864.0,225.8 L864.0,444 L76.0,444 Z"/>
+    <path class="line" d="M76.0,444.0 L105.2,437.0 L302.2,429.9 L302.7,422.9 L303.2,415.8 L304.2,408.8 L304.4,401.8 L305.3,394.7 L305.9,387.7 L309.9,380.6 L331.5,373.6 L590.1,366.6 L590.2,359.5 L591.1,352.5 L659.8,345.4 L671.0,338.4 L672.2,331.4 L678.8,324.3 L678.8,317.3 L679.0,310.2 L679.2,303.2 L679.9,296.2 L681.3,289.1 L683.0,282.1 L686.7,275.0 L689.5,268.0 L706.4,261.0 L713.1,253.9 L791.0,246.9 L802.8,239.8 L834.3,232.8 L834.8,225.8 L864.0,225.8"/>
+    <circle class="point" cx="834.8148148148148" cy="225.76" r="5"/>
   </g>
 </svg>
