@@ -46,3 +46,11 @@ npm run lint:architecture
 ## 状态
 
 **验证阶段**：存储引擎 32 测试、捕获层 21 测试、转换层 25 测试全绿；真实数据冒烟——codex 会话（303 消息 / 91 工具 / 99 个加密 reasoning blob）经 pi 往返零丢失。
+
+## 中文讨论群
+
+扫码加入 Agent Session Protocol / USL 中文讨论群：
+
+<p align="center">
+  <img src="docs/assets/wechat-group-qr.png" alt="Agent Session Protocol / USL 中文讨论群二维码" width="420">
+</p>
