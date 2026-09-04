@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title description">
   <title id="title">Star history for agent-session-protocol/universal-session-log</title>
-  <desc id="description">44 GitHub stars from Aug 30, 2026 through Sep 2, 2026</desc>
+  <desc id="description">46 GitHub stars from Aug 30, 2026 through Sep 3, 2026</desc>
   <style>
     .background { fill: #ffffff; }
     .title { fill: #1f2328; font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -23,7 +23,7 @@
   </style>
   <rect class="background" width="900" height="520" rx="8"/>
   <text class="title" x="76" y="46">Star History</text>
-  <text class="total" x="76" y="70">agent-session-protocol/universal-session-log · 44 stars</text>
+  <text class="total" x="76" y="70">agent-session-protocol/universal-session-log · 46 stars</text>
   <g>
     <line class="grid" x1="76" y1="444" x2="864" y2="444"/><text class="axis" x="62" y="449" text-anchor="end">0</text>
     <line class="grid" x1="76" y1="373.6" x2="864" y2="373.6"/><text class="axis" x="62" y="378.6" text-anchor="end">10</text>
@@ -33,11 +33,11 @@
     <line class="grid" x1="76" y1="92" x2="864" y2="92"/><text class="axis" x="62" y="97" text-anchor="end">50</text>
     <text class="axis" x="76" y="478" text-anchor="start">Aug 30, 2026</text>
     <text class="axis" x="273" y="478" text-anchor="middle">Aug 31, 2026</text>
-    <text class="axis" x="470" y="478" text-anchor="middle">Aug 31, 2026</text>
-    <text class="axis" x="667" y="478" text-anchor="middle">Sep 1, 2026</text>
-    <text class="axis" x="864" y="478" text-anchor="end">Sep 2, 2026</text>
-    <path class="area" d="M76.0,444.0 L105.2,437.0 L277.4,429.9 L277.8,422.9 L278.3,415.8 L279.2,408.8 L279.3,401.8 L280.2,394.7 L280.6,387.7 L284.2,380.6 L303.0,373.6 L529.2,366.6 L529.2,359.5 L530.0,352.5 L590.1,345.4 L599.8,338.4 L600.9,331.4 L606.6,324.3 L606.7,317.3 L606.9,310.2 L607.0,303.2 L607.6,296.2 L610.4,289.1 L613.5,282.1 L616.0,275.0 L630.8,268.0 L636.6,261.0 L704.7,253.9 L715.1,246.9 L742.6,239.8 L743.1,232.8 L748.7,225.8 L749.1,218.7 L751.4,211.7 L752.5,204.6 L755.0,197.6 L763.0,190.6 L774.9,183.5 L790.4,176.5 L792.1,169.4 L793.8,162.4 L796.6,155.4 L797.1,148.3 L798.7,141.3 L834.8,134.2 L864.0,134.2 L864.0,444 L76.0,444 Z"/>
-    <path class="line" d="M76.0,444.0 L105.2,437.0 L277.4,429.9 L277.8,422.9 L278.3,415.8 L279.2,408.8 L279.3,401.8 L280.2,394.7 L280.6,387.7 L284.2,380.6 L303.0,373.6 L529.2,366.6 L529.2,359.5 L530.0,352.5 L590.1,345.4 L599.8,338.4 L600.9,331.4 L606.6,324.3 L606.7,317.3 L606.9,310.2 L607.0,303.2 L607.6,296.2 L610.4,289.1 L613.5,282.1 L616.0,275.0 L630.8,268.0 L636.6,261.0 L704.7,253.9 L715.1,246.9 L742.6,239.8 L743.1,232.8 L748.7,225.8 L749.1,218.7 L751.4,211.7 L752.5,204.6 L755.0,197.6 L763.0,190.6 L774.9,183.5 L790.4,176.5 L792.1,169.4 L793.8,162.4 L796.6,155.4 L797.1,148.3 L798.7,141.3 L834.8,134.2 L864.0,134.2"/>
-    <circle class="point" cx="834.8148148148148" cy="134.24" r="5"/>
+    <text class="axis" x="470" y="478" text-anchor="middle">Sep 1, 2026</text>
+    <text class="axis" x="667" y="478" text-anchor="middle">Sep 2, 2026</text>
+    <text class="axis" x="864" y="478" text-anchor="end">Sep 3, 2026</text>
+    <path class="area" d="M76.0,444.0 L105.2,437.0 L231.8,429.9 L232.1,422.9 L232.4,415.8 L233.1,408.8 L233.2,401.8 L233.8,394.7 L234.1,387.7 L236.7,380.6 L250.6,373.6 L416.8,366.6 L416.8,359.5 L417.5,352.5 L461.6,345.4 L468.8,338.4 L469.5,331.4 L473.8,324.3 L473.8,317.3 L474.0,310.2 L474.0,303.2 L474.5,296.2 L476.5,289.1 L478.9,282.1 L480.7,275.0 L491.6,268.0 L495.8,261.0 L545.9,253.9 L553.5,246.9 L573.7,239.8 L574.1,232.8 L578.2,225.8 L578.5,218.7 L580.2,211.7 L581.0,204.6 L582.9,197.6 L588.7,190.6 L597.5,183.5 L608.9,176.5 L610.1,169.4 L611.3,162.4 L613.5,155.4 L613.8,148.3 L615.0,141.3 L641.5,134.2 L775.0,127.2 L834.8,120.2 L864.0,120.2 L864.0,444 L76.0,444 Z"/>
+    <path class="line" d="M76.0,444.0 L105.2,437.0 L231.8,429.9 L232.1,422.9 L232.4,415.8 L233.1,408.8 L233.2,401.8 L233.8,394.7 L234.1,387.7 L236.7,380.6 L250.6,373.6 L416.8,366.6 L416.8,359.5 L417.5,352.5 L461.6,345.4 L468.8,338.4 L469.5,331.4 L473.8,324.3 L473.8,317.3 L474.0,310.2 L474.0,303.2 L474.5,296.2 L476.5,289.1 L478.9,282.1 L480.7,275.0 L491.6,268.0 L495.8,261.0 L545.9,253.9 L553.5,246.9 L573.7,239.8 L574.1,232.8 L578.2,225.8 L578.5,218.7 L580.2,211.7 L581.0,204.6 L582.9,197.6 L588.7,190.6 L597.5,183.5 L608.9,176.5 L610.1,169.4 L611.3,162.4 L613.5,155.4 L613.8,148.3 L615.0,141.3 L641.5,134.2 L775.0,127.2 L834.8,120.2 L864.0,120.2"/>
+    <circle class="point" cx="834.8148148148148" cy="120.15999999999997" r="5"/>
   </g>
 </svg>
